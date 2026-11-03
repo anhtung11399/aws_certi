@@ -22,6 +22,28 @@
 <li><b>Cùng account</b>: Allow ở identity policy <b>hoặc</b> resource policy là đủ (trừ KMS key policy và role trust policy phải cho phép rõ). <b>Khác account</b>: cần Allow ở <b>cả hai</b>.</li>
 </ul>
 
+<arch w="800" h="340" caption="Logic đánh giá đầy đủ cho một request trong Organization: đi từ trên xuống, gặp Deny tường minh ở bất kỳ lớp nào là DENY; lớp nào áp dụng mà không cho phép cũng là DENY">
+node req 80 40 user "Request" "principal, action, resource"
+node d 80 140 iam "1 Explicit Deny?" "mọi loại policy"
+node scp 250 140 organizations "2 SCP" "principal account"
+node rcp 420 140 organizations "3 RCP" "resource account"
+node rp 590 140 s3 "4 Resource policy"
+node ip 250 270 iam "5 Identity policy"
+node pb 420 270 iam "6 Permission boundary"
+node sp 590 270 sts "7 Session policy"
+node ok 740 270 iam "ALLOW"
+edge req d ""
+edge d scp "không" c=ok
+edge scp rcp "cho phép" c=ok
+edge rcp rp "cho phép" c=ok
+path 590 184 590 210 250 210 250 244 "" c=ok
+edge ip pb "cho phép" c=ok
+edge pb sp "cho phép" c=ok
+edge sp ok "" c=ok
+text 80 230 "có → DENY" small anchor=middle c=bad
+text 660 110 "cùng account: Allow ở đây có thể đủ" small anchor=middle
+</arch>
+
 <h2>Đọc policy</h2>
 <pre lang="json" file="Chỉ cho bật / tắt EC2 mang tag Team giống tag của người gọi (ABAC)">
 {
@@ -48,6 +70,28 @@
 <tr><td><code>aws:SecureTransport</code></td><td>Ép HTTPS</td></tr>
 </table>
 
+<h3>Trust policy và các điều kiện quan trọng</h3>
+<pre lang="json" file="Trust policy: chỉ role của pipeline trong Organization, kèm external ID">
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "AWS": "arn:aws:iam::111122223333:role/deploy-pipeline" },
+    "Action": ["sts:AssumeRole", "sts:TagSession"],
+    "Condition": {
+      "StringEquals": { "sts:ExternalId": "a1b2c3", "aws:PrincipalOrgID": "o-abc123" }
+    }
+  }]
+}
+</pre>
+<ul>
+<li>Trust policy là <b>resource-based policy của role</b>: ai được assume. Permission policy: role được làm gì.</li>
+<li>Principal là cả account (<code>:root</code>) thì mọi principal trong account đó có quyền <code>sts:AssumeRole</code> đều assume được.</li>
+<li><b>Session policy</b>: truyền <code>Policy</code> / <code>PolicyArns</code> khi AssumeRole; quyền phiên = giao của permission policy và session policy. Dùng để một role chung cấp quyền hẹp hơn cho từng phiên (ví dụ chỉ prefix S3 của một khách hàng).</li>
+<li><b>Session tags</b> và <b>transitive tags</b> mang thuộc tính qua các lần assume liên tiếp; <b>source identity</b> giữ dấu vết người thật.</li>
+<li><b>IAM paths</b>: role / user tổ chức theo đường dẫn (<code>/app/payments/</code>), policy cho phép <code>iam:PassRole</code> chỉ với <code>arn:aws:iam::*:role/app/payments/*</code>.</li>
+</ul>
+
 <h2>RBAC và ABAC</h2>
 <ul>
 <li><b>RBAC</b>: mỗi chức danh một role, policy liệt kê tài nguyên. Thêm dự án mới phải sửa policy.</li>
@@ -55,6 +99,22 @@
 <li><b>IAM paths</b>: nhóm role / user theo đường dẫn (<code>/team-a/</code>), policy cấp quyền theo path.</li>
 <li><b>Amazon Verified Permissions</b>: phân quyền <b>bên trong ứng dụng của bạn</b> (ai được xem tài liệu nào) bằng ngôn ngữ policy <b>Cedar</b>, thay cho code if/else tự viết.</li>
 </ul>
+
+<arch w="800" h="325" caption="Data perimeter: chỉ danh tính tin cậy, truy cập tài nguyên tin cậy, từ mạng tin cậy. SCP giới hạn principal, RCP giới hạn tài nguyên, endpoint policy giới hạn đường mạng">
+node u 70 140 user "Principal trong tổ chức"
+group 160 30 290 280 vpc "Mạng tin cậy (VPC)"
+node ec2 230 140 ec2 "Workload"
+node vpce 370 140 endpoint "VPC endpoint" "policy: aws:ResourceOrgID"
+group 480 30 310 280 account "Tài nguyên tin cậy"
+node s3 560 140 s3 "Bucket" "RCP: aws:PrincipalOrgID"
+node kms 700 140 kms "KMS key"
+node bad 680 250 hacker "Principal ngoài" "bị RCP chặn"
+edge u ec2 ""
+edge ec2 vpce "" c=ok
+edge vpce s3 "" c=ok
+path 654 250 560 250 560 200 "" c=bad
+text 300 245 "SCP: chặn gọi tài nguyên ngoài tổ chức" small anchor=middle
+</arch>
 
 <h2>Tìm và sửa quyền sai</h2>
 <ul>

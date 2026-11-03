@@ -1,0 +1,96 @@
+<h2>Triển khai nhất quán bằng IaC</h2>
+<arch w="800" h="300" caption="Pipeline IaC an toàn: kiểm tra template trước (cfn-lint, Guard, Access Analyzer), CloudFormation Hook chặn lúc deploy, StackSets triển khai cho mọi account; Config phát hiện drift sau đó">
+node git 70 140 codepipeline "Git / pipeline" "pull request"
+node chk 220 140 cfn "cfn-lint + Guard" "+ Access Analyzer checks"
+node appr 370 140 admin "Duyệt"
+node ss 520 140 stackset "StackSets" "service-managed"
+group 620 20 170 260 ou "OU đích"
+node a 705 80 cfn "Account A" "Hook kiểm tra"
+node b 705 200 cfn "Account B"
+edge git chk ""
+edge chk appr "đạt" c=ok
+edge appr ss ""
+edge ss a "" c=go route=hvh
+edge ss b "" c=go route=hvh
+</arch>
+<ul>
+<li><b>CloudFormation StackSets</b> (service-managed, automatic deployment theo OU, delegated admin), Terraform, CDK; mọi thay đổi qua pipeline, không sửa tay trên console production.</li>
+<li><b>cfn-lint</b>: lỗi cú pháp, giá trị sai, best practice. <b>CloudFormation Guard</b>: policy-as-code ("mọi bucket phải bật mã hoá và Block Public Access", "SG không mở 0.0.0.0/0 cổng 22"), chạy trong CI hoặc dưới dạng Config custom rule / Hook. <b>CloudFormation Hooks</b>: chặn tạo / sửa tài nguyên không tuân thủ ngay lúc deploy (Lambda hoặc Guard hook, managed proactive control của Control Tower).</li>
+<li>IaC bên thứ ba: Terraform với Sentinel / OPA, Checkov, tfsec.</li>
+<li>Không đưa secret vào template: dynamic reference, <code>ManageMasterUserPassword</code>.</li>
+</ul>
+
+<h2>Tag để tổ chức và kiểm soát</h2>
+<ul>
+<li>Gom tài nguyên theo phòng ban, cost center, môi trường, mức độ nhạy cảm dữ liệu (<code>DataClassification</code>), chủ sở hữu.</li>
+<li><b>Tag policy</b> chuẩn hoá; SCP bắt buộc tag khi tạo (<code>aws:RequestTag</code>, <code>aws:TagKeys</code>); Config rule <code>required-tags</code>.</li>
+<li>Dùng tag cho ABAC, cho backup plan, cho patch group, cho Firewall Manager scope, cho Resource Groups.</li>
+<li>Chặn người dùng tự đổi tag dùng cho phân quyền (Deny <code>TagResource</code> / <code>UntagResource</code> với các key nhạy cảm).</li>
+</ul>
+
+<h2>Áp chính sách từ một nơi: Firewall Manager</h2>
+<table>
+<tr><th>Loại policy</th><th>Tác dụng</th></tr>
+<tr><td>WAF</td><td>Gắn web ACL chung (first / last rule groups) cho mọi ALB / CloudFront / API Gateway trong scope, kể cả tài nguyên mới</td></tr>
+<tr><td>Shield Advanced</td><td>Tự đăng ký tài nguyên vào Shield Advanced</td></tr>
+<tr><td>Security group</td><td>Common SG (gắn SG chuẩn), content audit (cấm rule quá rộng), usage audit (SG không dùng / trùng)</td></tr>
+<tr><td>Network Firewall</td><td>Tự tạo firewall và route trong VPC (distributed / centralized)</td></tr>
+<tr><td>Route 53 Resolver DNS Firewall</td><td>Gắn rule group cho mọi VPC</td></tr>
+<tr><td>Third-party firewall</td><td>Palo Alto Cloud NGFW, Fortigate</td></tr>
+</table>
+<p>Yêu cầu: Organizations, Firewall Manager administrator (delegated), AWS Config bật ở các account trong scope. Scope chọn theo account, OU, tag tài nguyên.</p>
+
+<h2>Chia sẻ tài nguyên an toàn</h2>
+<ul>
+<li><b>AWS RAM</b>: chia sẻ subnet, TGW, Resolver rules, prefix list, Private CA, License Manager... chỉ trong Organization (tắt chia sẻ ra ngoài bằng setting / SCP <code>ram:RequestedAllowsExternalPrincipals</code>). Managed permission quyết định người nhận được làm gì.</li>
+<li><b>Service Catalog</b>: portfolio sản phẩm đã duyệt; <b>launch constraint</b> (role của Service Catalog tạo tài nguyên, người dùng không cần quyền trực tiếp); <b>template constraint</b> (giới hạn tham số, ví dụ chỉ instance type nhỏ); <b>TagOptions</b>; chia sẻ portfolio cho OU.</li>
+</ul>
+
+<h2>Đánh giá tuân thủ</h2>
+<arch w="800" h="300" caption="Phát hiện và sửa tài nguyên không tuân thủ trên cả Organization: conformance pack / Security Hub chạy ở mọi account, aggregator gom kết quả, remediation tự sửa, Audit Manager thu bằng chứng cho kiểm toán">
+group 10 10 300 280 ou "Mọi account"
+node cp 90 90 config "Conformance pack" "CIS / PCI"
+node rem 230 90 ssm "Remediation" "SSM Automation"
+node sh 160 220 securityhub "Security Hub" "FSBP, CIS"
+group 340 10 450 280 account "Audit / Security Tooling"
+node agg 440 90 config "Aggregator" "advanced query"
+node shc 440 220 securityhub "Security Hub" "tổng hợp"
+node am 640 90 auditmanager "Audit Manager" "evidence → báo cáo"
+node art 640 220 artifact "Artifact" "báo cáo của AWS"
+edge cp rem "" c=bad
+path 90 134 90 160 330 160 330 90 414 90 "" dash
+edge sh shc "" dash
+edge agg am "" dash
+</arch>
+<table>
+<tr><th>Dịch vụ</th><th>Vai trò</th></tr>
+<tr><td><b>AWS Config</b></td><td>Rule (managed / Lambda / Guard), remediation tự động, conformance pack (mẫu theo chuẩn), aggregator nhiều account / Region, organization rule, advanced query, proactive evaluation</td></tr>
+<tr><td><b>Security Hub</b></td><td>Control theo tiêu chuẩn, security score, gửi finding tới EventBridge để tự xử lý, automation rules</td></tr>
+<tr><td><b>Audit Manager</b></td><td>Framework dựng sẵn (SOC 2, PCI DSS, HIPAA, GDPR, NIST, CIS, ISO 27001...) hoặc tự tạo; <b>tự thu thập bằng chứng</b> từ Config, Security Hub, CloudTrail, API; người phụ trách xem xét (delegation), xuất <b>assessment report</b> cho kiểm toán viên</td></tr>
+<tr><td><b>AWS Artifact</b></td><td>Tải báo cáo tuân thủ <b>của AWS</b> (SOC 1/2/3, ISO, PCI AOC) và quản lý thoả thuận (BAA cho HIPAA)</td></tr>
+<tr><td><b>Well-Architected Tool</b></td><td>Tự đánh giá kiến trúc theo các trụ cột (Security Pillar), lens (Serverless, SaaS...), milestone, danh sách rủi ro cao / trung bình và kế hoạch cải thiện</td></tr>
+<tr><td>Trusted Advisor</td><td>Check bảo mật cơ bản (MFA root, SG mở, bucket public)</td></tr>
+</table>
+<aside class="tip"><p>"Kiểm toán viên cần báo cáo SOC 2 <b>của AWS</b>" → Artifact. "Thu thập bằng chứng <b>hệ thống của công ty</b> theo PCI DSS" → Audit Manager. "Kiểm tra liên tục cấu hình theo CIS và tự sửa" → Config conformance pack + remediation / Security Hub.</p></aside>
+
+<quiz q="Mọi ALB mới tạo ở mọi account trong OU Prod phải tự động có web ACL chuẩn của công ty và bảo vệ Shield Advanced. Giải pháp ít công sức nhất?">
++ Firewall Manager với WAF policy và Shield Advanced policy, scope là OU Prod
+- StackSets tạo web ACL rồi gắn thủ công
+- Config rule báo khi ALB thiếu WAF
+- Lambda theo lịch gắn web ACL
+? Firewall Manager tự áp chính sách cho tài nguyên hiện có và tài nguyên mới trong scope.
+</quiz>
+<quiz q="Developer cần tự tạo môi trường thử nghiệm đúng chuẩn công ty nhưng không được có quyền tạo VPC, IAM role trực tiếp. Dịch vụ?">
+- AWS RAM
++ Service Catalog với launch constraint
+- Control Tower Account Factory cho mỗi lần thử
+- CloudFormation với quyền admin
+? Launch constraint để Service Catalog tạo tài nguyên bằng role riêng thay người dùng.
+</quiz>
+<quiz q="Pipeline cần chặn merge nếu template tạo bucket S3 không bật mã hoá. Công cụ phù hợp nhất ở bước CI?">
++ CloudFormation Guard rule chạy trong pipeline
+- GuardDuty
+- Config periodic rule
+- Macie
+? Guard là policy-as-code kiểm tra template trước khi deploy.
+</quiz>

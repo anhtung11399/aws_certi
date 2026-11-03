@@ -1,0 +1,106 @@
+<h2>Chọn kiểu mã hoá</h2>
+<table>
+<tr><th>Lựa chọn</th><th>Ai giữ key</th><th>Dùng khi</th></tr>
+<tr><td>Server-side, key do AWS sở hữu / quản lý (SSE-S3, <code>aws/ebs</code>...)</td><td>AWS</td><td>Mặc định, không cần kiểm soát key</td></tr>
+<tr><td>Server-side với <b>customer managed KMS key</b> (SSE-KMS)</td><td>Bạn kiểm soát quyền dùng key (key policy), có audit CloudTrail</td><td>Cần tách quyền dữ liệu và quyền key, chia sẻ cross-account, thu hồi bằng cách disable key</td></tr>
+<tr><td>SSE-KMS với key ở <b>CloudHSM custom key store</b> / <b>XKS</b></td><td>Bạn, trong HSM single-tenant / ngoài AWS</td><td>Quy định bắt buộc kiểm soát HSM / key ngoài AWS</td></tr>
+<tr><td><b>DSSE-KMS</b> (S3)</td><td>Bạn</td><td>Yêu cầu mã hoá hai lớp (CNSSP 15)</td></tr>
+<tr><td><b>SSE-C</b> (S3)</td><td>Bạn gửi key mỗi request, AWS không lưu</td><td>Bạn đã có hệ thống quản lý key riêng; phải dùng HTTPS; mất key là mất dữ liệu. Có thể chặn SSE-C bằng bucket policy nếu không muốn dùng</td></tr>
+<tr><td><b>Client-side</b> (Encryption SDK, S3 Encryption Client, DynamoDB Encryption Client)</td><td>Bạn mã hoá trước khi gửi</td><td>AWS không bao giờ thấy plaintext; mã hoá từng trường</td></tr>
+</table>
+
+<h2>Mã hoá từng dịch vụ</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Ghi nhớ</th></tr>
+<tr><td><b>S3</b></td><td>Mọi object mới mặc định SSE-S3. Default encryption SSE-KMS + <b>Bucket Key</b>. Ép đúng key bằng bucket policy (<code>s3:x-amz-server-side-encryption-aws-kms-key-id</code>). Đổi mã hoá object cũ: copy lại tại chỗ hoặc S3 Batch Operations</td></tr>
+<tr><td><b>EBS</b></td><td>Encryption by default theo Region; snapshot / volume / AMI kế thừa mã hoá; mã hoá volume cũ: snapshot → copy có mã hoá → volume mới</td></tr>
+<tr><td><b>RDS / Aurora</b></td><td>Chỉ chọn lúc tạo; mã hoá cả backup, snapshot, replica, log. Bật cho DB cũ: snapshot → copy mã hoá → restore. Đổi key: copy snapshot với key mới. Read replica cross-Region dùng key ở Region đích</td></tr>
+<tr><td><b>DynamoDB</b></td><td>Luôn mã hoá: AWS owned (mặc định), AWS managed, customer managed; đổi được khi đang chạy</td></tr>
+<tr><td>EFS</td><td>Bật lúc tạo, không đổi được sau; mã hoá in transit qua TLS mount</td></tr>
+<tr><td>Secrets Manager, SSM SecureString, SQS, SNS, Kinesis, CloudWatch Logs</td><td>Chọn customer managed key để kiểm soát; nhớ key policy cho dịch vụ gọi tới (CloudWatch → SNS mã hoá, EventBridge → SQS mã hoá)</td></tr>
+<tr><td>EKS secrets</td><td>Envelope encryption bằng KMS key</td></tr>
+<tr><td>Lambda biến môi trường</td><td>Mã hoá at rest mặc định; dùng customer managed key và helper mã hoá ở client cho giá trị nhạy cảm</td></tr>
+</table>
+<pre lang="json" file="Bucket policy: chỉ nhận object mã hoá bằng đúng một key KMS">
+{
+  "Sid": "DenyWrongKey",
+  "Effect": "Deny",
+  "Principal": "*",
+  "Action": "s3:PutObject",
+  "Resource": "arn:aws:s3:::bang-luong/*",
+  "Condition": {
+    "StringNotEqualsIfExists": {
+      "s3:x-amz-server-side-encryption-aws-kms-key-id": "arn:aws:kms:ap-southeast-1:111122223333:key/abcd-1234"
+    }
+  }
+}
+</pre>
+
+<h2>Toàn vẹn dữ liệu và chống xoá</h2>
+<table>
+<tr><th>Cơ chế</th><th>Bảo vệ</th></tr>
+<tr><td><b>S3 Versioning</b></td><td>Ghi đè / xoá nhầm (khôi phục version cũ)</td></tr>
+<tr><td><b>S3 Object Lock</b></td><td>WORM theo object: <b>Compliance mode</b> (không ai rút ngắn / xoá được trước hạn, kể cả root), <b>Governance mode</b> (người có <code>s3:BypassGovernanceRetention</code> được bỏ qua), <b>Legal hold</b> (giữ vô thời hạn tới khi gỡ, cần <code>s3:PutObjectLegalHold</code>). Cần versioning; đặt default retention cho bucket</td></tr>
+<tr><td><b>S3 Glacier Vault Lock</b></td><td>Khoá chính sách của Glacier vault (API cũ của Glacier): initiate lock → kiểm tra trong 24 giờ → complete, sau đó bất biến</td></tr>
+<tr><td><b>MFA Delete</b></td><td>Xoá version / tắt versioning cần MFA của root</td></tr>
+<tr><td><b>Checksum</b></td><td>S3 tính và kiểm tra CRC32 / CRC32C / SHA-1 / SHA-256 / CRC64NVME khi upload / download; DataSync kiểm tra toàn vẹn sau khi chép</td></tr>
+<tr><td><b>Code signing</b></td><td>AWS Signer cho Lambda (chỉ chạy code đã ký), ký image container, ký file cài đặt</td></tr>
+<tr><td>Chữ ký số / HMAC</td><td>KMS asymmetric key (Sign / Verify), HMAC key (GenerateMac / VerifyMac) để chứng minh dữ liệu không bị sửa</td></tr>
+<tr><td>CloudTrail log integrity validation</td><td>Chứng minh log không bị sửa</td></tr>
+</table>
+
+<h2>Vòng đời và lưu giữ tự động</h2>
+<ul>
+<li><b>S3 Lifecycle</b>: chuyển lớp lưu trữ và xoá theo tuổi, xoá noncurrent version, kết hợp Object Lock để giữ đúng thời hạn rồi mới xoá.</li>
+<li><b>EFS lifecycle</b>: chuyển file ít dùng sang IA / Archive.</li>
+<li><b>FSx for Lustre</b>: automatic daily backup (persistent), retention, backup ra S3 qua data repository; <b>FSx for Windows / ONTAP / OpenZFS</b> có backup tự động và AWS Backup.</li>
+<li><b>DynamoDB TTL</b>: tự xoá item hết hạn (ví dụ dữ liệu cá nhân hết thời gian giữ).</li>
+<li><b>CloudWatch Logs retention</b>, <b>Backup lifecycle</b> (cold storage, hết hạn).</li>
+<li>Xoá đúng hạn để tuân thủ luật bảo vệ dữ liệu: không giữ dữ liệu cá nhân lâu hơn mục đích.</li>
+</ul>
+
+<h2>Backup và sao chép an toàn, chống ransomware</h2>
+<arch w="800" h="320" caption="Chống ransomware: backup sang vault ở account riêng (hoặc logically air-gapped vault) có Vault Lock compliance mode, mã hoá bằng key của account backup; kẻ chiếm account workload không xoá được bản sao">
+group 10 10 380 300 account "Account workload (có thể bị chiếm)"
+node res 90 90 rds "RDS, EBS, EFS, S3"
+node plan 250 90 backup "Backup plan" "theo tag"
+node v1 170 230 backup "Vault local" "Vault Lock"
+group 420 10 370 300 account "Account backup cô lập (Organization)"
+node v2 520 160 backup "Vault đích" "Vault Lock compliance"
+node kms 690 80 kms "KMS key" "của account backup"
+node ag 690 240 backup "Air-gapped vault" "chia sẻ khôi phục qua RAM"
+edge res plan ""
+edge plan v1 "" route=vh
+edge v1 v2 "copy cross-account" c=ok route=hv
+edge kms v2 "" dash route=vh
+edge v2 ag "" dash route=vh
+</arch>
+<ul>
+<li><b>AWS Backup</b>: backup policy của Organization, copy cross-Region / cross-account, Vault Lock (governance / compliance), <b>logically air-gapped vault</b>, <b>restore testing</b>, Backup Audit Manager, <b>multi-party approval</b> để khôi phục từ vault air-gapped khi account bị chiếm. GuardDuty Malware Protection có thể quét recovery point.</li>
+<li><b>Data Lifecycle Manager</b>: lịch snapshot EBS / AMI theo tag, copy cross-Region / cross-account (snapshot mã hoá: chia sẻ key).</li>
+<li><b>S3 Replication</b> sang account khác với <b>owner override</b> (đổi chủ sở hữu bản sao sang account đích), Replication Time Control, replicate cả object mã hoá SSE-KMS (chỉ định key đích).</li>
+<li><b>DataSync</b>: chép dữ liệu có mã hoá TLS, kiểm tra toàn vẹn, ghi vào đích mã hoá; agent kích hoạt qua endpoint riêng (VPC endpoint).</li>
+<li>Ransomware trên S3 (mã hoá lại object bằng SSE-C / key của kẻ tấn công, hoặc xoá): versioning + Object Lock, chặn SSE-C bằng bucket policy, giới hạn <code>s3:PutObject</code> / <code>DeleteObject</code>, GuardDuty S3 Protection.</li>
+</ul>
+
+<quiz q="Dữ liệu tài chính phải được giữ 7 năm, không ai được xoá kể cả root, nhưng phải tự xoá ngay khi hết hạn. Cấu hình S3?">
++ Object Lock compliance mode với default retention 7 năm và lifecycle expiration sau 7 năm
+- Governance mode và IAM deny
+- MFA Delete
+- Glacier Deep Archive
+? Compliance mode chặn xoá tuyệt đối trong thời hạn, lifecycle dọn sau khi hết hạn.
+</quiz>
+<quiz q="Muốn đảm bảo không ai lưu object vào bucket bằng SSE-C (kẻ tấn công có thể mã hoá lại dữ liệu bằng key riêng). Cách làm?">
++ Bucket policy Deny PutObject khi có header s3:x-amz-server-side-encryption-customer-algorithm (hoặc cấu hình chặn SSE-C của bucket)
+- Bật Bucket Key
+- Bật versioning
+- Dùng SSE-S3
+? Chặn SSE-C ngăn kiểu ransomware mã hoá lại object bằng key của kẻ tấn công.
+</quiz>
+<quiz q="Cần mã hoá một RDS PostgreSQL đang chạy chưa mã hoá với ít thời gian dừng nhất. Cách làm?">
+- Bật encryption trong console
++ Chụp snapshot, copy snapshot có bật mã hoá (KMS), restore thành instance mới rồi chuyển ứng dụng (hoặc dùng replication / DMS để giảm downtime)
+- Bật TDE
+- Tạo read replica mã hoá từ primary không mã hoá
+? RDS không bật mã hoá tại chỗ được; read replica cùng trạng thái mã hoá với nguồn.
+</quiz>

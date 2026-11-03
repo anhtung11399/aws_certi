@@ -36,57 +36,116 @@
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
     <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn đúng lớp bảo vệ ở biên</li><li>Viết rule WAF theo yêu cầu</li><li>Chống DDoS đúng cách</li></ul></div>
   </header>
-  <div class="prose"><h2 id="phong-thu-nhieu-lop-o-mang"><a href="#phong-thu-nhieu-lop-o-mang" class="anchor" aria-hidden="true">#</a>Phòng thủ nhiều lớp ở mạng</h2>
-<figure class="dg"><svg viewBox="0 0 781.52 432" style="min-width:600px;max-width:781.52px" role="img" aria-label="Từ ngoài vào trong: mỗi lớp chặn một loại tấn công"><g class="nd ext"><rect x="10" y="10" width="292" height="52" rx="10"/><text x="156" y="33" class="tt" text-anchor="middle">Shield (Standard</text><text x="156" y="51" class="ts" text-anchor="middle">Advanced)</text></g><text x="322" y="41" class="tl" text-anchor="start">DDoS layer 3/4 (và layer 7 với Advanced)</text><line x1="156" y1="62" x2="156" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="82" width="292" height="52" rx="10"/><text x="156" y="113" class="tt" text-anchor="middle">CloudFront + WAF</text></g><text x="322" y="113" class="tl" text-anchor="start">tấn công web layer 7: SQLi, XSS, bot, rate limit, geo block</text><line x1="156" y1="134" x2="156" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="154" width="292" height="52" rx="10"/><text x="156" y="177" class="tt" text-anchor="middle">ALB</text><text x="156" y="195" class="ts" text-anchor="middle">NLB</text></g><text x="322" y="185" class="tl" text-anchor="start">chỉ mở cổng cần thiết, TLS, chỉ nhận từ CloudFront</text><line x1="156" y1="206" x2="156" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="10" y="226" width="292" height="52" rx="10"/><text x="156" y="257" class="tt" text-anchor="middle">Network Firewall</text></g><text x="322" y="257" class="tl" text-anchor="start">lọc stateful, IPS, lọc tên miền ra ngoài, ở mức VPC</text><line x1="156" y1="278" x2="156" y2="296" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="10" y="298" width="292" height="52" rx="10"/><text x="156" y="329" class="tt" text-anchor="middle">Security group + NACL</text></g><text x="322" y="329" class="tl" text-anchor="start">mức instance / subnet</text><line x1="156" y1="350" x2="156" y2="368" class="ln" marker-end="url(#ar)"/><g class="nd db"><rect x="10" y="370" width="292" height="52" rx="10"/><text x="156" y="401" class="tt" text-anchor="middle">Route 53 Resolver DNS Firewall</text></g><text x="322" y="401" class="tl" text-anchor="start">chặn phân giải tên miền độc hại / rò dữ liệu qua DNS</text></svg><figcaption>Từ ngoài vào trong: mỗi lớp chặn một loại tấn công</figcaption></figure>
+  <div class="prose"><h2 id="chon-lop-bao-ve-theo-moi-de-doa"><a href="#chon-lop-bao-ve-theo-moi-de-doa" class="anchor" aria-hidden="true">#</a>Chọn lớp bảo vệ theo mối đe doạ</h2>
+<table>
+<tr><th>Mối đe doạ</th><th>Lớp bảo vệ</th></tr>
+<tr><td>DDoS lớp mạng (SYN flood, UDP reflection)</td><td>Shield Standard (tự động, miễn phí) cho mọi tài nguyên; Shield Advanced cho ELB, EIP, CloudFront, Global Accelerator, Route 53</td></tr>
+<tr><td>DDoS lớp ứng dụng (HTTP flood)</td><td>CloudFront + WAF rate-based rule, Bot Control, Shield Advanced automatic application layer mitigation</td></tr>
+<tr><td>OWASP Top 10 (SQLi, XSS, LFI, SSRF qua tham số)</td><td>WAF managed rule groups: Core rule set, SQL database, Known bad inputs, Linux / Windows / PHP / WordPress</td></tr>
+<tr><td>Bot, scraping, dò giá</td><td>WAF <b>Bot Control</b> (common / targeted), CAPTCHA, Challenge</td></tr>
+<tr><td>Dò mật khẩu, credential stuffing, tạo tài khoản giả</td><td>WAF <b>Account Takeover Prevention (ATP)</b>, <b>Account Creation Fraud Prevention (ACFP)</b></td></tr>
+<tr><td>Truy cập từ quốc gia không phục vụ / theo luật</td><td>CloudFront geo restriction, WAF geo match rule</td></tr>
+<tr><td>Truy cập vòng qua CDN thẳng vào origin</td><td>OAC cho S3, prefix list + custom header bí mật cho ALB, VPC origins</td></tr>
+<tr><td>IP xấu đã biết, VPN / Tor ẩn danh</td><td>WAF IP reputation list, Anonymous IP list, IP set tự quản lý</td></tr>
+</table>
 
-<h2 id="security-group-va-nacl-o-muc-chuyen-sau"><a href="#security-group-va-nacl-o-muc-chuyen-sau" class="anchor" aria-hidden="true">#</a>Security group và NACL ở mức chuyên sâu</h2>
+<figure class="dg arch"><svg viewBox="0 0 800 330" style="min-width:640px;max-width:800px" role="img" aria-label="Phòng thủ nhiều lớp ở biên: Route 53 và CloudFront hấp thụ DDoS ở edge, WAF lọc lớp 7, origin chỉ nhận traffic từ CloudFront của bạn"><g class="ag ag-vpc"><rect x="450" y="20" width="340" height="290" rx="8"/><text x="460" y="38" class="ag-t">VPC</text></g><g class="ag ag-public"><rect x="470" y="50" width="140" height="240" rx="8"/><text x="480" y="68" class="ag-t">Public subnet</text></g><g class="ag ag-private"><rect x="630" y="50" width="140" height="240" rx="8"/><text x="640" y="68" class="ag-t">Private subnet</text></g><path d="M60.0 134.0 L60.0 70.0 L164.0 70.0" class="ae" marker-end="url(#ar)"/><path d="M86.0 160.0 L304.0 160.0" class="ae ae-ok" marker-end="url(#ar)"/><path d="M330.0 254.0 L330.0 218.0" class="ae ds" marker-end="url(#ar)"/><path d="M356.0 160.0 L514.0 160.0" class="ae ae-ok" marker-end="url(#ar)"/><path d="M566.0 160.0 L674.0 160.0" class="ae ae-ok" marker-end="url(#ar)"/><g class="an an-gen"><rect x="38" y="138" width="44" height="44" rx="9"/><text x="60" y="164.5" text-anchor="middle" class="an-i" style="font-size:11px">USERS</text><text x="60" y="198" text-anchor="middle" class="an-l">Người dùng / bot</text></g><g class="an an-nw"><rect x="168" y="48" width="44" height="44" rx="9"/><text x="190" y="74.5" text-anchor="middle" class="an-i" style="font-size:13px">R53</text><text x="190" y="108" text-anchor="middle" class="an-l">Route 53</text><text x="190" y="122" text-anchor="middle" class="an-s">Shield</text></g><g class="an an-nw"><rect x="308" y="138" width="44" height="44" rx="9"/><text x="330" y="164.5" text-anchor="middle" class="an-i" style="font-size:13px">CF</text><text x="330" y="198" text-anchor="middle" class="an-l">CloudFront</text><text x="330" y="212" text-anchor="middle" class="an-s">Shield Advanced</text></g><g class="an an-sec"><rect x="308" y="258" width="44" height="44" rx="9"/><text x="330" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">WAF</text><text x="330" y="318" text-anchor="middle" class="an-l">WAF web ACL</text><text x="330" y="332" text-anchor="middle" class="an-s">managed rules, rate, bot</text></g><g class="an an-nw"><rect x="518" y="138" width="44" height="44" rx="9"/><text x="540" y="164.5" text-anchor="middle" class="an-i" style="font-size:13px">ALB</text><text x="540" y="198" text-anchor="middle" class="an-l">ALB</text><text x="540" y="212" text-anchor="middle" class="an-s">SG: prefix list CloudFront</text></g><g class="an an-cp"><rect x="678" y="138" width="44" height="44" rx="9"/><text x="700" y="164.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="700" y="198" text-anchor="middle" class="an-l">Ứng dụng</text></g><g class="ae-lb"><rect x="97.4" y="61.0" width="29.2" height="17" rx="4"/><text x="112.0" y="73.5" text-anchor="middle">DNS</text></g><g class="ae-lb"><rect x="174.0" y="151.0" width="42.0" height="17" rx="4"/><text x="195.0" y="163.5" text-anchor="middle">HTTPS</text></g><g class="ae-lb"><rect x="359.6" y="151.0" width="150.8" height="17" rx="4"/><text x="435.0" y="163.5" text-anchor="middle">header X-Origin-Verify</text></g></svg><figcaption>Phòng thủ nhiều lớp ở biên: Route 53 và CloudFront hấp thụ DDoS ở edge, WAF lọc lớp 7, origin chỉ nhận traffic từ CloudFront của bạn</figcaption></figure>
+
+<h2 id="aws-waf-chuyen-sau"><a href="#aws-waf-chuyen-sau" class="anchor" aria-hidden="true">#</a>AWS WAF chuyên sâu</h2>
+<h3>Cấu trúc</h3>
 <ul>
-<li>SG tham chiếu SG khác (ví dụ DB chỉ nhận từ SG của app) thay vì CIDR. Có thể tham chiếu SG ở VPC peer cùng Region.</li>
-<li>NACL dùng để <b>chặn một IP / dải IP</b> cụ thể (SG không có Deny).</li>
-<li><b>Managed prefix list</b>: gom dải IP dùng chung cho nhiều SG / route table, chia sẻ qua RAM.</li>
-<li>Firewall Manager áp <b>security group policy</b> chung, kiểm tra SG quá rộng trên cả Organization.</li>
+<li><b>Web ACL</b> gắn vào: CloudFront (global, tạo ở us-east-1), ALB, API Gateway REST, AppSync, Cognito user pool, App Runner, Verified Access, Amplify.</li>
+<li>Rule xét theo <b>priority</b> (số nhỏ trước). Hành động: <b>Allow</b>, <b>Block</b> (có custom response), <b>Count</b>, <b>CAPTCHA</b>, <b>Challenge</b> (thử thách trình duyệt không cần người). Allow / Block dừng đánh giá; Count tiếp tục.</li>
+<li><b>Default action</b> khi không rule nào khớp: Allow (mô hình chặn danh sách đen) hoặc Block (danh sách trắng).</li>
+<li><b>WCU</b> (Web ACL Capacity Units): giới hạn độ phức tạp của web ACL (mặc định 1.500, có thể tăng có phí).</li>
+<li><b>Label</b>: rule gắn nhãn cho request, rule sau dùng nhãn để quyết định (ví dụ chỉ chặn bot "unverified" ở trang login).</li>
+<li><b>Scope-down statement</b>: chỉ áp managed rule group (tốn phí như Bot Control) cho một phần request (path <code>/login</code>).</li>
+<li><b>Rule action override</b>: đặt một rule trong managed group sang Count khi nó chặn nhầm.</li>
+</ul>
+<h3>Loại điều kiện</h3>
+<table>
+<tr><th>Điều kiện</th><th>Ví dụ</th></tr>
+<tr><td>IP set</td><td>Chặn / cho phép dải IP; dùng header <code>X-Forwarded-For</code> khi đứng sau proxy</td></tr>
+<tr><td>Geo match</td><td>Chặn quốc gia; dùng nhãn <code>awswaf:clientip:geo:country:XX</code></td></tr>
+<tr><td>String / regex match</td><td>Trên URI, query, header, cookie, body, JSON body</td></tr>
+<tr><td>Size constraint</td><td>Body quá lớn</td></tr>
+<tr><td>SQLi / XSS match</td><td>Kèm text transformation (URL decode, HTML entity decode, lowercase)</td></tr>
+<tr><td><b>Rate-based</b></td><td>Đếm request trong cửa sổ 1, 2, 5 hoặc 10 phút theo khoá: IP, IP chuyển tiếp, header, cookie, query, label, <b>JA3 / JA4 fingerprint</b>, hoặc kết hợp. Vượt ngưỡng thì áp hành động cho tới khi giảm</td></tr>
+<tr><td><b>JA3 / JA4 fingerprint</b></td><td>Dấu vân tay TLS của client: chặn công cụ tấn công dù đổi IP liên tục</td></tr>
+<tr><td>ASN match</td><td>Theo nhà mạng / nhà cung cấp hosting</td></tr>
+</table>
+<ul>
+<li>Giới hạn body được kiểm tra: mặc định 8 KB (ALB, AppSync), 16 KB (CloudFront, API Gateway, Cognito, có thể tăng tới 64 KB có phí). Phần vượt có thể xử lý theo <b>oversize handling</b> (Continue / Match / No match).</li>
+<li><b>Logging</b>: CloudWatch Logs (tên log group bắt đầu <code>aws-waf-logs-</code>), S3 (bucket tên bắt đầu <code>aws-waf-logs-</code>), Firehose; có logging filter và redact trường (cookie, authorization). <b>Sampled requests</b> và metric theo rule.</li>
+<li>Rule của bên thứ ba: <b>AWS Marketplace managed rule groups</b> (F5, Fortinet, Imperva...). Log WAF đưa vào Security Lake ở dạng OCSF để tích hợp SIEM.</li>
+<li>Quy trình an toàn: thêm rule ở <b>Count</b>, xem log / metric vài ngày, rồi mới chuyển Block.</li>
+</ul>
+<div class="code"><div class="code-h"><span>Rate-based rule: tối đa 100 request / 5 phút cho mỗi IP vào /login</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Name&quot;</span>: <span class="s">&quot;login-rate&quot;</span>,
+  <span class="s">&quot;Priority&quot;</span>: <span class="n">1</span>,
+  <span class="s">&quot;Action&quot;</span>: { <span class="s">&quot;Block&quot;</span>: {} },
+  <span class="s">&quot;Statement&quot;</span>: {
+    <span class="s">&quot;RateBasedStatement&quot;</span>: {
+      <span class="s">&quot;Limit&quot;</span>: <span class="n">100</span>,
+      <span class="s">&quot;EvaluationWindowSec&quot;</span>: <span class="n">300</span>,
+      <span class="s">&quot;AggregateKeyType&quot;</span>: <span class="s">&quot;IP&quot;</span>,
+      <span class="s">&quot;ScopeDownStatement&quot;</span>: {
+        <span class="s">&quot;ByteMatchStatement&quot;</span>: {
+          <span class="s">&quot;FieldToMatch&quot;</span>: { <span class="s">&quot;UriPath&quot;</span>: {} },
+          <span class="s">&quot;PositionalConstraint&quot;</span>: <span class="s">&quot;STARTS_WITH&quot;</span>,
+          <span class="s">&quot;SearchString&quot;</span>: <span class="s">&quot;/login&quot;</span>,
+          <span class="s">&quot;TextTransformations&quot;</span>: [{ <span class="s">&quot;Priority&quot;</span>: <span class="n">0</span>, <span class="s">&quot;Type&quot;</span>: <span class="s">&quot;LOWERCASE&quot;</span> }]
+        }
+      }
+    }
+  },
+  <span class="s">&quot;VisibilityConfig&quot;</span>: { <span class="s">&quot;SampledRequestsEnabled&quot;</span>: <span class="b">true</span>, <span class="s">&quot;CloudWatchMetricsEnabled&quot;</span>: <span class="b">true</span>, <span class="s">&quot;MetricName&quot;</span>: <span class="s">&quot;login-rate&quot;</span> }
+}</code></pre></div>
+
+<h2 id="cloudfront-o-goc-nhin-bao-mat"><a href="#cloudfront-o-goc-nhin-bao-mat" class="anchor" aria-hidden="true">#</a>CloudFront ở góc nhìn bảo mật</h2>
+<ul>
+<li><b>Origin Access Control (OAC)</b>: chỉ CloudFront đọc được S3 private (ký SigV4, hỗ trợ SSE-KMS, mọi Region). Bucket policy cho <code>cloudfront.amazonaws.com</code> với <code>AWS:SourceArn</code> = ARN distribution. OAI là cách cũ.</li>
+<li>Bảo vệ origin tuỳ chỉnh: SG của ALB chỉ cho managed prefix list <code>com.amazonaws.global.cloudfront.origin-facing</code>; CloudFront thêm <b>custom header bí mật</b>, WAF trên ALB (hoặc listener rule) chặn request thiếu header; xoay vòng header bằng Secrets Manager. Hoặc dùng <b>VPC origins</b> để origin ở private subnet.</li>
+<li><b>Viewer protocol policy</b> Redirect / HTTPS only, <b>security policy</b> TLSv1.2_2021 trở lên cho viewer; origin protocol HTTPS only; <b>Origin SSL protocols</b>.</li>
+<li><b>Response headers policy</b>: HSTS, Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy; <b>CORS</b> (Access-Control-Allow-Origin...) thêm ở edge.</li>
+<li><b>Signed URL / signed cookie</b> với key group (public key trong CloudFront, private key ở bạn) cho nội dung trả phí / riêng tư. <b>Field-level encryption</b> mã hoá trường nhạy cảm từ edge tới tận ứng dụng.</li>
+<li><b>Geo restriction</b>: allow list / block list quốc gia (trả 403).</li>
+<li><b>CloudFront Functions / Lambda@Edge</b>: kiểm tra token, chặn theo header, thêm header bảo mật, chuẩn hoá request.</li>
 </ul>
 
-<h2 id="kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu"><a href="#kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu" class="anchor" aria-hidden="true">#</a>Kiểm soát traffic ra (egress) và rò rỉ dữ liệu</h2>
-<ul>
-<li><b>VPC endpoint</b> để truy cập dịch vụ AWS không qua Internet, kèm <b>endpoint policy</b> chỉ cho phép bucket / tài nguyên của tổ chức (điều kiện <code>aws:ResourceOrgID</code>). Ngăn nhân viên chép dữ liệu sang bucket cá nhân qua endpoint.</li>
-<li>Bucket policy chỉ cho truy cập qua endpoint: điều kiện <code>aws:SourceVpce</code> hoặc <code>aws:SourceVpc</code>.</li>
-<li><b>AWS Network Firewall</b>: stateful rule (Suricata), lọc theo <b>tên miền (SNI / Host)</b> cho traffic ra, IPS. Đặt ở subnet riêng, route table phải đưa traffic đi qua firewall endpoint (cả chiều đi và về, cẩn thận định tuyến bất đối xứng). Mô hình tập trung: inspection VPC với Transit Gateway.</li>
-<li><b>DNS Firewall</b>: chặn tên miền xấu, chống DNS exfiltration. Cấu hình <b>fail-open / fail-closed</b>.</li>
-<li>NAT Gateway không lọc gì cả, chỉ chuyển địa chỉ.</li>
-</ul>
+<h2 id="s3-cors"><a href="#s3-cors" class="anchor" aria-hidden="true">#</a>S3 CORS</h2>
+<p>CORS cho phép trang ở tên miền khác gọi trình duyệt tới bucket. Cấu hình CORS của bucket là danh sách rule: <code>AllowedOrigins</code>, <code>AllowedMethods</code>, <code>AllowedHeaders</code>, <code>ExposeHeaders</code>, <code>MaxAgeSeconds</code>. CORS <b>không phải</b> cơ chế phân quyền: nó chỉ ảnh hưởng trình duyệt; quyền thật vẫn do bucket policy / IAM quyết định. Đừng đặt <code>AllowedOrigins: *</code> cho bucket có dữ liệu riêng tư.</p>
 
-<h2 id="waf-chuyen-sau"><a href="#waf-chuyen-sau" class="anchor" aria-hidden="true">#</a>WAF chuyên sâu</h2>
+<h2 id="aws-iot-policies"><a href="#aws-iot-policies" class="anchor" aria-hidden="true">#</a>AWS IoT policies</h2>
 <ul>
-<li>Managed rule groups: <b>Core rule set</b> (OWASP Top 10), <b>Known bad inputs</b>, <b>SQL database</b>, <b>IP reputation</b>, <b>Anonymous IP list</b> (VPN, Tor), <b>Bot Control</b>, <b>Account Takeover Prevention</b> (ATP, chống dò mật khẩu ở trang login), <b>Account Creation Fraud Prevention</b>.</li>
-<li>Rate-based rule: theo IP, theo header, theo kết hợp khoá. Hành động: Block, Count, <b>CAPTCHA</b>, <b>Challenge</b>.</li>
-<li>Thứ tự rule quan trọng: rule có số priority nhỏ được xét trước, rule Allow sớm sẽ bỏ qua các rule Block sau.</li>
-<li>Chỉ cho ALB nhận traffic từ CloudFront: SG của ALB dùng prefix list của CloudFront + CloudFront gửi một <b>custom header bí mật</b>, WAF trên ALB chỉ cho request có header đó.</li>
+<li>Thiết bị xác thực bằng <b>chứng chỉ X.509</b> (mTLS), gắn <b>IoT policy</b> vào chứng chỉ: <code>iot:Connect</code>, <code>iot:Publish</code>, <code>iot:Subscribe</code>, <code>iot:Receive</code> trên topic.</li>
+<li>Dùng <b>policy variables</b> (<code>${iot:Connection.Thing.ThingName}</code>, <code>${iot:ClientId}</code>) để mỗi thiết bị chỉ publish / subscribe topic của chính nó.</li>
+<li><b>AWS IoT Device Defender</b>: audit cấu hình (policy quá rộng, chứng chỉ dùng chung) và detect hành vi bất thường của thiết bị.</li>
+<li>Thu hồi chứng chỉ thiết bị bị chiếm (đặt INACTIVE / REVOKED).</li>
 </ul>
 
 <h2 id="shield-advanced"><a href="#shield-advanced" class="anchor" aria-hidden="true">#</a>Shield Advanced</h2>
-<ul>
-<li>Bảo vệ CloudFront, Route 53, Global Accelerator, ELB, Elastic IP.</li>
-<li><b>Shield Response Team (SRT)</b> hỗ trợ 24/7 khi bị tấn công (cấp quyền cho SRT bằng role), <b>proactive engagement</b> (SRT chủ động liên hệ khi health check của bạn lỗi).</li>
-<li><b>Cost protection</b>: hoàn tiền chi phí scale do DDoS.</li>
-<li><b>Automatic application layer DDoS mitigation</b>: tự tạo rule WAF khi phát hiện tấn công layer 7.</li>
-<li>Kiến trúc chống DDoS: CloudFront + Route 53 ở biên, ASG để hấp thụ, giảm bề mặt tấn công (không để EC2 public).</li>
-</ul>
+<table>
+<tr><th>Tính năng</th><th>Ghi nhớ</th></tr>
+<tr><td>Bảo vệ</td><td>CloudFront, Route 53 hosted zone, Global Accelerator, ALB / CLB, Elastic IP (EC2, NLB). Đăng ký từng tài nguyên (hoặc qua Firewall Manager cho cả Organization)</td></tr>
+<tr><td>Phát hiện</td><td>Theo baseline traffic của từng tài nguyên; <b>health-based detection</b> khi gắn Route 53 health check (nhạy hơn, giảm báo động giả)</td></tr>
+<tr><td>Giảm nhẹ lớp 7</td><td><b>Automatic application layer DDoS mitigation</b>: tự tạo rule WAF (Count hoặc Block) trong web ACL khi phát hiện tấn công</td></tr>
+<tr><td>SRT (Shield Response Team)</td><td>Hỗ trợ 24/7 khi bị tấn công; cấp quyền bằng role (<code>AWSShieldDRTAccessPolicy</code>) và quyền đọc bucket log WAF</td></tr>
+<tr><td>Proactive engagement</td><td>SRT chủ động liên hệ khi health check lỗi trong lúc có sự kiện</td></tr>
+<tr><td>Cost protection</td><td>Hoàn chi phí scale (CloudFront, ELB, EC2, Route 53...) do DDoS</td></tr>
+<tr><td>Chi phí</td><td>Phí tháng cố định cho cả Organization (cam kết 1 năm) + phí dữ liệu; WAF trên tài nguyên được bảo vệ không tính phí thêm</td></tr>
+<tr><td>Metric</td><td><code>DDoSDetected</code>, <code>DDoSAttackBitsPerSecond</code>... trong CloudWatch</td></tr>
+</table>
+<aside class="tip"><p>Kiến trúc chống DDoS chuẩn (AWS Best Practices for DDoS Resiliency): đưa mọi thứ ra sau CloudFront và Route 53 (edge), giảm bề mặt tấn công (không để EC2 / ALB lộ trực tiếp), dùng Auto Scaling để hấp thụ, WAF rate-based rule, Shield Advanced cho ứng dụng quan trọng.</p></aside>
 
-<h2 id="privatelink-va-truy-cap-rieng-tu"><a href="#privatelink-va-truy-cap-rieng-tu" class="anchor" aria-hidden="true">#</a>PrivateLink và truy cập riêng tư</h2>
-<ul>
-<li>Cung cấp dịch vụ cho account / khách hàng khác qua <b>endpoint service</b> (sau NLB / GWLB), chấp nhận kết nối theo principal được phép, không lộ cả VPC.</li>
-<li><b>Gateway Load Balancer</b>: chèn thiết bị bảo mật bên thứ ba (firewall ảo) vào đường đi của traffic, minh bạch, dùng giao thức GENEVE.</li>
-<li><b>Verified Access</b>: cho nhân viên vào ứng dụng nội bộ không cần VPN, kiểm tra danh tính (Identity Center / IdP) và trạng thái thiết bị theo từng request (zero trust).</li>
-</ul>
-
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty muốn chặn mọi EC2 trong VPC truy cập Internet, trừ các tên miền *.windowsupdate.com và *.amazonaws.com. Giải pháp?</p><div class="qo"><button type="button" class="opt">Security group với rule outbound theo tên miền</button><button type="button" class="opt" data-ok>AWS Network Firewall với stateful domain list rule (allowlist), định tuyến traffic ra qua firewall endpoint</button><button type="button" class="opt">NACL chặn mọi cổng trừ 443</button></div><p class="why" hidden>Security group và NACL không lọc theo tên miền. Network Firewall lọc theo SNI / Host header.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Trang đăng nhập bị dò mật khẩu từ hàng nghìn IP khác nhau, mỗi IP gửi ít request. Lớp bảo vệ phù hợp nhất?</p><div class="qo"><button type="button" class="opt">Rate-based rule chặn IP gửi quá 100 request / 5 phút</button><button type="button" class="opt" data-ok>AWS WAF Account Takeover Prevention (ATP) managed rule group trên trang login</button><button type="button" class="opt">NACL chặn các IP đó</button></div><p class="why" hidden>Tấn công phân tán qua nhiều IP nên rate limit theo IP không hiệu quả. ATP phân tích dấu hiệu dò thông tin đăng nhập.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Kẻ tấn công đổi IP liên tục nhưng dùng cùng một công cụ để dò trang đăng nhập. Rule WAF nào chặn hiệu quả nhất?</p><div class="qo"><button type="button" class="opt">Rate-based rule theo IP</button><button type="button" class="opt" data-ok>Rate-based rule (hoặc match) theo JA3 / JA4 fingerprint của TLS client</button><button type="button" class="opt">Geo match</button><button type="button" class="opt">Size constraint</button></div><p class="why" hidden>Fingerprint TLS giữ nguyên dù IP thay đổi, nên nhận diện được công cụ tấn công.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Sau khi bật managed rule group Core rule set, một form upload hợp lệ bị chặn nhầm vì body lớn. Cách xử lý đúng?</p><div class="qo"><button type="button" class="opt" data-ok>Override rule SizeRestrictions_BODY trong group sang Count (và scope-down cho đường dẫn upload), giữ các rule khác</button><button type="button" class="opt">Gỡ toàn bộ Core rule set</button><button type="button" class="opt">Đổi default action sang Block</button><button type="button" class="opt">Tắt WAF cho ALB</button></div><p class="why" hidden>Rule action override cho phép tắt một rule gây chặn nhầm mà vẫn giữ phần còn lại.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Muốn SRT hỗ trợ trong lúc bị DDoS và tự động áp dụng giảm nhẹ ở lớp ứng dụng cho ALB. Chọn 2.</p><div class="qo"><button type="button" class="opt" data-ok>Đăng ký ALB vào Shield Advanced và bật automatic application layer DDoS mitigation (cần web ACL)</button><button type="button" class="opt" data-ok>Cấp quyền cho SRT bằng IAM role và quyền đọc log WAF</button><button type="button" class="opt">Bật GuardDuty</button><button type="button" class="opt">Dùng NACL chặn IP</button><button type="button" class="opt">Chuyển sang NLB</button></div><p class="why" hidden>Shield Advanced cung cấp SRT và tự tạo rule WAF giảm nhẹ; SRT cần được cấp quyền trước.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="scs-infra-edge">Đánh dấu đã học xong bài này</button></div>
   <nav class="pn"><a class="prev" href="scs-ir-respond.html"><small>Bài trước</small>Phản ứng sự cố: điều tra, cô lập, khôi phục</a><a class="next" href="scs-infra-compute.html"><small>Bài tiếp theo</small>Bảo mật compute, container, pipeline và GenAI</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#phong-thu-nhieu-lop-o-mang">Phòng thủ nhiều lớp ở mạng</a><a href="#security-group-va-nacl-o-muc-chuyen-sau">Security group và NACL ở mức chuyên sâu</a><a href="#kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu">Kiểm soát traffic ra (egress) và rò rỉ dữ liệu</a><a href="#waf-chuyen-sau">WAF chuyên sâu</a><a href="#shield-advanced">Shield Advanced</a><a href="#privatelink-va-truy-cap-rieng-tu">PrivateLink và truy cập riêng tư</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#chon-lop-bao-ve-theo-moi-de-doa">Chọn lớp bảo vệ theo mối đe doạ</a><a href="#aws-waf-chuyen-sau">AWS WAF chuyên sâu</a><a href="#cloudfront-o-goc-nhin-bao-mat">CloudFront ở góc nhìn bảo mật</a><a href="#s3-cors">S3 CORS</a><a href="#aws-iot-policies">AWS IoT policies</a><a href="#shield-advanced">Shield Advanced</a></nav>
 </div>
 </body>
 </html>

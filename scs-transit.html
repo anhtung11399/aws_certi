@@ -36,11 +36,58 @@
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
     <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Ép buộc mã hoá in transit</li><li>Truy cập riêng tư không qua Internet</li></ul></div>
   </header>
-  <div class="prose"><p>Bài này đang được viết.</p></div>
+  <div class="prose"><h2 id="ep-buoc-ma-hoa-khi-ket-noi"><a href="#ep-buoc-ma-hoa-khi-ket-noi" class="anchor" aria-hidden="true">#</a>Ép buộc mã hoá khi kết nối</h2>
+<table>
+<tr><th>Tài nguyên</th><th>Cách ép TLS</th></tr>
+<tr><td>ALB / NLB</td><td>Listener HTTPS / TLS, <b>security policy</b> (ví dụ <code>ELBSecurityPolicy-TLS13-1-2-2021-06</code> chỉ TLS 1.2 / 1.3; có biến thể FIPS và post-quantum <code>-PQ-</code>), redirect HTTP → HTTPS, mTLS (ALB: verify với trust store / passthrough)</td></tr>
+<tr><td>CloudFront</td><td>Viewer protocol policy Redirect / HTTPS only, security policy tối thiểu, origin protocol HTTPS only</td></tr>
+<tr><td>API Gateway</td><td>Chỉ HTTPS; custom domain chọn TLS policy; mTLS với truststore trên S3; tắt default execute-api endpoint khi dùng custom domain</td></tr>
+<tr><td>S3</td><td>Bucket policy Deny khi <code>aws:SecureTransport = false</code>; điều kiện <code>s3:TlsVersion</code> để yêu cầu TLS 1.2+</td></tr>
+<tr><td>RDS / Aurora</td><td>PostgreSQL / SQL Server: <code>rds.force_ssl = 1</code>; MySQL / MariaDB: <code>require_secure_transport = ON</code>; client dùng CA bundle của RDS (xoay vòng CA định kỳ)</td></tr>
+<tr><td>ElastiCache (Valkey / Redis)</td><td>Bật <b>in-transit encryption</b> lúc tạo (bản mới bật được sau, có chế độ preferred → required), AUTH / RBAC</td></tr>
+<tr><td>DynamoDB, mọi API AWS</td><td>Endpoint chỉ HTTPS; dùng endpoint FIPS khi cần</td></tr>
+<tr><td>SNS / SQS</td><td>Policy Deny khi <code>aws:SecureTransport = false</code></td></tr>
+<tr><td>EFS</td><td>Mount với tuỳ chọn <code>tls</code> (amazon-efs-utils); file system policy Deny khi không dùng TLS</td></tr>
+</table>
+<div class="code"><div class="code-h"><span>Chặn mọi request không mã hoá tới queue SQS</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Deny&quot;</span>,
+  <span class="s">&quot;Principal&quot;</span>: <span class="s">&quot;*&quot;</span>,
+  <span class="s">&quot;Action&quot;</span>: <span class="s">&quot;sqs:*&quot;</span>,
+  <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;arn:aws:sqs:ap-southeast-1:111122223333:orders&quot;</span>,
+  <span class="s">&quot;Condition&quot;</span>: { <span class="s">&quot;Bool&quot;</span>: { <span class="s">&quot;aws:SecureTransport&quot;</span>: <span class="s">&quot;false&quot;</span> } }
+}</code></pre></div>
+<aside class="prod"><p>Đáp án "Allow khi SecureTransport = true" không ép buộc được (request HTTP vẫn có thể được Allow bởi policy khác). Mẫu chuẩn luôn là <b>Deny khi SecureTransport = false</b>.</p></aside>
+
+<h2 id="truy-cap-rieng-tu-khong-qua-internet"><a href="#truy-cap-rieng-tu-khong-qua-internet" class="anchor" aria-hidden="true">#</a>Truy cập riêng tư, không qua Internet</h2>
+<figure class="dg arch"><svg viewBox="0 0 800 345" style="min-width:640px;max-width:800px" role="img" aria-label="Các đường truy cập riêng tư: VPC endpoint tới dịch vụ AWS, PrivateLink tới dịch vụ của bên khác, Client VPN / Verified Access cho người dùng, Direct Connect / VPN cho on-premises"><g class="ag ag-vpc"><rect x="10" y="10" width="480" height="325" rx="8"/><text x="20" y="28" class="ag-t">VPC của bạn</text></g><path d="M116.0 130.0 L180.0 130.0 L180.0 70.0 L234.0 70.0" class="ae" marker-end="url(#ar)"/><path d="M116.0 150.0 L180.0 150.0 L180.0 210.0 L234.0 210.0" class="ae" marker-end="url(#ar)"/><path d="M286.0 70.0 L594.0 70.0" class="ae ae-ok" marker-end="url(#ar)"/><path d="M286.0 210.0 L594.0 210.0" class="ae ae-ok" marker-end="url(#ar)"/><path d="M426.0 280.0 L620.0 280.0 L620.0 254.0" class="ae ae-ok" marker-end="url(#ar)"/><g class="an an-cp"><rect x="68" y="118" width="44" height="44" rx="9"/><text x="90" y="144.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="90" y="178" text-anchor="middle" class="an-l">Ứng dụng</text></g><g class="an an-nw"><rect x="238" y="48" width="44" height="44" rx="9"/><text x="260" y="74.5" text-anchor="middle" class="an-i" style="font-size:11px">VPCE</text><text x="260" y="108" text-anchor="middle" class="an-l">Gateway endpoint</text><text x="260" y="122" text-anchor="middle" class="an-s">S3, DynamoDB</text></g><g class="an an-nw"><rect x="238" y="188" width="44" height="44" rx="9"/><text x="260" y="214.5" text-anchor="middle" class="an-i" style="font-size:11px">VPCE</text><text x="260" y="248" text-anchor="middle" class="an-l">Interface endpoint</text><text x="260" y="262" text-anchor="middle" class="an-s">KMS, Secrets, SSM...</text></g><g class="an an-nw"><rect x="378" y="258" width="44" height="44" rx="9"/><text x="400" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">PL</text><text x="400" y="318" text-anchor="middle" class="an-l">Endpoint tới SaaS</text><text x="400" y="332" text-anchor="middle" class="an-s">PrivateLink</text></g><g class="an an-nw"><rect x="68" y="258" width="44" height="44" rx="9"/><text x="90" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">VPN</text><text x="90" y="318" text-anchor="middle" class="an-l">Client VPN endpoint</text></g><g class="an an-st"><rect x="598" y="48" width="44" height="44" rx="9"/><text x="620" y="74.5" text-anchor="middle" class="an-i" style="font-size:13px">S3</text><text x="620" y="108" text-anchor="middle" class="an-l">S3</text></g><g class="an an-sec"><rect x="598" y="188" width="44" height="44" rx="9"/><text x="620" y="214.5" text-anchor="middle" class="an-i" style="font-size:13px">KMS</text><text x="620" y="248" text-anchor="middle" class="an-l">KMS</text></g><g class="an an-nw"><rect x="598" y="258" width="44" height="44" rx="9"/><text x="620" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">NLB</text><text x="620" y="318" text-anchor="middle" class="an-l">Dịch vụ đối tác</text><text x="620" y="332" text-anchor="middle" class="an-s">endpoint service (NLB)</text></g></svg><figcaption>Các đường truy cập riêng tư: VPC endpoint tới dịch vụ AWS, PrivateLink tới dịch vụ của bên khác, Client VPN / Verified Access cho người dùng, Direct Connect / VPN cho on-premises</figcaption></figure>
+<ul>
+<li><b>VPC endpoint</b> + <b>endpoint policy</b>; <b>Private DNS</b> để SDK dùng tên mặc định mà vẫn đi qua endpoint.</li>
+<li><b>PrivateLink</b>: dịch vụ của bạn cho khách hàng / account khác: endpoint service sau NLB / GWLB, allowlist principal, yêu cầu chấp nhận kết nối, có thể bật Private DNS name đã xác minh.</li>
+<li><b>Client VPN</b>: laptop vào VPC, mutual TLS / AD / SAML, authorization rule theo nhóm, split tunnel.</li>
+<li><b>Verified Access</b>: không cần VPN, kiểm tra danh tính và thiết bị từng request.</li>
+<li>Kết nối on-premises: Site-to-Site VPN (IPsec), Direct Connect + MACsec / VPN.</li>
+</ul>
+
+<h2 id="ma-hoa-giua-cac-thanh-phan-ben-trong"><a href="#ma-hoa-giua-cac-thanh-phan-ben-trong" class="anchor" aria-hidden="true">#</a>Mã hoá giữa các thành phần bên trong</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Cấu hình</th></tr>
+<tr><td><b>Nitro encryption</b></td><td>Instance Nitro hỗ trợ (C5n, M6i, ... nhiều dòng mới) tự mã hoá traffic giữa chúng ở phần cứng (AES-256) khi ở cùng VPC / VPC peering cùng Region, không ảnh hưởng hiệu năng. Kết nối EBS cũng được mã hoá khi volume mã hoá</td></tr>
+<tr><td><b>EMR</b></td><td><b>Security configuration</b>: in-transit encryption (TLS giữa các node với chứng chỉ PEM từ S3 hoặc custom provider), at-rest encryption (S3: SSE-S3 / SSE-KMS / CSE-KMS; đĩa local: KMS / LUKS), Kerberos, Lake Formation</td></tr>
+<tr><td><b>EKS</b></td><td>Pod-to-pod: service mesh (mTLS, ví dụ Istio / App Mesh cũ / VPC Lattice), hoặc dựa vào Nitro encryption; secret Kubernetes mã hoá bằng KMS (envelope encryption)</td></tr>
+<tr><td><b>SageMaker AI</b></td><td><b>Inter-container traffic encryption</b> cho training phân tán, VPC mode / network isolation, KMS cho volume và output</td></tr>
+<tr><td>OpenSearch</td><td>Node-to-node encryption, HTTPS bắt buộc (enforce HTTPS)</td></tr>
+<tr><td>MSK (Kafka)</td><td>TLS giữa client - broker và giữa broker</td></tr>
+<tr><td>Redshift</td><td>Parameter <code>require_ssl</code></td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Kiểm toán yêu cầu mọi kết nối tới ALB phải dùng TLS 1.2 trở lên với cipher mạnh. Cấu hình?</p><div class="qo"><button type="button" class="opt" data-ok>Chọn ELB security policy chỉ hỗ trợ TLS 1.2 / 1.3 trên listener HTTPS và redirect HTTP sang HTTPS</button><button type="button" class="opt">Bật WAF</button><button type="button" class="opt">Bật access log</button><button type="button" class="opt">Dùng NLB TCP passthrough</button></div><p class="why" hidden>Security policy của listener quyết định giao thức và cipher được chấp nhận.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cụm EMR xử lý dữ liệu y tế cần mã hoá dữ liệu truyền giữa các node. Cấu hình ở đâu?</p><div class="qo"><button type="button" class="opt">Bucket policy của S3</button><button type="button" class="opt" data-ok>EMR security configuration bật in-transit encryption với chứng chỉ TLS</button><button type="button" class="opt">KMS key rotation</button><button type="button" class="opt">VPC Flow Logs</button></div><p class="why" hidden>Security configuration của EMR quản lý mã hoá in transit và at rest cho cụm.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Ứng dụng đối tác ở account khác cần gọi API nội bộ của bạn mà không qua Internet và không cho họ thấy toàn bộ VPC. Giải pháp?</p><div class="qo"><button type="button" class="opt">VPC peering</button><button type="button" class="opt" data-ok>PrivateLink: endpoint service sau NLB, cho phép principal của đối tác, họ tạo interface endpoint</button><button type="button" class="opt">Transit Gateway</button><button type="button" class="opt">Public ALB với WAF</button></div><p class="why" hidden>PrivateLink chia sẻ đúng một dịch vụ, không nối mạng hai bên.</p></div>
+</div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="scs-transit">Đánh dấu đã học xong bài này</button></div>
   <nav class="pn"><a class="prev" href="scs-iam-authz.html"><small>Bài trước</small>Phân quyền: policy evaluation, ABAC và Access Analyzer</a><a class="next" href="scs-kms.html"><small>Bài tiếp theo</small>KMS, CloudHSM, key material và Private CA</a></nav>
 </article></main>
-  
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#ep-buoc-ma-hoa-khi-ket-noi">Ép buộc mã hoá khi kết nối</a><a href="#truy-cap-rieng-tu-khong-qua-internet">Truy cập riêng tư, không qua Internet</a><a href="#ma-hoa-giua-cac-thanh-phan-ben-trong">Mã hoá giữa các thành phần bên trong</a></nav>
 </div>
 </body>
 </html>

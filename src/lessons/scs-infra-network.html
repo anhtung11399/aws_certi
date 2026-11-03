@@ -1,0 +1,110 @@
+<h2>Các lớp kiểm soát mạng</h2>
+<table>
+<tr><th>Lớp</th><th>Kiểm soát</th><th>Ghi nhớ</th></tr>
+<tr><td><b>Security group</b></td><td>ENI, stateful, chỉ Allow, tham chiếu SG / prefix list</td><td>Không chặn được một IP cụ thể. SG referencing qua VPC peering (cùng Region) và Transit Gateway</td></tr>
+<tr><td><b>NACL</b></td><td>Subnet, stateless, Allow + Deny, đánh số</td><td>Chặn dải IP xấu nhanh; nhớ ephemeral ports chiều về</td></tr>
+<tr><td><b>Network Firewall</b></td><td>VPC, stateless + stateful (Suricata), IPS, lọc tên miền (SNI / Host), TLS inspection, lọc theo Geo IP</td><td>Đặt ở subnet riêng; định tuyến traffic đi qua firewall endpoint cả hai chiều</td></tr>
+<tr><td><b>Route 53 Resolver DNS Firewall</b></td><td>Truy vấn DNS từ VPC</td><td>Chặn tên miền độc hại, DNS exfiltration / tunneling (managed list), fail open / closed</td></tr>
+<tr><td><b>Gateway Load Balancer</b></td><td>Chèn appliance bên thứ ba (Palo Alto, Fortinet...) minh bạch</td><td>GENEVE 6081, GWLB endpoint trong route table</td></tr>
+<tr><td>VPC Block Public Access</td><td>Chặn mọi đường IGW vào / ra ở cấp account / Region, có exclusion</td><td>Thường áp bằng declarative policy</td></tr>
+<tr><td>VPC endpoint policy</td><td>Giới hạn tài nguyên / principal được truy cập qua endpoint</td><td>Data perimeter: <code>aws:ResourceOrgID</code>, <code>aws:PrincipalOrgID</code></td></tr>
+</table>
+
+<h2>Network Firewall chi tiết</h2>
+<ul>
+<li><b>Firewall policy</b> gồm stateless rule group (xét trước, theo 5-tuple, hành động pass / drop / forward to stateful) và stateful rule group (domain list, 5-tuple, Suricata rule). Thứ tự stateful: <b>strict order</b> (khuyên dùng, có default drop) hoặc action order.</li>
+<li><b>Domain list</b>: allowlist / denylist tên miền cho HTTP (Host) và TLS (SNI), ví dụ chỉ cho <code>.amazonaws.com</code>, <code>.windowsupdate.com</code>.</li>
+<li><b>TLS inspection</b>: giải mã, kiểm tra, mã hoá lại (cần chứng chỉ trong ACM).</li>
+<li><b>Managed threat signatures</b> của AWS (malware, botnet, khai thác lỗ hổng).</li>
+<li>Logs: alert, flow, TLS về S3 / CloudWatch Logs / Firehose.</li>
+<li>Mô hình triển khai: <b>distributed</b> (firewall trong từng VPC) hoặc <b>centralized</b> (inspection VPC nối TGW, bật <b>appliance mode</b> trên attachment để traffic hai chiều đi cùng AZ). Network Firewall cũng gắn trực tiếp được vào TGW.</li>
+<li>Lỗi hay gặp: định tuyến bất đối xứng (đi qua firewall một chiều, về không qua) → stateful rule drop; quên route từ IGW (edge association / ingress routing) về firewall endpoint.</li>
+</ul>
+<arch w="800" h="350" caption="Kiểm tra traffic vào / ra Internet bằng Network Firewall: IGW route table (ingress routing) đưa traffic vào qua firewall endpoint, private subnet đi ra cũng qua firewall">
+group 10 10 780 330 vpc "VPC"
+node igw 400 40 igw "IGW" "edge route table"
+group 30 85 740 70 public "Firewall subnet"
+node fw 400 120 nfw "Firewall endpoint" "domain allowlist, IPS"
+group 30 185 740 70 public "Public subnet"
+node nat 250 220 nat "NAT GW"
+node alb 550 220 alb "ALB"
+group 30 275 740 60 private "Private subnet"
+node app 400 305 ec2 "Ứng dụng"
+edge igw fw "" c=go
+path 374 120 250 120 250 194 "" c=go
+path 426 120 550 120 550 194 "" c=go
+path 374 305 250 305 250 264 "ra Internet" c=go
+edge alb app "" route=vh
+</arch>
+
+<h2>Phân đoạn mạng</h2>
+<ul>
+<li><b>North-south</b> (vào / ra Internet hoặc on-premises): WAF, Shield, Network Firewall ở biên, NAT, egress filtering.</li>
+<li><b>East-west</b> (giữa các VPC / subnet / ứng dụng bên trong): SG theo tầng (web → app → db), NACL, Network Firewall trong inspection VPC, TGW route table tách môi trường, <b>VPC Lattice</b> (auth policy ở mức service).</li>
+<li><b>Isolated subnet</b>: không có route tới IGW / NAT; chỉ truy cập dịch vụ AWS qua VPC endpoint (database, workload xử lý dữ liệu nhạy cảm).</li>
+<li>Tách môi trường bằng <b>account</b> và <b>VPC</b> riêng (blast radius), không chỉ bằng subnet.</li>
+<li>Microsegmentation cho container: EKS network policy, ECS task với awsvpc (mỗi task một ENI, SG riêng).</li>
+</ul>
+
+<h2>Kết nối lai và đa cloud an toàn</h2>
+<table>
+<tr><th>Giải pháp</th><th>Bảo mật</th></tr>
+<tr><td>Site-to-Site VPN</td><td>IPsec (IKEv2, AES-256, SHA-2, PFS); 2 tunnel; có thể dùng chứng chỉ Private CA thay pre-shared key; tunnel có thể chạy trên Direct Connect (private IP VPN)</td></tr>
+<tr><td>Direct Connect</td><td>Không mã hoá mặc định. <b>MACsec</b> (IEEE 802.1AE, lớp 2) trên dedicated connection 10 / 100 / 400 Gbps hỗ trợ, cấu hình CKN / CAK; hoặc VPN trên DX; hoặc mã hoá lớp ứng dụng (TLS)</td></tr>
+<tr><td>Client VPN</td><td>Xác thực mutual cert / AD / SAML, authorization rule theo group, ghi log kết nối, client connect handler (Lambda kiểm tra tư thế thiết bị)</td></tr>
+<tr><td><b>Verified Access</b></td><td>Truy cập ứng dụng nội bộ (HTTP, cả TCP / SSH / RDP) <b>không cần VPN</b>, mỗi request đánh giá theo danh tính (Identity Center / OIDC) và trạng thái thiết bị (CrowdStrike, Jamf...), policy bằng Cedar, có WAF và log truy cập</td></tr>
+<tr><td>PrivateLink</td><td>Chia sẻ một dịch vụ, không mở cả mạng; endpoint service yêu cầu chấp nhận, allowlist principal</td></tr>
+</table>
+<arch w="800" h="280" caption="Verified Access: người dùng truy cập ứng dụng nội bộ không qua VPN; mỗi request được kiểm tra danh tính và trạng thái thiết bị theo policy">
+node u 70 130 laptop "Nhân viên" "trình duyệt"
+node va 250 130 identitycenter "Verified Access" "policy Cedar"
+node idp 250 240 identitycenter "Identity Center / IdP" "nhóm, MFA"
+node dev 400 240 server "Device trust" "CrowdStrike, Jamf"
+group 470 30 320 230 vpc "VPC · private subnet"
+node alb 560 130 alb "ALB nội bộ"
+node app 700 130 ec2 "Ứng dụng nội bộ"
+edge u va "HTTPS" c=ok
+edge idp va "" dash
+path 400 214 400 160 276 160 "" dash
+edge va alb "chỉ khi policy cho phép" c=ok
+edge alb app "" c=ok
+</arch>
+
+<h2>Tìm đường truy cập thừa</h2>
+<ul>
+<li><b>Network Access Analyzer</b>: định nghĩa <b>Network Access Scope</b> ("mọi đường từ IGW tới subnet database", "traffic từ VPC dev tới VPC prod") và nhận danh sách đường đi vi phạm, kèm từng thành phần trên đường.</li>
+<li><b>Inspector network reachability</b>: EC2 có cổng mở ra Internet (qua IGW, ELB) mà không cần agent.</li>
+<li><b>Reachability Analyzer</b>: kiểm tra một cặp nguồn / đích cụ thể.</li>
+<li>Security Hub / Config rule: SG mở 0.0.0.0/0 tới 22 / 3389, NACL cho mọi traffic, subnet tự gán public IP.</li>
+<li>Firewall Manager <b>security group policy</b>: audit SG quá rộng, SG không dùng, áp SG chuẩn.</li>
+</ul>
+
+<h2>Kiểm soát egress và chống rò dữ liệu</h2>
+<ul>
+<li>Không cho máy ra Internet tuỳ ý: isolated subnet + VPC endpoint, hoặc NAT + Network Firewall domain allowlist.</li>
+<li>Endpoint policy cho S3: chỉ bucket của tổ chức (<code>aws:ResourceOrgID</code>) → chặn chép dữ liệu sang bucket cá nhân.</li>
+<li>Bucket policy chỉ nhận qua endpoint (<code>aws:SourceVpce</code>), RCP để mọi bucket chỉ cho principal trong tổ chức.</li>
+<li>DNS Firewall chặn DNS tunneling, GuardDuty phát hiện exfiltration qua DNS.</li>
+</ul>
+
+<quiz q="Network Firewall đặt trong inspection VPC nối Transit Gateway. Kết nối TCP giữa hai VPC bị drop ngẫu nhiên dù rule cho phép. Nguyên nhân thường gặp?">
++ Chưa bật appliance mode trên TGW attachment của inspection VPC nên hai chiều đi qua firewall ở hai AZ khác nhau (bất đối xứng)
+- Thiếu NACL
+- Thiếu Internet Gateway
+- Domain list sai
+? Stateful firewall cần thấy cả hai chiều của luồng; appliance mode giữ luồng ở cùng AZ.
+</quiz>
+<quiz q="Cần mã hoá lớp 2 trên kết nối Direct Connect 100 Gbps dedicated, không muốn overhead của IPsec. Chọn?">
+- Site-to-Site VPN trên DX
++ MACsec
+- TLS ở ứng dụng
+- PrivateLink
+? MACsec mã hoá ở lớp 2 với tốc độ đường truyền trên dedicated connection hỗ trợ.
+</quiz>
+<quiz q="Cần chứng minh không có đường mạng nào từ Internet tới các subnet chứa database ở 50 VPC. Công cụ?">
+- Reachability Analyzer cho từng cặp
++ Network Access Analyzer với Network Access Scope từ IGW tới subnet database
+- VPC Flow Logs
+- GuardDuty
+? Network Access Analyzer quét toàn bộ cấu hình theo phạm vi định nghĩa và liệt kê mọi đường vi phạm.
+</quiz>

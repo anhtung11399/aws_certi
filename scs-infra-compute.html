@@ -36,33 +36,84 @@
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
     <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Giảm bề mặt tấn công của compute</li><li>Quản lý lỗ hổng liên tục</li><li>Bảo vệ ứng dụng GenAI</li></ul></div>
   </header>
-  <div class="prose"><h2 id="bao-ve-ec2"><a href="#bao-ve-ec2" class="anchor" aria-hidden="true">#</a>Bảo vệ EC2</h2>
+  <div class="prose"><h2 id="image-cung-hoa-hardened-ami-va-container-image"><a href="#image-cung-hoa-hardened-ami-va-container-image" class="anchor" aria-hidden="true">#</a>Image cứng hoá (hardened AMI và container image)</h2>
+<figure class="dg arch"><svg viewBox="0 0 800 300" style="min-width:640px;max-width:800px" role="img" aria-label="Pipeline golden image: Image Builder dựng AMI từ image gốc, chạy component hardening (CIS / STIG), quét Inspector, chỉ AMI đạt mới được phân phối; Allowed AMIs chặn dùng AMI khác"><path d="M96.0 130.0 L194.0 130.0" class="ae" marker-end="url(#ar)"/><path d="M246.0 130.0 L354.0 130.0" class="ae" marker-end="url(#ar)"/><path d="M406.0 130.0 L540.0 130.0 L540.0 128.0" class="ae ae-ok" marker-end="url(#ar)"/><path d="M406.0 130.0 L540.0 130.0 L540.0 174.0" class="ae ae-bad" marker-end="url(#ar)"/><path d="M684.0 70.0 L566.0 70.0" class="ae ds" marker-end="url(#ar)"/><g class="an an-cp"><rect x="48" y="108" width="44" height="44" rx="9"/><text x="70" y="134.5" text-anchor="middle" class="an-i" style="font-size:13px">AMI</text><text x="70" y="168" text-anchor="middle" class="an-l">Image gốc</text><text x="70" y="182" text-anchor="middle" class="an-s">AWS / Marketplace</text></g><g class="an an-cp"><rect x="198" y="108" width="44" height="44" rx="9"/><text x="220" y="134.5" text-anchor="middle" class="an-i" style="font-size:13px">IB</text><text x="220" y="168" text-anchor="middle" class="an-l">Image Builder</text><text x="220" y="182" text-anchor="middle" class="an-s">CIS hardening, agent</text></g><g class="an an-sec"><rect x="358" y="108" width="44" height="44" rx="9"/><text x="380" y="134.5" text-anchor="middle" class="an-i" style="font-size:13px">INS</text><text x="380" y="168" text-anchor="middle" class="an-l">Test + Inspector</text><text x="380" y="182" text-anchor="middle" class="an-s">không CVE critical</text></g><g class="an an-cp"><rect x="518" y="48" width="44" height="44" rx="9"/><text x="540" y="74.5" text-anchor="middle" class="an-i" style="font-size:13px">AMI</text><text x="540" y="108" text-anchor="middle" class="an-l">Golden AMI</text><text x="540" y="122" text-anchor="middle" class="an-s">chia sẻ OU, KMS</text></g><g class="an an-cp"><rect x="518" y="178" width="44" height="44" rx="9"/><text x="540" y="204.5" text-anchor="middle" class="an-i" style="font-size:13px">AMI</text><text x="540" y="238" text-anchor="middle" class="an-l">Bị loại</text><text x="540" y="252" text-anchor="middle" class="an-s">pipeline fail</text></g><g class="an an-mg"><rect x="688" y="48" width="44" height="44" rx="9"/><text x="710" y="74.5" text-anchor="middle" class="an-i" style="font-size:13px">ORG</text><text x="710" y="108" text-anchor="middle" class="an-l">Allowed AMIs</text><text x="710" y="122" text-anchor="middle" class="an-s">declarative policy</text></g><g class="ae-lb"><rect x="458.4" y="121.0" width="29.2" height="17" rx="4"/><text x="473.0" y="133.5" text-anchor="middle">đạt</text></g></svg><figcaption>Pipeline golden image: Image Builder dựng AMI từ image gốc, chạy component hardening (CIS / STIG), quét Inspector, chỉ AMI đạt mới được phân phối; Allowed AMIs chặn dùng AMI khác</figcaption></figure>
 <ul>
-<li><b>IMDSv2</b>: bắt buộc dùng token phiên (PUT rồi mới GET), chống tấn công SSRF lấy credential của role. Ép buộc: <code>HttpTokens=required</code> trong launch template, mặc định ở cấp account, SCP / <b>declarative policy</b> chặn tạo instance thiếu IMDSv2, Config rule <code>ec2-imdsv2-check</code>. Đặt <code>HttpPutResponseHopLimit=1</code> (2 nếu chạy container) để container không lấy được credential của host.</li>
-<li>Không mở SSH / RDP ra Internet: dùng <b>Session Manager</b> (log phiên về S3 / CloudWatch, mã hoá KMS, không cần key pair) hoặc <b>EC2 Instance Connect Endpoint</b> (SSH vào máy private không cần bastion).</li>
-<li>Máy mất key / không vào được: SSM <code>AWSSupport-ResetAccess</code> hoặc EC2Rescue.</li>
-<li><b>Patching</b>: SSM Patch Manager. <b>Lỗ hổng</b>: Inspector (EC2, ECR, Lambda), có SBOM export.</li>
-<li><b>Golden AMI</b>: dựng bằng EC2 Image Builder có bước hardening (CIS benchmark), quét Inspector, chỉ cho phép dùng AMI đã duyệt (SCP / declarative policy <b>allowed AMIs</b>).</li>
-<li>Mã hoá EBS mặc định, chặn chia sẻ AMI / snapshot công khai (block public access for AMIs / snapshots).</li>
-<li><b>Nitro Enclaves</b>: môi trường cô lập trong instance để xử lý dữ liệu cực nhạy cảm (khoá, dữ liệu thẻ), có attestation với KMS.</li>
+<li><b>EC2 Image Builder</b>: component hardening có sẵn (CIS Benchmark, STIG), cài agent (SSM, CloudWatch, bảo mật), test, quét Inspector, phân phối AMI mã hoá bằng customer managed key cho các account / OU; tự chạy lại khi có bản vá.</li>
+<li>Gỡ phần mềm / dịch vụ thừa, tắt đăng nhập mật khẩu, không nhúng secret vào image.</li>
+<li><b>Allowed AMIs</b> (cấu hình account hoặc declarative policy): chỉ cho launch AMI từ nguồn tin cậy. <b>Block public access for AMIs / snapshots</b>.</li>
+<li>Container image: base image tối giản (distroless, minimal), chạy user không phải root, <b>ECR enhanced scanning</b> (Inspector), <b>tag immutability</b>, ký image (AWS Signer / Notation) và kiểm tra chữ ký khi deploy (Kyverno / admission controller trên EKS).</li>
+<li>Kiểm tra và áp cấu hình liên tục: SSM State Manager, Config rule (<code>ec2-instance-managed-by-systems-manager</code>, <code>approved-amis-by-id</code>).</li>
 </ul>
 
-<h2 id="container-va-serverless"><a href="#container-va-serverless" class="anchor" aria-hidden="true">#</a>Container và serverless</h2>
+<h2 id="cap-quyen-cho-workload-compute"><a href="#cap-quyen-cho-workload-compute" class="anchor" aria-hidden="true">#</a>Cấp quyền cho workload compute</h2>
+<table>
+<tr><th>Workload</th><th>Cơ chế</th><th>Ghi nhớ</th></tr>
+<tr><td>EC2</td><td><b>Instance profile</b> chứa role</td><td>Credential qua IMDS, tự xoay vòng; bắt buộc <b>IMDSv2</b>, hop limit 1 (2 nếu có container)</td></tr>
+<tr><td>Lambda</td><td><b>Execution role</b> (quyền của hàm) + <b>resource-based policy</b> (ai được gọi hàm)</td><td>Mỗi hàm một role tối thiểu</td></tr>
+<tr><td>ECS</td><td><b>Task role</b> (ứng dụng) vs <b>task execution role</b> (kéo image, đọc secret, ghi log)</td><td>Hay bị nhầm trong đề</td></tr>
+<tr><td>EKS</td><td><b>EKS Pod Identity</b> hoặc <b>IRSA</b> (OIDC); node role chỉ quyền tối thiểu cho node</td><td>Chặn pod lấy credential của node: IMDSv2 hop limit 1</td></tr>
+<tr><td>Dịch vụ AWS (CodeBuild, Glue, Step Functions...)</td><td><b>Service role</b>; truyền role cần <code>iam:PassRole</code></td><td>Trust policy có <code>aws:SourceArn</code> / <code>aws:SourceAccount</code> chống confused deputy</td></tr>
+<tr><td>Workload ngoài AWS</td><td>IAM Roles Anywhere</td><td></td></tr>
+</table>
+<aside class="prod"><p>Hạn chế dùng credential của instance ở nơi khác: điều kiện <code>aws:EC2InstanceSourceVPC</code> và <code>aws:EC2InstanceSourcePrivateIPv4</code> trong policy (hoặc SCP / RCP) để credential lấy từ EC2 chỉ dùng được từ chính VPC / IP của instance. GuardDuty báo <code>InstanceCredentialExfiltration</code> khi credential bị dùng ở ngoài.</p></aside>
+
+<h2 id="quet-lo-hong-va-giam-sat-runtime"><a href="#quet-lo-hong-va-giam-sat-runtime" class="anchor" aria-hidden="true">#</a>Quét lỗ hổng và giám sát runtime</h2>
 <ul>
-<li><b>ECR</b>: image scanning (basic khi push, enhanced với Inspector quét liên tục), repository policy, mã hoá KMS, <b>tag immutability</b>, pull through cache cho registry bên ngoài.</li>
-<li><b>ECS</b>: task role (quyền cho ứng dụng) khác task execution role (quyền kéo image, đọc secret, ghi log). Secret đưa vào container từ Secrets Manager / Parameter Store, không đặt trong biến môi trường plain text của task definition.</li>
-<li><b>EKS</b>: <b>IRSA</b> hoặc <b>EKS Pod Identity</b> để pod có IAM role riêng; EKS access entries thay cho aws-auth ConfigMap; bật audit log của control plane; GuardDuty EKS Protection + Runtime Monitoring; network policy.</li>
-<li><b>Lambda</b>: execution role least privilege, resource policy (ai được gọi), code signing (chỉ chạy code đã ký bằng AWS Signer), biến môi trường mã hoá KMS, chạy trong VPC khi cần truy cập tài nguyên private.</li>
-<li><b>Chuỗi cung ứng phần mềm</b>: quét thư viện (Inspector cho Lambda / ECR, CodeGuru Security / Amazon Q), ký image, SBOM, chỉ kéo từ registry tin cậy.</li>
+<li><b>Inspector</b>: EC2 (agent SSM hoặc agentless), ECR (khi push và liên tục khi có CVE mới), Lambda (thư viện và code). Kết quả vào Security Hub, EventBridge.</li>
+<li><b>GuardDuty Runtime Monitoring</b>: hành vi lúc chạy trên EC2, ECS, EKS (tiến trình lạ, reverse shell, đào coin, leo thang đặc quyền). <b>Malware Protection</b>: quét EBS khi nghi ngờ.</li>
+<li>Kết hợp: Inspector cho biết "có lỗ hổng", GuardDuty cho biết "đang bị khai thác".</li>
 </ul>
 
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Một lỗi SSRF trong ứng dụng web trên EC2 cho phép kẻ tấn công gọi http://169.254.169.254 để lấy credential. Biện pháp trực tiếp nhất?</p><div class="qo"><button type="button" class="opt" data-ok>Bắt buộc IMDSv2 (HttpTokens=required) cho instance</button><button type="button" class="opt">Đổi security group chặn cổng 80</button><button type="button" class="opt">Bật GuardDuty</button></div><p class="why" hidden>IMDSv2 yêu cầu token qua PUT với header riêng, kiểu SSRF thông thường (chỉ GET) không lấy được credential.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ECS task cần mật khẩu database. Cách an toàn nhất?</p><div class="qo"><button type="button" class="opt">Ghi mật khẩu vào biến môi trường trong task definition</button><button type="button" class="opt" data-ok>Lưu trong Secrets Manager, tham chiếu ở trường secrets của container definition, cấp quyền đọc cho task execution role</button><button type="button" class="opt">Đóng gói mật khẩu vào image</button></div><p class="why" hidden>ECS lấy secret từ Secrets Manager khi khởi động task, secret không nằm trong task definition hay image.</p></div>
+<h2 id="va-loi-tu-dong-va-kiem-chung-lien-tuc"><a href="#va-loi-tu-dong-va-kiem-chung-lien-tuc" class="anchor" aria-hidden="true">#</a>Vá lỗi tự động và kiểm chứng liên tục</h2>
+<ul>
+<li><b>Patch Manager</b> + patch baseline + maintenance window / patch policy cho Organization; báo cáo compliance.</li>
+<li>Vòng khép kín: Inspector phát hiện CVE → EventBridge → SSM Automation vá (hoặc thay bằng AMI mới qua ASG instance refresh) → Inspector quét lại, finding tự đóng khi đã vá.</li>
+<li>Immutable infrastructure: thay vì vá tại chỗ, dựng AMI / image mới và thay instance / task.</li>
+<li>Lambda: cập nhật runtime khi hết hỗ trợ, cập nhật thư viện; ECS / EKS: rebuild image, cập nhật AMI node.</li>
+</ul>
+
+<h2 id="truy-cap-quan-tri-an-toan"><a href="#truy-cap-quan-tri-an-toan" class="anchor" aria-hidden="true">#</a>Truy cập quản trị an toàn</h2>
+<table>
+<tr><th>Cách</th><th>Ưu điểm</th></tr>
+<tr><td><b>SSM Session Manager</b></td><td>Không mở cổng, không key, IAM quyết định ai vào máy nào (theo tag), log phiên S3 / CloudWatch, mã hoá KMS, port forwarding</td></tr>
+<tr><td><b>EC2 Instance Connect</b></td><td>Đẩy public key tạm thời (60 giây) bằng IAM, vẫn dùng SSH cổng 22</td></tr>
+<tr><td><b>EC2 Instance Connect Endpoint</b></td><td>SSH / RDP vào máy private không cần public IP, không bastion, không IGW; kiểm soát bằng IAM và SG</td></tr>
+<tr><td>Bastion host</td><td>Cách cũ, phải vá, quản lý key, mở cổng: tránh dùng</td></tr>
+<tr><td>EC2 Serial Console</td><td>Khẩn cấp khi máy mất mạng; bật ở cấp account, kiểm soát chặt bằng IAM</td></tr>
+</table>
+
+<h2 id="bao-mat-trong-pipeline-shift-left"><a href="#bao-mat-trong-pipeline-shift-left" class="anchor" aria-hidden="true">#</a>Bảo mật trong pipeline (shift-left)</h2>
+<ul>
+<li><b>Amazon Q Developer</b> (security scanning trong IDE / review code), <b>Amazon CodeGuru Security</b> (SAST: lỗ hổng, secret viết cứng trong code), tích hợp CodePipeline / GitHub Actions.</li>
+<li>Quét IaC: <b>cfn-guard</b>, <b>cfn-lint</b>, Checkov; quét dependency (SCA) và image (Inspector CI/CD integration) trước khi push.</li>
+<li><b>Access Analyzer custom policy checks</b>: chặn merge khi IAM policy mới cấp quyền nguy hiểm.</li>
+<li><b>Code signing</b> cho Lambda (AWS Signer, signing profile, code signing config chỉ cho deploy code đã ký).</li>
+<li>Secret trong pipeline: lấy từ Secrets Manager, không ghi vào biến môi trường build ở dạng rõ, OIDC thay access key cho CI bên ngoài.</li>
+<li>Bảo vệ chính pipeline: role của CodeBuild / CodePipeline tối thiểu, artifact bucket mã hoá, chỉ nhánh được bảo vệ mới deploy production, phê duyệt thủ công.</li>
+</ul>
+
+<h2 id="bao-ve-ung-dung-genai"><a href="#bao-ve-ung-dung-genai" class="anchor" aria-hidden="true">#</a>Bảo vệ ứng dụng GenAI</h2>
+<p>OWASP Top 10 for LLM Applications gồm: prompt injection, lộ thông tin nhạy cảm, chuỗi cung ứng, đầu độc dữ liệu / mô hình, xử lý đầu ra không an toàn, quyền tác tử quá mức (excessive agency), lộ system prompt, điểm yếu vector / embedding, thông tin sai lệch, tiêu thụ tài nguyên không giới hạn.</p>
+<table>
+<tr><th>Rủi ro</th><th>Kiểm soát trên AWS</th></tr>
+<tr><td>Prompt injection, nội dung độc hại</td><td><b>Amazon Bedrock Guardrails</b>: content filters (bao gồm prompt attack), denied topics, word filters, <b>sensitive information filters</b> (che / chặn PII, regex), contextual grounding check (chống bịa), áp cho cả input và output; <code>ApplyGuardrail</code> API dùng được với mô hình ngoài Bedrock</td></tr>
+<tr><td>Lộ dữ liệu nhạy cảm</td><td>Guardrails PII masking, Macie cho dữ liệu huấn luyện / knowledge base trên S3, mã hoá KMS, Bedrock không dùng dữ liệu của bạn để huấn luyện mô hình nền</td></tr>
+<tr><td>Excessive agency (agent gọi công cụ quá quyền)</td><td>Role của Bedrock Agent / action group least privilege, xác nhận người dùng trước hành động nhạy cảm, Verified Permissions cho phân quyền trong ứng dụng</td></tr>
+<tr><td>Truy cập riêng tư</td><td>VPC endpoint (PrivateLink) cho Bedrock, endpoint policy, SCP giới hạn mô hình được dùng (điều kiện theo model ARN)</td></tr>
+<tr><td>Tiêu thụ không giới hạn</td><td>Quota, rate limit ở API Gateway / WAF, budget</td></tr>
+<tr><td>Ghi nhận và kiểm toán</td><td>Bedrock model invocation logging (S3 / CloudWatch Logs), CloudTrail</td></tr>
+<tr><td>Dữ liệu dùng cho AI</td><td>Organizations <b>AI services opt-out policy</b></td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Pod trên EKS lấy được credential của IAM role gắn với node qua metadata service, có quyền rộng hơn pod cần. Hai biện pháp đúng?</p><div class="qo"><button type="button" class="opt" data-ok>Dùng EKS Pod Identity (hoặc IRSA) để mỗi pod có role riêng</button><button type="button" class="opt" data-ok>Bắt buộc IMDSv2 với hop limit 1 trên node để pod không gọi được IMDS</button><button type="button" class="opt">Gắn AdministratorAccess cho node để tránh lỗi</button><button type="button" class="opt">Tắt security group của node</button><button type="button" class="opt">Dùng Inspector</button></div><p class="why" hidden>Pod cần role riêng, và chặn pod mượn credential của node qua IMDS.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Chatbot dùng Bedrock bị người dùng dụ tiết lộ số điện thoại khách hàng trong knowledge base. Biện pháp trực tiếp nhất?</p><div class="qo"><button type="button" class="opt">Tăng temperature</button><button type="button" class="opt" data-ok>Bedrock Guardrails với sensitive information filter (mask / block PII) trên output, cùng content filter chống prompt attack</button><button type="button" class="opt">Bật GuardDuty</button><button type="button" class="opt">Đổi sang mô hình lớn hơn</button></div><p class="why" hidden>Guardrails lọc PII và prompt attack trên đầu vào và đầu ra.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ECS task không đọc được secret khi khởi động, báo lỗi quyền. Role nào cần quyền secretsmanager:GetSecretValue?</p><div class="qo"><button type="button" class="opt">Task role</button><button type="button" class="opt" data-ok>Task execution role</button><button type="button" class="opt">Instance profile của container instance</button><button type="button" class="opt">Service-linked role của ECS</button></div><p class="why" hidden>Secret được inject lúc khởi động bởi ECS agent dùng task execution role.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="scs-infra-compute">Đánh dấu đã học xong bài này</button></div>
   <nav class="pn"><a class="prev" href="scs-infra-edge.html"><small>Bài trước</small>Bảo mật biên: CloudFront, WAF, Shield</a><a class="next" href="scs-infra-network.html"><small>Bài tiếp theo</small>Bảo mật mạng: phân đoạn, firewall, kết nối lai</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#bao-ve-ec2">Bảo vệ EC2</a><a href="#container-va-serverless">Container và serverless</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#image-cung-hoa-hardened-ami-va-container-image">Image cứng hoá (hardened AMI và container image)</a><a href="#cap-quyen-cho-workload-compute">Cấp quyền cho workload compute</a><a href="#quet-lo-hong-va-giam-sat-runtime">Quét lỗ hổng và giám sát runtime</a><a href="#va-loi-tu-dong-va-kiem-chung-lien-tuc">Vá lỗi tự động và kiểm chứng liên tục</a><a href="#truy-cap-quan-tri-an-toan">Truy cập quản trị an toàn</a><a href="#bao-mat-trong-pipeline-shift-left">Bảo mật trong pipeline (shift-left)</a><a href="#bao-ve-ung-dung-genai">Bảo vệ ứng dụng GenAI</a></nav>
 </div>
 </body>
 </html>

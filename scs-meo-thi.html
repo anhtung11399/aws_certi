@@ -68,6 +68,37 @@
 <tr><td>áp WAF / SG cho mọi account</td><td>Firewall Manager</td></tr>
 <tr><td>bằng chứng kiểm toán của hệ thống bạn</td><td>Audit Manager</td></tr>
 <tr><td>báo cáo tuân thủ của AWS</td><td>Artifact</td></tr>
+<tr><td>tiến trình độc hại trong container / EC2</td><td>GuardDuty Runtime Monitoring</td></tr>
+<tr><td>quét malware file upload lên S3</td><td>GuardDuty Malware Protection for S3</td></tr>
+<tr><td>finding chấp nhận rủi ro, giảm nhiễu</td><td>GuardDuty suppression rule / Security Hub automation rules</td></tr>
+<tr><td>bật dịch vụ bảo mật cho mọi account mới</td><td>Delegated admin + auto-enable</td></tr>
+<tr><td>credential EC2 dùng ngoài AWS</td><td>InstanceCredentialExfiltration; aws:EC2InstanceSourceVPC</td></tr>
+<tr><td>runbook dạng sổ tay điều tra</td><td>SageMaker AI notebook</td></tr>
+<tr><td>kiểm thử kế hoạch phục hồi</td><td>Fault Injection Service / Resilience Hub</td></tr>
+<tr><td>tự động thu bằng chứng EC2</td><td>Automated Forensics Orchestrator for Amazon EC2</td></tr>
+<tr><td>dừng Lambda bị sửa code</td><td>Reserved concurrency = 0</td></tr>
+<tr><td>công cụ tấn công đổi IP liên tục</td><td>WAF JA3 / JA4 fingerprint</td></tr>
+<tr><td>dò mật khẩu phân tán / tạo tài khoản giả</td><td>WAF ATP / ACFP</td></tr>
+<tr><td>chỉ cho origin nhận từ CloudFront</td><td>OAC (S3), prefix list + custom header (ALB), VPC origins</td></tr>
+<tr><td>thiết bị IoT chỉ publish topic của mình</td><td>IoT policy với policy variables</td></tr>
+<tr><td>prompt injection, PII trong chatbot</td><td>Bedrock Guardrails</td></tr>
+<tr><td>chỉ chạy code Lambda đã ký</td><td>AWS Signer + code signing config</td></tr>
+<tr><td>SSH vào máy private không bastion</td><td>EC2 Instance Connect Endpoint / Session Manager</td></tr>
+<tr><td>firewall stateful drop ngẫu nhiên qua TGW</td><td>Bật appliance mode</td></tr>
+<tr><td>mã hoá lớp 2 trên Direct Connect</td><td>MACsec</td></tr>
+<tr><td>mã hoá giữa các node EMR</td><td>EMR security configuration</td></tr>
+<tr><td>mã hoá traffic giữa instance không tốn hiệu năng</td><td>Nitro encryption</td></tr>
+<tr><td>xoá key ngay lập tức, đặt hạn key</td><td>KMS imported key material</td></tr>
+<tr><td>key phải nằm ngoài AWS</td><td>KMS external key store (XKS)</td></tr>
+<tr><td>CA nội bộ, mTLS</td><td>AWS Private CA</td></tr>
+<tr><td>chặn ransomware mã hoá lại S3</td><td>Chặn SSE-C + versioning + Object Lock</td></tr>
+<tr><td>backup không bị xoá khi account bị chiếm</td><td>Vault ở account khác / logically air-gapped vault + Vault Lock</td></tr>
+<tr><td>che dữ liệu nhạy cảm trong log / SNS</td><td>CloudWatch Logs / SNS data protection policy</td></tr>
+<tr><td>rotation Lambda thất bại</td><td>Đường mạng tới DB và endpoint Secrets Manager</td></tr>
+<tr><td>bỏ mật khẩu root của thành viên</td><td>Centralized root access management</td></tr>
+<tr><td>ép IMDSv2 / chặn public snapshot cho cả Org</td><td>Declarative policy</td></tr>
+<tr><td>chặn template sai trước khi deploy</td><td>CloudFormation Guard / Hooks</td></tr>
+<tr><td>người dùng tự tạo môi trường chuẩn</td><td>Service Catalog launch constraint</td></tr>
 </table>
 
 <h2 id="bay-hay-gap"><a href="#bay-hay-gap" class="anchor" aria-hidden="true">#</a>Bẫy hay gặp</h2>

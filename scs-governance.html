@@ -37,75 +37,95 @@
     <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Thiết kế landing zone an toàn</li><li>Áp chính sách cho cả Organization</li><li>Quản lý root và truy cập khẩn cấp</li></ul></div>
   </header>
   <div class="prose"><h2 id="cau-truc-nhieu-account"><a href="#cau-truc-nhieu-account" class="anchor" aria-hidden="true">#</a>Cấu trúc nhiều account</h2>
-<figure class="dg"><svg viewBox="0 0 942.8000000000001 432" style="min-width:600px;max-width:942.8000000000001px" role="img" aria-label="Mẫu Organization phổ biến (theo whitepaper Organizing Your AWS Environment)"><g class="nd db"><rect x="10" y="10" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="41" class="tt" text-anchor="middle">Management account</text></g><text x="221.20000000000002" y="41" class="tl" text-anchor="start">chỉ quản lý Organizations, billing. Không chạy workload</text><line x1="105.60000000000001" y1="62" x2="105.60000000000001" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="82" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="113" class="tt" text-anchor="middle">Security OU</text></g><text x="221.20000000000002" y="113" class="tl" text-anchor="start">Log Archive (log tập trung), Security Tooling / Audit (delegated admin của các dịch vụ bảo mật)</text><line x1="105.60000000000001" y1="134" x2="105.60000000000001" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="154" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="185" class="tt" text-anchor="middle">Infrastructure OU</text></g><text x="221.20000000000002" y="185" class="tl" text-anchor="start">mạng dùng chung (TGW, DNS), shared services</text><line x1="105.60000000000001" y1="206" x2="105.60000000000001" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="10" y="226" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="257" class="tt" text-anchor="middle">Workloads OU</text></g><text x="221.20000000000002" y="257" class="tl" text-anchor="start">Prod, Non-prod (mỗi ứng dụng / môi trường một account)</text><line x1="105.60000000000001" y1="278" x2="105.60000000000001" y2="296" class="ln" marker-end="url(#ar)"/><g class="nd ext"><rect x="10" y="298" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="329" class="tt" text-anchor="middle">Sandbox OU</text></g><text x="221.20000000000002" y="329" class="tl" text-anchor="start">thử nghiệm, giới hạn chi phí chặt</text><line x1="105.60000000000001" y1="350" x2="105.60000000000001" y2="368" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="10" y="370" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="401" class="tt" text-anchor="middle">Suspended OU</text></g><text x="221.20000000000002" y="401" class="tl" text-anchor="start">account chờ đóng, SCP chặn mọi thứ</text></svg><figcaption>Mẫu Organization phổ biến (theo whitepaper Organizing Your AWS Environment)</figcaption></figure>
+<figure class="dg arch"><svg viewBox="0 0 800 360" style="min-width:640px;max-width:800px" role="img" aria-label="Landing zone khuyến nghị: management account chỉ quản trị; OU Security chứa Log Archive và Audit / Security Tooling; workload tách theo môi trường; SCP gắn ở root và từng OU"><g class="ag ag-ou"><rect x="10" y="100" width="250" height="250" rx="8"/><text x="20" y="118" class="ag-t">OU Security</text></g><g class="ag ag-ou"><rect x="275" y="100" width="250" height="250" rx="8"/><text x="285" y="118" class="ag-t">OU Workloads</text></g><g class="ag ag-ou"><rect x="540" y="100" width="250" height="250" rx="8"/><text x="550" y="118" class="ag-t">OU Infrastructure, Sandbox</text></g><g class="an an-mg"><rect x="378" y="18" width="44" height="44" rx="9"/><text x="400" y="44.5" text-anchor="middle" class="an-i" style="font-size:13px">ORG</text><text x="400" y="78" text-anchor="middle" class="an-l">Root</text><text x="400" y="92" text-anchor="middle" class="an-s">SCP: chặn Region, cấm rời Org</text></g><g class="an an-mg"><rect x="98" y="18" width="44" height="44" rx="9"/><text x="120" y="44.5" text-anchor="middle" class="an-i" style="font-size:13px">CTW</text><text x="120" y="78" text-anchor="middle" class="an-l">Management account</text><text x="120" y="92" text-anchor="middle" class="an-s">Org, billing, Control Tower</text></g><g class="an an-st"><rect x="53" y="168" width="44" height="44" rx="9"/><text x="75" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">S3</text><text x="75" y="228" text-anchor="middle" class="an-l">Log Archive</text><text x="75" y="242" text-anchor="middle" class="an-s">CloudTrail, Config</text></g><g class="an an-sec"><rect x="173" y="168" width="44" height="44" rx="9"/><text x="195" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">SH</text><text x="195" y="228" text-anchor="middle" class="an-l">Audit / Security Tooling</text><text x="195" y="242" text-anchor="middle" class="an-s">delegated admin</text></g><g class="an an-cp"><rect x="318" y="168" width="44" height="44" rx="9"/><text x="340" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="340" y="228" text-anchor="middle" class="an-l">Prod</text><text x="340" y="242" text-anchor="middle" class="an-s">SCP chặt</text></g><g class="an an-cp"><rect x="438" y="168" width="44" height="44" rx="9"/><text x="460" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="460" y="228" text-anchor="middle" class="an-l">Dev</text></g><g class="an an-nw"><rect x="583" y="168" width="44" height="44" rx="9"/><text x="605" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">TGW</text><text x="605" y="228" text-anchor="middle" class="an-l">Network</text><text x="605" y="242" text-anchor="middle" class="an-s">TGW, DNS</text></g><g class="an an-cp"><rect x="703" y="168" width="44" height="44" rx="9"/><text x="725" y="194.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="725" y="228" text-anchor="middle" class="an-l">Sandbox</text><text x="725" y="242" text-anchor="middle" class="an-s">budget, chặn dịch vụ</text></g><text x="600" y="40" text-anchor="start" class="at at-s  ">SCP gắn ở Root và ở từng OU</text></svg><figcaption>Landing zone khuyến nghị: management account chỉ quản trị; OU Security chứa Log Archive và Audit / Security Tooling; workload tách theo môi trường; SCP gắn ở root và từng OU</figcaption></figure>
+<ul>
+<li>Management account: chỉ quản lý Organizations, billing, Control Tower; không chạy workload; SCP <b>không</b> áp cho nó nên càng ít người dùng càng tốt.</li>
+<li>Tách account theo môi trường và theo ứng dụng để giới hạn blast radius; OU theo chức năng / yêu cầu bảo mật (không theo sơ đồ tổ chức công ty).</li>
+<li>OU Suspended cho account chờ đóng (SCP Deny mọi thứ), OU Exceptions cho account cần chính sách khác.</li>
+</ul>
 
-<h2 id="organizations-va-cac-loai-policy"><a href="#organizations-va-cac-loai-policy" class="anchor" aria-hidden="true">#</a>Organizations và các loại policy</h2>
+<h2 id="cac-loai-organization-policy"><a href="#cac-loai-organization-policy" class="anchor" aria-hidden="true">#</a>Các loại organization policy</h2>
 <table>
-<tr><th>Policy</th><th>Làm gì</th></tr>
-<tr><td><b>SCP</b></td><td>Giới hạn quyền tối đa của principal (IAM user / role) trong account thành viên. Ví dụ: chặn Region, cấm tắt CloudTrail / GuardDuty, cấm rời Organization, cấm dùng root</td></tr>
-<tr><td><b>RCP</b></td><td>Giới hạn quyền tối đa trên tài nguyên của account thành viên, áp cả với người gọi bên ngoài. Dựng data perimeter</td></tr>
-<tr><td><b>Declarative policy</b></td><td>Ép cấu hình của dịch vụ ở mức API, kể cả khi dịch vụ ra tính năng mới: chặn VPC Block Public Access, ép IMDSv2 mặc định, chặn chia sẻ AMI / snapshot công khai, allowed AMIs. Có thông báo lỗi tuỳ chỉnh</td></tr>
-<tr><td>Tag policy</td><td>Chuẩn hoá key / value của tag</td></tr>
-<tr><td>Backup policy</td><td>Áp backup plan cho mọi account</td></tr>
-<tr><td>AI services opt-out policy</td><td>Không cho AWS dùng dữ liệu của bạn để cải thiện dịch vụ AI</td></tr>
+<tr><th>Policy</th><th>Áp lên</th><th>Tác dụng</th></tr>
+<tr><td><b>SCP</b></td><td>Principal (user, role) trong account thành viên</td><td>Giới hạn quyền tối đa. Không cấp quyền. Không áp cho management account, service-linked role. Chiến lược deny list (giữ FullAWSAccess + Deny) hoặc allow list</td></tr>
+<tr><td><b>RCP</b></td><td>Tài nguyên trong account thành viên (S3, STS, KMS, SQS, Secrets Manager, DynamoDB, ECR...)</td><td>Giới hạn quyền tối đa trên tài nguyên, áp cả với người gọi ngoài tổ chức. Dựng data perimeter, ví dụ chỉ principal trong Org, bắt buộc TLS, chặn confused deputy</td></tr>
+<tr><td><b>Declarative policy</b></td><td>Cấu hình dịch vụ (EC2, VPC, EBS...)</td><td>Ép trạng thái bền vững kể cả khi có API mới: IMDSv2 mặc định, VPC Block Public Access, chặn public AMI / snapshot, Allowed AMIs, serial console. Có custom error message</td></tr>
+<tr><td>Tag policy</td><td>Tag</td><td>Chuẩn hoá key / value, có thể ép tuân thủ cho một số loại tài nguyên</td></tr>
+<tr><td>Backup policy</td><td>AWS Backup</td><td>Áp backup plan cho account</td></tr>
+<tr><td><b>AI services opt-out</b></td><td>Dịch vụ AI</td><td>Không cho AWS dùng dữ liệu nội dung để cải thiện dịch vụ AI</td></tr>
+<tr><td>Chatbot policy, Security Hub policy</td><td></td><td>Quản lý cấu hình tập trung</td></tr>
 </table>
-<div class="code"><div class="code-h"><span>SCP: chặn mọi Region ngoài 2 Region được phép, trừ dịch vụ global</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+<div class="code"><div class="code-h"><span>RCP: tài nguyên chỉ được truy cập bởi principal trong tổ chức hoặc dịch vụ AWS</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
   <span class="s">&quot;Version&quot;</span>: <span class="s">&quot;2012-10-17&quot;</span>,
   <span class="s">&quot;Statement&quot;</span>: [{
-    <span class="s">&quot;Sid&quot;</span>: <span class="s">&quot;DenyOtherRegions&quot;</span>,
+    <span class="s">&quot;Sid&quot;</span>: <span class="s">&quot;EnforceOrgIdentities&quot;</span>,
     <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Deny&quot;</span>,
-    <span class="s">&quot;NotAction&quot;</span>: [<span class="s">&quot;iam:*&quot;</span>, <span class="s">&quot;organizations:*&quot;</span>, <span class="s">&quot;route53:*&quot;</span>, <span class="s">&quot;cloudfront:*&quot;</span>, <span class="s">&quot;sts:*&quot;</span>, <span class="s">&quot;support:*&quot;</span>, <span class="s">&quot;budgets:*&quot;</span>],
+    <span class="s">&quot;Principal&quot;</span>: <span class="s">&quot;*&quot;</span>,
+    <span class="s">&quot;Action&quot;</span>: [<span class="s">&quot;s3:*&quot;</span>, <span class="s">&quot;sqs:*&quot;</span>, <span class="s">&quot;kms:*&quot;</span>, <span class="s">&quot;secretsmanager:*&quot;</span>, <span class="s">&quot;sts:AssumeRole&quot;</span>],
     <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;*&quot;</span>,
     <span class="s">&quot;Condition&quot;</span>: {
-      <span class="s">&quot;StringNotEquals&quot;</span>: { <span class="s">&quot;aws:RequestedRegion&quot;</span>: [<span class="s">&quot;ap-southeast-1&quot;</span>, <span class="s">&quot;us-east-1&quot;</span>] },
-      <span class="s">&quot;ArnNotLike&quot;</span>: { <span class="s">&quot;aws:PrincipalARN&quot;</span>: <span class="s">&quot;arn:aws:iam::*:role/BreakGlassAdmin&quot;</span> }
+      <span class="s">&quot;StringNotEqualsIfExists&quot;</span>: { <span class="s">&quot;aws:PrincipalOrgID&quot;</span>: <span class="s">&quot;o-abc123&quot;</span> },
+      <span class="s">&quot;BoolIfExists&quot;</span>: { <span class="s">&quot;aws:PrincipalIsAWSService&quot;</span>: <span class="s">&quot;false&quot;</span> }
     }
   }]
 }</code></pre></div>
+<div class="code"><div class="code-h"><span>SCP: cấm tắt các dịch vụ bảo mật, trừ role quản trị bảo mật</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Deny&quot;</span>,
+  <span class="s">&quot;Action&quot;</span>: [
+    <span class="s">&quot;cloudtrail:StopLogging&quot;</span>, <span class="s">&quot;cloudtrail:DeleteTrail&quot;</span>, <span class="s">&quot;cloudtrail:PutEventSelectors&quot;</span>,
+    <span class="s">&quot;guardduty:DeleteDetector&quot;</span>, <span class="s">&quot;guardduty:DisassociateFromAdministratorAccount&quot;</span>,
+    <span class="s">&quot;config:StopConfigurationRecorder&quot;</span>, <span class="s">&quot;config:DeleteConfigurationRecorder&quot;</span>,
+    <span class="s">&quot;securityhub:DisableSecurityHub&quot;</span>, <span class="s">&quot;access-analyzer:DeleteAnalyzer&quot;</span>,
+    <span class="s">&quot;organizations:LeaveOrganization&quot;</span>
+  ],
+  <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;*&quot;</span>,
+  <span class="s">&quot;Condition&quot;</span>: { <span class="s">&quot;ArnNotLike&quot;</span>: { <span class="s">&quot;aws:PrincipalARN&quot;</span>: <span class="s">&quot;arn:aws:iam::*:role/SecurityAdmin&quot;</span> } }
+}</code></pre></div>
+<p>Các mẫu SCP hay thi: chặn Region (<code>aws:RequestedRegion</code> + <code>NotAction</code> cho dịch vụ global), cấm root của account thành viên (<code>aws:PrincipalArn</code> like <code>arn:aws:iam::*:root</code>), bắt buộc tag khi tạo (<code>aws:RequestTag</code>), chặn tạo IAM user / access key, chặn instance type đắt, chặn sửa role do Control Tower / bảo mật quản lý.</p>
 
 <h2 id="control-tower"><a href="#control-tower" class="anchor" aria-hidden="true">#</a>Control Tower</h2>
 <ul>
-<li>Dựng <b>landing zone</b> theo best practice: Organization, OU Security với Log Archive và Audit account, IAM Identity Center, organization trail, Config.</li>
-<li><b>Controls</b> (trước gọi là guardrails): <b>preventive</b> (SCP / RCP / declarative), <b>detective</b> (Config rule), <b>proactive</b> (CloudFormation Hook, kiểm tra tài nguyên <b>trước khi</b> tạo). Mandatory, strongly recommended, elective.</li>
-<li><b>Account Factory</b>: tạo account mới đã cấu hình chuẩn (Account Factory for Terraform cho đội dùng Terraform). <b>Customizations for Control Tower (CfCT)</b>: tự động áp thêm StackSets / SCP riêng.</li>
-<li>Đưa account / OU có sẵn vào: <b>enroll account</b>, <b>register OU</b>. Drift: ai đó sửa tay SCP của Control Tower → repair landing zone.</li>
+<li>Dựng <b>landing zone</b>: Organizations, OU Security với Log Archive và Audit account, organization trail, Config ở mọi account / Region được quản lý, IAM Identity Center, region deny (tuỳ chọn).</li>
+<li><b>Controls</b>: <b>preventive</b> (SCP / RCP / declarative policy), <b>detective</b> (Config rule), <b>proactive</b> (CloudFormation Hook kiểm tra trước khi tạo). Mức: mandatory, strongly recommended, elective. Bật theo OU. <b>Control Catalog</b> liệt kê control theo framework.</li>
+<li><b>Account Factory</b> (Service Catalog), <b>Account Factory for Terraform (AFT)</b>, <b>Account Factory Customization (AFC)</b> dùng blueprint; <b>Customizations for Control Tower (CfCT)</b> áp thêm template / SCP qua pipeline.</li>
+<li>Môi trường có sẵn: <b>register OU</b>, <b>enroll account</b> (cần role <code>AWSControlTowerExecution</code>). Account có Config recorder sẵn phải xử lý trước khi enroll.</li>
+<li><b>Drift</b>: ai đó sửa SCP / role / OU do Control Tower quản lý → console báo, <b>repair</b> landing zone hoặc re-register OU.</li>
 </ul>
 
 <h2 id="quan-ly-tap-trung-dich-vu-bao-mat"><a href="#quan-ly-tap-trung-dich-vu-bao-mat" class="anchor" aria-hidden="true">#</a>Quản lý tập trung dịch vụ bảo mật</h2>
-<ul>
-<li><b>Delegated administrator</b>: management account chỉ định account Security Tooling quản trị GuardDuty, Security Hub, Macie, Inspector, Detective, Config, Firewall Manager, IAM Access Analyzer, Audit Manager... cho cả Organization. Tránh làm việc hằng ngày trong management account.</li>
-<li><b>Quản lý root tập trung</b> (centralized root access): xoá thông tin đăng nhập root của account thành viên, khi cần làm việc chỉ root mới làm được (mở khoá bucket policy chặn nhầm mọi người) thì dùng <b>root session</b> có giới hạn từ account quản trị.</li>
-<li><b>Break-glass</b>: tài khoản khẩn cấp, MFA phần cứng cất kỹ, mật khẩu chia cho nhiều người, cảnh báo ngay khi được dùng.</li>
-</ul>
-
-<h2 id="trien-khai-nhat-quan-va-an-toan"><a href="#trien-khai-nhat-quan-va-an-toan" class="anchor" aria-hidden="true">#</a>Triển khai nhất quán và an toàn</h2>
-<ul>
-<li><b>CloudFormation StackSets</b> (service-managed, tự deploy cho account mới), <b>Terraform</b>.</li>
-<li>Kiểm tra IaC trước khi deploy: <b>cfn-lint</b> (cú pháp, best practice), <b>CloudFormation Guard</b> (policy-as-code: "mọi bucket phải mã hoá"), <b>CloudFormation Hooks</b> (chặn lúc deploy), <b>Access Analyzer custom policy checks</b> trong pipeline.</li>
-<li><b>Firewall Manager</b>: áp WAF web ACL, Shield Advanced, security group, Network Firewall, DNS Firewall cho mọi account / tài nguyên mới tự động. Cần Organizations + Config.</li>
-<li>Chia sẻ an toàn: <b>RAM</b> (subnet, TGW, Resolver rules, giới hạn chỉ trong Organization), <b>Service Catalog</b> (danh mục sản phẩm đã duyệt, người dùng launch mà không cần quyền tạo tài nguyên trực tiếp, nhờ <b>launch constraint</b> role).</li>
-<li>Tag theo phòng ban, cost center, môi trường, kết hợp tag policy.</li>
-</ul>
-
-<h2 id="tuan-thu-va-kiem-toan"><a href="#tuan-thu-va-kiem-toan" class="anchor" aria-hidden="true">#</a>Tuân thủ và kiểm toán</h2>
 <table>
-<tr><th>Dịch vụ</th><th>Dùng khi</th></tr>
-<tr><td><b>AWS Config</b> + aggregator + conformance pack</td><td>Đánh giá liên tục cấu hình theo rule, tự remediation, xem tổng hợp nhiều account</td></tr>
-<tr><td><b>Security Hub</b></td><td>Chấm điểm theo chuẩn (CIS, FSBP, PCI, NIST)</td></tr>
-<tr><td><b>Audit Manager</b></td><td>Thu thập <b>bằng chứng</b> tự động cho cuộc kiểm toán (framework SOC 2, PCI, GDPR, HIPAA), xuất báo cáo cho kiểm toán viên</td></tr>
-<tr><td><b>AWS Artifact</b></td><td>Tải <b>báo cáo tuân thủ của chính AWS</b> (SOC, ISO, PCI) và ký thoả thuận (BAA cho HIPAA)</td></tr>
-<tr><td><b>Well-Architected Tool</b></td><td>Tự đánh giá kiến trúc theo các trụ cột, có Security Pillar</td></tr>
+<tr><th>Dịch vụ</th><th>Delegated admin quản lý</th></tr>
+<tr><td>GuardDuty, Security Hub, Macie, Inspector, Detective</td><td>Bật / auto-enable thành viên, xem finding mọi account</td></tr>
+<tr><td>Config</td><td>Aggregator, conformance pack, rule cho Organization</td></tr>
+<tr><td>IAM Access Analyzer</td><td>Analyzer với zone of trust là Organization</td></tr>
+<tr><td>Firewall Manager</td><td>Security policy (WAF, Shield, SG, Network Firewall, DNS Firewall) — cần Config ở thành viên</td></tr>
+<tr><td>CloudTrail, CloudFormation StackSets, Backup, Audit Manager, Security Lake, IAM Identity Center, Systems Manager</td><td>Quản trị thay management account</td></tr>
 </table>
-<aside class="tip"><p>"Kiểm toán viên yêu cầu báo cáo SOC 2 <b>của AWS</b>" → Artifact. "Thu thập bằng chứng <b>của hệ thống bạn</b> cho kiểm toán" → Audit Manager.</p></aside>
+<p>Nguyên tắc: <b>không làm việc hằng ngày trong management account</b>; mỗi dịch vụ chỉ định account Security Tooling làm delegated admin.</p>
 
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần đảm bảo mọi account trong Organization, kể cả account mới, không ai tắt được GuardDuty và CloudTrail. Dùng gì?</p><div class="qo"><button type="button" class="opt" data-ok>SCP Deny guardduty:DeleteDetector, cloudtrail:StopLogging, cloudtrail:DeleteTrail... gắn ở root của Organization (trừ role quản trị bảo mật)</button><button type="button" class="opt">Config rule phát hiện CloudTrail bị tắt</button><button type="button" class="opt">IAM policy trong từng account</button></div><p class="why" hidden>SCP là kiểm soát phòng ngừa áp cho mọi account thành viên, kể cả admin của account đó.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Muốn chặn việc tạo bất kỳ EC2 nào chưa bật IMDSv2 trên toàn Organization, kể cả cách tạo mới về sau, với thông báo lỗi rõ ràng cho developer. Lựa chọn phù hợp nhất?</p><div class="qo"><button type="button" class="opt">Config rule ec2-imdsv2-check</button><button type="button" class="opt" data-ok>Declarative policy cho EC2 ép IMDSv2 mặc định</button><button type="button" class="opt">GuardDuty</button></div><p class="why" hidden>Declarative policy ép cấu hình ở mức dịch vụ, có thông báo lỗi tuỳ chỉnh, không cần cập nhật khi API mới ra.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Kiểm toán viên cần bản báo cáo ISO 27001 chứng nhận hạ tầng của AWS. Lấy ở đâu?</p><div class="qo"><button type="button" class="opt">AWS Audit Manager</button><button type="button" class="opt" data-ok>AWS Artifact</button><button type="button" class="opt">Security Hub</button></div><p class="why" hidden>Artifact cung cấp báo cáo tuân thủ của chính AWS.</p></div>
+<h2 id="quan-ly-root-user"><a href="#quan-ly-root-user" class="anchor" aria-hidden="true">#</a>Quản lý root user</h2>
+<ul>
+<li><b>Centralized root access management</b> (IAM, bật trong Organization): <b>xoá credential root</b> (mật khẩu, access key, MFA, chứng chỉ) của account thành viên; account mới tạo không có credential root; khi cần làm việc chỉ root làm được thì từ management / delegated admin mở <b>privileged root session</b> có phạm vi hẹp (ví dụ <code>S3UnlockBucketPolicy</code>, <code>SQSUnlockQueuePolicy</code>, <code>IAMDeleteRootUserCredentials</code>, <code>IAMAuditRootUserCredentials</code>).</li>
+<li>Management account root: mật khẩu mạnh, <b>MFA phần cứng / passkey</b> (có thể đăng ký nhiều MFA), không access key, email nhóm (distribution list), số điện thoại liên hệ cập nhật.</li>
+<li>Cảnh báo mỗi lần root đăng nhập (EventBridge trên <code>ConsoleLogin</code> với <code>userIdentity.type = Root</code>, GuardDuty <code>RootCredentialUsage</code>).</li>
+<li>Việc chỉ root làm được: đổi cài đặt account, đóng account, khôi phục quyền IAM, mở khoá bucket policy chặn mọi người, đổi gói support, đăng ký GovCloud.</li>
+</ul>
+
+<h2 id="truy-cap-khan-cap-break-glass"><a href="#truy-cap-khan-cap-break-glass" class="anchor" aria-hidden="true">#</a>Truy cập khẩn cấp (break-glass)</h2>
+<ul>
+<li>Dùng khi IdP / Identity Center lỗi hoặc cần quyền đặc biệt lúc sự cố.</li>
+<li>Thiết kế: IAM user / role khẩn cấp ở một số account, mật khẩu chia cho nhiều người (hai người cùng có mặt), MFA phần cứng cất trong két, loại trừ khỏi SCP chặn, <b>cảnh báo tức thì</b> mỗi khi được dùng, kiểm tra định kỳ (diễn tập), đổi mật khẩu sau mỗi lần dùng.</li>
+<li>Quyền tạm thời theo yêu cầu: <b>Temporary elevated access</b> (giải pháp TEAM của AWS cho Identity Center) có phê duyệt và thời hạn.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Muốn mọi account thành viên không còn mật khẩu root, nhưng vẫn mở được khoá một bucket policy lỡ chặn mọi người. Cách làm?</p><div class="qo"><button type="button" class="opt" data-ok>Bật centralized root access management, xoá credential root của thành viên, dùng privileged root session S3UnlockBucketPolicy khi cần</button><button type="button" class="opt">SCP Deny mọi hành động của root</button><button type="button" class="opt">Giữ mật khẩu root trong Secrets Manager</button><button type="button" class="opt">Dùng IAM user admin để sửa bucket policy</button></div><p class="why" hidden>Root session có phạm vi hẹp cho phép làm đúng tác vụ cần root mà không giữ credential root dài hạn.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội muốn mọi EC2 mới trong Organization mặc định dùng IMDSv2 và chặn chia sẻ snapshot EBS công khai, áp cả khi EC2 thêm API mới, kèm thông báo lỗi riêng cho developer. Dùng?</p><div class="qo"><button type="button" class="opt">SCP</button><button type="button" class="opt" data-ok>Declarative policy cho EC2</button><button type="button" class="opt">Config rule</button><button type="button" class="opt">Tag policy</button></div><p class="why" hidden>Declarative policy ép trạng thái cấu hình của dịch vụ và có custom error message.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Account Security Tooling cần quản lý GuardDuty, Security Hub cho 80 account mà không cần đăng nhập management account. Cấu hình?</p><div class="qo"><button type="button" class="opt" data-ok>Chỉ định Security Tooling làm delegated administrator cho từng dịch vụ, bật auto-enable thành viên</button><button type="button" class="opt">Tạo IAM user admin trong từng account</button><button type="button" class="opt">Dùng StackSets bật từng dịch vụ rồi xem từng account</button><button type="button" class="opt">Đưa Security Tooling vào OU Workloads</button></div><p class="why" hidden>Delegated admin cho phép quản lý tập trung mà không làm việc trong management account.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="scs-governance">Đánh dấu đã học xong bài này</button></div>
   <nav class="pn"><a class="prev" href="scs-secrets.html"><small>Bài trước</small>Secrets, che dữ liệu nhạy cảm và chứng chỉ</a><a class="next" href="scs-compliance.html"><small>Bài tiếp theo</small>Triển khai nhất quán và tuân thủ</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cau-truc-nhieu-account">Cấu trúc nhiều account</a><a href="#organizations-va-cac-loai-policy">Organizations và các loại policy</a><a href="#control-tower">Control Tower</a><a href="#quan-ly-tap-trung-dich-vu-bao-mat">Quản lý tập trung dịch vụ bảo mật</a><a href="#trien-khai-nhat-quan-va-an-toan">Triển khai nhất quán và an toàn</a><a href="#tuan-thu-va-kiem-toan">Tuân thủ và kiểm toán</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cau-truc-nhieu-account">Cấu trúc nhiều account</a><a href="#cac-loai-organization-policy">Các loại organization policy</a><a href="#control-tower">Control Tower</a><a href="#quan-ly-tap-trung-dich-vu-bao-mat">Quản lý tập trung dịch vụ bảo mật</a><a href="#quan-ly-root-user">Quản lý root user</a><a href="#truy-cap-khan-cap-break-glass">Truy cập khẩn cấp (break-glass)</a></nav>
 </div>
 </body>
 </html>

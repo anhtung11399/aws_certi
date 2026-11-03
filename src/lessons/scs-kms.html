@@ -46,6 +46,66 @@
 <li><b>Encryption context</b>: cặp key-value đi kèm khi mã hoá, phải khớp khi giải mã. Ghi vào CloudTrail, dùng để kiểm toán và làm điều kiện trong policy.</li>
 </ul>
 
+<h2>Rotation và key material</h2>
+<table>
+<tr><th></th><th>AWS generated key material</th><th><b>Imported key material</b> (BYOK)</th></tr>
+<tr><td>Ai tạo</td><td>KMS sinh trong HSM của KMS</td><td>Bạn sinh ở HSM / hệ thống của bạn, bọc (wrap) bằng public key do KMS cấp, rồi import</td></tr>
+<tr><td>Rotation tự động</td><td>Có (90 - 2560 ngày) và on-demand</td><td><b>On-demand rotation</b> bằng cách import material mới (key mới hơn hỗ trợ nhiều material); không có rotation tự động kiểu cũ</td></tr>
+<tr><td>Hết hạn</td><td>Không</td><td>Đặt được <b>expiration</b>; hết hạn thì KMS xoá material, key không dùng được tới khi import lại <b>đúng material đó</b></td></tr>
+<tr><td>Xoá</td><td>Lên lịch 7-30 ngày</td><td>Xoá material <b>ngay lập tức</b> (<code>DeleteImportedKeyMaterial</code>), có thể import lại</td></tr>
+<tr><td>Độ bền</td><td>AWS chịu</td><td>Bạn phải giữ bản gốc an toàn</td></tr>
+<tr><td>Dùng khi</td><td>Mặc định</td><td>Quy định yêu cầu tự sinh key, cần xoá key tức thì, cần bản sao key ngoài AWS</td></tr>
+</table>
+<ul>
+<li>Quy trình import: tạo key với origin <code>EXTERNAL</code> → <code>GetParametersForImport</code> (wrapping public key RSA + import token, hết hạn sau 24 giờ) → bọc material → <code>ImportKeyMaterial</code>.</li>
+<li>Rotation của KMS giữ nguyên key ID / ARN, giữ material cũ để giải mã dữ liệu cũ; dữ liệu cũ không bị mã hoá lại. Rotation bằng tay kiểu cũ: tạo key mới và đổi <b>alias</b> sang key mới.</li>
+<li>Multi-Region key: rotation áp cho cả primary và replica; imported material phải import cùng material vào từng replica.</li>
+</ul>
+
+<h2>External key store (XKS)</h2>
+<ul>
+<li>Key nằm trong <b>hệ thống quản lý khoá bên ngoài AWS</b> (HSM on-premises / nhà cung cấp khác). KMS gọi tới <b>XKS proxy</b> của bạn cho mỗi thao tác mã hoá / giải mã.</li>
+<li>Bạn kiểm soát tuyệt đối: ngắt proxy là AWS không giải mã được gì ("hold your own key").</li>
+<li>Đánh đổi: độ trễ cao hơn, phụ thuộc tính sẵn sàng của hệ thống bên ngoài, bạn chịu trách nhiệm độ bền.</li>
+<li>Kết nối proxy qua Internet hoặc VPC endpoint service.</li>
+</ul>
+<table>
+<tr><th>Chọn</th><th>Khi đề nói</th></tr>
+<tr><td>KMS (AWS generated)</td><td>Mặc định, tích hợp mọi dịch vụ, ít vận hành</td></tr>
+<tr><td>KMS imported material</td><td>Tự sinh key, xoá ngay lập tức, đặt hạn sử dụng</td></tr>
+<tr><td>KMS custom key store (CloudHSM)</td><td>Key trong HSM single-tenant do bạn kiểm soát nhưng vẫn tích hợp dịch vụ AWS</td></tr>
+<tr><td>KMS external key store</td><td>Key phải nằm ngoài AWS, có thể "rút phích"</td></tr>
+<tr><td>CloudHSM trực tiếp</td><td>Ứng dụng dùng PKCS#11 / JCE / CNG, SSL offload, Oracle TDE, CA riêng</td></tr>
+</table>
+
+<h2>Grant, encryption context và dịch vụ tích hợp</h2>
+<arch w="800" h="300" caption="EBS mã hoá dùng KMS: EC2 / EBS lấy grant để gọi KMS sinh và giải mã data key; mọi lần gọi được ghi CloudTrail kèm encryption context">
+node user 70 140 user "Người launch" "kms:CreateGrant"
+node ec2 230 140 ec2 "EC2"
+node ebs 400 140 ebs "Volume mã hoá" "data key đã mã hoá"
+node kms 600 140 kms "KMS key" "key policy + grant"
+node ct 600 260 cloudtrail "CloudTrail" "Decrypt, GenerateDataKey"
+edge user ec2 "RunInstances"
+edge ec2 ebs ""
+edge ebs kms "GenerateDataKey / Decrypt" c=go
+edge kms ct "" dash
+</arch>
+<ul>
+<li><b>Grant</b>: uỷ quyền tạm thời, có <b>grant constraint</b> (encryption context), thu hồi bằng <code>RevokeGrant</code> / <code>RetireGrant</code>. Dịch vụ AWS (EBS, RDS, Redshift) tạo grant thay bạn; người dùng cần <code>kms:CreateGrant</code> với điều kiện <code>kms:GrantIsForAWSResource</code>.</li>
+<li><b>Encryption context</b>: cặp key-value không bí mật đi kèm mã hoá, phải khớp khi giải mã (additional authenticated data). S3 dùng ARN bucket / object, EBS dùng volume ID. Dùng trong điều kiện <code>kms:EncryptionContext:...</code> để giới hạn key chỉ giải mã cho đúng tài nguyên.</li>
+<li><code>kms:ViaService</code>: chỉ cho dùng key thông qua dịch vụ cụ thể. <code>kms:CallerAccount</code>, <code>kms:GrantIsForAWSResource</code>.</li>
+<li><b>AWS Encryption SDK</b>: mã hoá phía client với envelope encryption, data key caching, nhiều key (multi-keyring) để giải mã ở nhiều Region.</li>
+</ul>
+
+<h2>Private CA và chứng chỉ nhiều Region</h2>
+<ul>
+<li><b>AWS Private CA</b>: dựng CA phân cấp (root CA tự ký, subordinate CA), cấp chứng chỉ private cho dịch vụ nội bộ, mTLS, thiết bị IoT, VPN, Roles Anywhere. Private CA là tài nguyên <b>Regional</b>; cấp chứng chỉ cho nhiều Region bằng cách tạo subordinate CA ở từng Region, hoặc dùng ACM ở Region khác với CA được chia sẻ (RAM).</li>
+<li>Chế độ <b>short-lived certificate</b> (tối đa 7 ngày, rẻ hơn) cho workload tự xoay vòng.</li>
+<li>Thu hồi: CRL (lưu S3) hoặc OCSP.</li>
+<li>Key của CA nằm trong HSM do AWS quản lý (FIPS 140-3). Bảo vệ CA root: tách account, quyền chặt, CloudTrail theo dõi <code>IssueCertificate</code>.</li>
+<li>ACM là Regional: cần chứng chỉ ở nhiều Region (ALB đa Region) thì yêu cầu / import ở từng Region; CloudFront luôn ở us-east-1.</li>
+</ul>
+
 <h2>Xử lý sự cố KMS</h2>
 <table>
 <tr><th>Lỗi</th><th>Nguyên nhân</th></tr>

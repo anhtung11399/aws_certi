@@ -11,6 +11,21 @@
 </table>
 <aside class="tip"><p>Cognito: <b>user pool</b> = "danh bạ người dùng, trả JWT" (authentication). <b>Identity pool</b> = "đổi danh tính lấy credential AWS" (authorization tới dịch vụ AWS). Đề hay đánh đố đúng chỗ này.</p></aside>
 
+<arch w="800" h="300" caption="IAM Identity Center: IdP công ty xác thực (SAML), SCIM đồng bộ user / group; permission set gán cho group trên từng account tạo ra role AWSReservedSSO_ trong account đó">
+node idp 80 140 identitycenter "IdP công ty" "Entra ID / Okta"
+node idc 280 140 identitycenter "IAM Identity Center" "management / delegated admin"
+group 420 20 370 270 ou "Organization"
+group 440 50 330 100 account "Account Prod"
+node r1 520 100 iam "SSO_ReadOnly"
+node r2 680 100 iam "SSO_Admin"
+group 440 170 330 100 account "Account Dev"
+node r3 600 220 iam "SSO_Developer"
+edge idp idc "SAML + SCIM" c=ok
+path 306 130 360 130 360 100 494 100 "permission set" c=go
+path 306 150 360 150 360 220 574 220 "" c=go
+text 200 275 "user đăng nhập 1 lần, chọn account + role" small anchor=middle
+</arch>
+
 <h2>IAM Identity Center</h2>
 <ul>
 <li><b>Permission set</b>: tập policy, khi gán cho user / group trên một account sẽ tạo ra một IAM role trong account đó (tên bắt đầu <code>AWSReservedSSO_</code>).</li>
@@ -18,6 +33,18 @@
 <li>Lỗi hay gặp: user đăng nhập được nhưng không thấy account → chưa gán permission set cho account đó. Sửa tay role <code>AWSReservedSSO_*</code> trong account → sẽ bị Identity Center ghi đè, phải sửa ở permission set.</li>
 <li>Identity source chỉ một: Identity Center directory, Active Directory, hoặc IdP bên ngoài.</li>
 </ul>
+
+<arch w="800" h="300" caption="Cognito: user pool xác thực người dùng và trả JWT; identity pool đổi token đó lấy credential AWS tạm thời qua STS để gọi thẳng S3 / DynamoDB">
+node app 70 140 app "App mobile"
+node up 300 60 cognito "User pool" "đăng nhập, MFA, Google"
+node ip 300 220 cognito "Identity pool" "authenticated role"
+node sts 480 220 sts "STS" "AssumeRoleWithWebIdentity"
+node s3 670 220 s3 "S3 prefix riêng" "theo identity ID"
+path 70 114 70 60 274 60 "1 đăng nhập → nhận JWT"
+path 70 166 70 220 274 220 "2 đổi JWT" c=go
+edge ip sts ""
+edge sts s3 "3 credential tạm thời" c=ok
+</arch>
 
 <h2>STS và thông tin xác thực tạm thời</h2>
 <table>
@@ -36,10 +63,32 @@
 <li><b>Presigned URL</b> S3: cho người không có tài khoản tải / upload một object trong thời gian ngắn. Quyền của URL = quyền của người ký. Ký bằng credential tạm thời thì URL hết hạn sớm hơn khi credential hết hạn.</li>
 </ul>
 
+<arch w="800" h="260" caption="IAM Roles Anywhere: máy ngoài AWS dùng chứng chỉ X.509 do CA tin cậy cấp để đổi lấy credential tạm thời, không cần access key dài hạn">
+node srv 80 120 server "Máy on-premises" "chứng chỉ + private key"
+node ca 80 220 acm "CA của bạn" "Private CA / CA riêng"
+node ta 300 120 iam "Trust anchor" "tin CA"
+node prof 470 120 iam "Profile" "role được phép"
+node role 650 120 iam "Role" "trust: rolesanywhere.amazonaws.com"
+edge srv ta "CreateSession (ký bằng cert)" c=go
+edge ca srv "" dash
+edge ta prof ""
+edge prof role "credential 1 giờ" c=ok
+</arch>
+<h2>Directory Service</h2>
+<table>
+<tr><th>Loại</th><th>Dùng khi</th></tr>
+<tr><td><b>AWS Managed Microsoft AD</b></td><td>AD thật do AWS vận hành (2 domain controller, 2 AZ), trust hai chiều / một chiều với AD on-premises, MFA qua RADIUS, dùng cho RDS SQL Server, FSx Windows, WorkSpaces, Identity Center</td></tr>
+<tr><td><b>AD Connector</b></td><td>Proxy chuyển yêu cầu xác thực về AD on-premises, không lưu dữ liệu trên AWS; cần kết nối mạng ổn định</td></tr>
+<tr><td>Simple AD</td><td>Samba, nhỏ, ít tính năng, không trust</td></tr>
+</table>
+<p>Lỗi hay gặp: SG của directory chặn cổng (53, 88, 389, 445, 636...), DNS không phân giải tên domain, trust chưa xác minh, đồng hồ lệch làm Kerberos thất bại.</p>
+
 <h2>MFA và gỡ lỗi xác thực</h2>
 <ul>
 <li>Ép MFA cho API: điều kiện <code>aws:MultiFactorAuthPresent</code> / <code>aws:MultiFactorAuthAge</code>. Ép MFA cho root: dùng passkey / hardware key, ưu tiên quản lý root tập trung (bài 10).</li>
 <li>Lỗi đăng nhập SAML: xem CloudTrail event <code>AssumeRoleWithSAML</code>, kiểm tra thời gian lệch, ARN role / provider trong assertion, audience.</li>
+<li>Identity Center lỗi: user không thấy account (chưa gán permission set), SCIM không đồng bộ (token SCIM hết hạn), thuộc tính cho ABAC không tới (chưa map attribute), session hết hạn theo session duration của permission set.</li>
+<li>CloudTrail: <code>ConsoleLogin</code> (kết quả, có MFA không), <code>AssumeRole*</code> (errorCode), sự kiện của Identity Center (<code>sso.amazonaws.com</code>, <code>signin.amazonaws.com</code>).</li>
 <li>Cognito lỗi: app client, callback URL, token hết hạn, Lambda trigger lỗi. Identity pool lỗi: role của authenticated / unauthenticated identity thiếu quyền, trust policy kiểm <code>cognito-identity.amazonaws.com:aud</code>.</li>
 </ul>
 
