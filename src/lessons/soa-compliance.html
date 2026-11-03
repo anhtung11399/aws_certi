@@ -22,6 +22,22 @@
 </ul>
 <aside class="prod"><p>Ba câu hay bị đánh tráo: "ai đã đổi security group" → <b>CloudTrail</b>. "Security group này trước đây cấu hình thế nào" → <b>Config</b>. "Tự động phát hiện và sửa security group mở 22" → <b>Config rule + remediation</b>.</p></aside>
 
+<arch w="800" h="300" caption="Config phát hiện và tự sửa: recorder ghi thay đổi, rule đánh giá, remediation chạy SSM Automation; aggregator gom kết quả nhiều account về một nơi">
+group 10 10 560 280 account "Account workload"
+node sg 70 140 sg "Security group" "ai đó mở 22 ra 0.0.0.0/0"
+node rec 210 140 config "Recorder" "configuration item"
+node rule 350 140 config "Rule" "restricted-ssh"
+node rem 490 140 ssm "Remediation" "AWS-DisableIncomingSSH..."
+group 600 10 190 280 account "Account Audit"
+node agg 695 140 config "Aggregator" "mọi account / Region"
+edge sg rec ""
+edge rec rule ""
+edge rule rem "" c=bad
+text 420 205 "NON_COMPLIANT" small anchor=middle c=bad
+path 490 114 490 60 70 60 70 114 "đóng cổng 22" c=ok
+path 350 196 350 250 695 250 695 196 "kết quả tuân thủ" dash
+</arch>
+
 <h2>Các dịch vụ bảo mật ở góc nhìn vận hành</h2>
 <table>
 <tr><th>Dịch vụ</th><th>Làm gì</th><th>Ghi nhớ cho SOA</th></tr>

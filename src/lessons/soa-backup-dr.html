@@ -22,6 +22,34 @@
 <tr><td>Active-Active</td><td>Chạy đầy đủ, nhận traffic thật</td><td>Chỉ cần ngừng gửi traffic về Region lỗi</td></tr>
 </table>
 
+<arch w="800" h="420" caption="Bốn chiến lược DR vẽ cạnh nhau. Bên trái là Region chính, bên phải là Region DR. Càng xuống dưới, Region DR chạy càng nhiều thứ: RPO / RTO nhỏ hơn, chi phí cao hơn">
+text 120 22 "Region chính" bold anchor=middle
+text 560 22 "Region DR" bold anchor=middle
+group 10 35 780 90 plain "1. Backup & Restore · RPO / RTO: giờ"
+node a1 120 85 ec2 
+node a2 200 85 rds
+node a3 560 85 backup "chỉ có backup" 
+path 226 85 534 85 "copy backup / snapshot" dash
+group 10 130 780 90 plain "2. Pilot Light · RPO phút, RTO 10 phút - giờ"
+node b1 120 180 ec2
+node b2 200 180 rds
+node b4 480 180 rds "replica chạy"
+node b3 640 180 ami "AMI, IaC sẵn"
+path 226 180 454 180 "sao chép liên tục" dash
+group 10 225 780 90 plain "3. Warm Standby · RPO giây, RTO phút"
+node c1 120 275 ec2
+node c2 200 275 rds
+node c4 480 275 rds "replica"
+node c3 640 275 ec2 "chạy nhỏ"
+path 226 275 454 275 "" dash
+group 10 320 780 90 plain "4. Multi-site Active-Active · RPO / RTO gần 0"
+node d1 120 370 ec2
+node d2 200 370 aurora
+node d4 480 370 aurora "Global DB"
+node d3 640 370 ec2 "full, nhận traffic"
+path 226 370 454 370 "" dash both
+</arch>
+
 <h2>AWS Backup</h2>
 <ul>
 <li>Backup tập trung cho EC2, EBS, RDS, Aurora, DynamoDB, EFS, FSx, S3, Storage Gateway, DocumentDB, Neptune...</li>
@@ -46,6 +74,23 @@
 <tr><td>Application-consistent</td><td>Windows VSS cho EC2 Windows; với Linux dùng pre / post script (DLM) hoặc tạm dừng ghi</td></tr>
 </table>
 <aside class="tip"><p>Copy cross-account: cả hai account phải trong cùng Organization và bật cross-account backup, vault đích phải có access policy cho phép account nguồn copy vào. Recovery point mã hoá bằng key của nguồn phải dùng customer managed key và chia sẻ key cho account đích.</p></aside>
+
+<arch w="800" h="330" caption="AWS Backup tập trung: backup policy áp từ Organization, plan chọn tài nguyên theo tag, recovery point vào vault có Vault Lock, copy sang account / Region khác để chống ransomware">
+group 10 10 230 310 account "Management account"
+node org 125 90 organizations "Organizations" "backup policy"
+node bam 125 230 backup "Backup Audit Manager" "báo cáo tuân thủ"
+group 260 10 260 310 account "Account workload"
+node plan 330 90 backup "Backup plan" "tag Backup=daily"
+node res 450 90 ec2 "EC2, RDS, EFS..."
+node vault 390 230 backup "Backup vault" "Vault Lock"
+group 540 10 250 310 account "Account backup (cô lập)"
+node vault2 665 160 backup "Vault đích" "Region khác"
+edge org plan "áp policy" c=go
+edge plan res ""
+path 450 134 450 175 390 175 390 204 "backup hằng ngày"
+edge vault vault2 "copy" c=ok
+edge bam vault "" dash
+</arch>
 
 <h2>Khôi phục từng loại tài nguyên</h2>
 <table>

@@ -59,6 +59,23 @@
 
 <h2>CloudWatch agent chi tiết</h2>
 <p>Agent hợp nhất (unified CloudWatch agent) thu cả <b>metric</b> và <b>log</b>, chạy trên Linux, Windows, macOS, EC2 và máy on-premises.</p>
+<arch w="800" h="300" caption="Triển khai CloudWatch agent cho cả đội máy: cấu hình lưu một chỗ ở Parameter Store, SSM cài và khởi động agent theo tag, agent gửi metric và log">
+group 10 10 230 280 plain "Quản trị"
+group 260 10 300 280 vpc "VPC"
+group 580 10 210 280 plain "CloudWatch"
+node ps 125 80 ssm "Parameter Store" "cấu hình agent (JSON)"
+node ssm 125 210 ssm "SSM Run Command" "theo tag Env=Prod"
+edge ps ssm "" dash
+node ec2a 340 90 ec2 "EC2 + agent" "role: CWAgentServerPolicy"
+node ec2b 480 90 ec2 "EC2 + agent"
+node onp 410 220 server "Máy on-premises" "hybrid activation"
+node cwm 685 90 cloudwatch "Metrics" "namespace CWAgent"
+node cwl 685 220 logs "Logs" "/app/web"
+edge ssm ec2a "cài + configure"
+edge ec2b cwm "mem, disk" c=ok
+edge onp cwl "file log" c=ok
+</arch>
+
 <h3>Các bước triển khai chuẩn</h3>
 <ol>
 <li><b>Quyền</b>: gắn instance profile có <code>CloudWatchAgentServerPolicy</code> (và <code>AmazonSSMManagedInstanceCore</code> để quản lý bằng SSM). Role dùng để <b>ghi cấu hình</b> lên Parameter Store cần thêm <code>CloudWatchAgentAdminPolicy</code>.</li>
@@ -137,6 +154,21 @@
 <li><b>Lambda</b> trực tiếp (alarm action gọi Lambda).</li>
 <li>Mọi thay đổi trạng thái đều là event <code>CloudWatch Alarm State Change</code> trong <b>EventBridge</b>, nên gọi được bất kỳ target nào (SSM Automation, Step Functions...).</li>
 </ul>
+<arch w="800" h="250" caption="Một alarm đi từ metric tới hành động. Mọi lần đổi trạng thái cũng là một event trong EventBridge">
+node m 70 110 cloudwatch "Metric" "CPUUtilization"
+node a 250 110 alarm "Alarm" "3 / 5 period > 80%"
+node sns 470 50 sns "SNS" "email, chat"
+node asg 470 170 asg "Auto Scaling" "step policy"
+node evb 650 50 eventbridge "EventBridge"
+node ssm 650 170 ssm "SSM Automation"
+edge m a "Average / 1 phút"
+edge a sns "ALARM" c=bad
+edge a asg "ALARM" c=bad
+edge sns evb "" dash
+edge evb ssm "khắc phục" c=go
+text 250 205 "OK · ALARM · INSUFFICIENT_DATA" small anchor=middle
+</arch>
+
 <h3>Composite alarm</h3>
 <pre lang="text" file="Rule của composite alarm">
 ALARM("cpu-cao") AND ALARM("loi-5xx-cao") AND NOT ALARM("dang-bao-tri")
@@ -170,6 +202,8 @@ ALARM("cpu-cao") AND ALARM("loi-5xx-cao") AND NOT ALARM("dang-bao-tri")
 <li>Tạo bằng CloudFormation (<code>AWS::CloudWatch::Dashboard</code>) hoặc API <code>PutDashboard</code> để chuẩn hoá cho mọi môi trường.</li>
 <li>Chia sẻ: công khai (ai có link xem được), cho danh sách email (qua Cognito), hoặc qua SSO. Hoặc dùng <b>cross-account observability</b>.</li>
 </ul>
+
+
 <h3>Cross-account observability</h3>
 <fig type="flow" caption="Một monitoring account nhìn thấy metric, log, trace của mọi source account">
 [go] Source account A, B, C... / chia sẻ metric, log, trace

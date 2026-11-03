@@ -76,6 +76,23 @@ mainSteps:
 <p>Quy trình chuẩn: <b>Maintenance Window</b> (lịch, ví dụ Chủ nhật 2 giờ sáng, dài 3 giờ, dừng nhận việc mới trước khi hết 1 giờ) → target là patch group → task chạy <code>AWS-RunPatchBaseline</code> với Install → rate control 20% máy mỗi lần → output về S3.</p>
 <aside class="tip"><p>Muốn vá trên môi trường dev trước rồi mới tới prod với <b>đúng tập bản vá đã thử</b>: dùng baseline có <b>approval theo số ngày</b> giống nhau và chạy dev sớm hơn, hoặc chụp danh sách patch đã duyệt (approved patches) để prod dùng đúng danh sách đó.</p></aside>
 
+<arch w="800" h="300" caption="Quy trình vá lỗi chuẩn: Maintenance Window theo lịch chạy AWS-RunPatchBaseline lên các máy thuộc patch group, kết quả về S3 và báo cáo compliance">
+node mw 80 150 ssm "Maintenance Window" "CN 02:00, 3 giờ"
+node pb 250 60 ssm "Patch baseline" "Critical: duyệt sau 0 ngày"
+node task 250 230 ssm "Run Command" "AWS-RunPatchBaseline · Install"
+group 380 20 210 260 private "Patch group = Prod"
+node e1 440 90 ec2 "EC2 Linux"
+node e2 530 90 ec2 "EC2 Linux"
+node e3 485 210 ec2 "EC2 Windows"
+node s3 680 90 s3 "S3" "log output"
+node cmp 680 220 ssm "Compliance" "máy thiếu bản vá"
+edge mw task "" c=go
+edge pb task "quy tắc" dash
+edge task e3 "20% máy / lần"
+edge e2 s3 "" c=ok
+edge e3 cmp "" c=ok
+</arch>
+
 <h2>State Manager</h2>
 <ul>
 <li><b>Association</b>: "máy khớp điều kiện X phải luôn được áp document Y theo lịch Z". Máy mới khớp tag sẽ tự được áp.</li>
@@ -90,6 +107,8 @@ mainSteps:
 <li>Dùng cho: vá lỗi, chụp AMI, chạy script bảo trì, khởi động lại dịch vụ.</li>
 </ul>
 
+
+
 <h2>Session Manager</h2>
 <ul>
 <li>Vào shell (Linux) / PowerShell (Windows) qua console hoặc CLI (<code>aws ssm start-session</code>), <b>không mở cổng vào, không bastion, không key SSH</b>.</li>
@@ -99,6 +118,23 @@ mainSteps:
 <li>Chạy với user <code>ssm-user</code> mặc định, cấu hình <b>Run As</b> để chạy bằng user OS khác (theo tag của IAM principal).</li>
 <li>Giới hạn thời gian phiên rảnh (idle timeout), tối đa thời gian phiên.</li>
 </ul>
+
+<arch w="800" h="325" caption="Session Manager: không mở cổng vào, không bastion. Agent trong máy chủ động kết nối ra endpoint SSM; phiên được ghi log và có thể chuyển tiếp cổng tới RDS private">
+node dev 70 140 laptop "Laptop" "aws ssm start-session"
+node iam 200 50 iam "IAM policy" "ssm:StartSession theo tag"
+node ssm 260 140 ssm "Session Manager"
+group 380 20 400 295 vpc "VPC · private subnet, SG không mở cổng vào"
+node vpce 470 140 endpoint "VPC endpoint" "ssm, ssmmessages"
+node ec2 620 140 ec2 "EC2 + SSM Agent"
+node rds 620 240 rds "RDS" "port forwarding 5432"
+node logs 260 250 logs "Session logs" "S3 / CloudWatch Logs"
+edge dev ssm "" c=ok
+edge iam ssm "" dash route=hv
+edge vpce ssm "agent gọi ra 443" c=go
+edge ec2 vpce "" c=go
+edge ec2 rds "" dash
+edge ssm logs "" dash
+</arch>
 
 <h2>Parameter Store</h2>
 <table>

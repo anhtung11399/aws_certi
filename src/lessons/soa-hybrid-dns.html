@@ -17,6 +17,28 @@
 <li>Lỗi hay gặp: thiếu route ở route table của VPC, sai association / propagation, SG / NACL, quên subnet attachment ở AZ của instance.</li>
 </ul>
 
+<arch w="800" h="380" caption="Transit Gateway làm trung tâm: các VPC (kể cả ở account khác, chia sẻ qua RAM) và data center (qua VPN và Direct Connect) đều nối vào. Route table của TGW tách dev và prod">
+group 10 10 560 360 region "Region"
+group 25 40 160 100 vpc "VPC Prod A"
+group 25 150 160 100 vpc "VPC Prod B"
+group 25 260 160 100 vpc "VPC Dev"
+node pa 105 95 ec2
+node pb 105 205 ec2
+node dv 105 315 ec2
+node tgw 330 205 tgw "Transit Gateway" "2 route table: prod, dev"
+node dxgw 480 120 dxgw "DX Gateway" "transit VIF"
+node vpn 480 290 vpn "Site-to-Site VPN" "dự phòng"
+group 610 10 180 360 onprem "Data center"
+node dc 700 205 dc "Router" "BGP"
+path 131 95 230 95 230 195 304 195 "" c=nw
+edge pb tgw "" c=nw
+path 131 315 230 315 230 215 304 215 "" c=nw
+edge tgw dxgw "" route=hv
+edge tgw vpn "" route=hv
+path 506 120 640 120 640 195 674 195 "Direct Connect" c=ok
+path 506 290 640 290 640 215 674 215 "IPsec" dash
+</arch>
+
 <h2>Kết nối với on-premises</h2>
 <table>
 <tr><th></th><th>Site-to-Site VPN</th><th>Direct Connect</th></tr>
@@ -46,17 +68,23 @@
 <p>Người dùng từ laptop (OpenVPN client) vào VPC; xác thực bằng chứng chỉ (mutual), Active Directory hoặc SAML; authorization rule theo nhóm; split tunnel để chỉ traffic tới AWS đi qua VPN.</p>
 
 <h2>Route 53 Resolver</h2>
-<fig type="flow" caption="Phân giải DNS hai chiều giữa VPC và data center">
-[fe] Máy on-premises / hỏi db.internal.aws
--> qua VPN / DX
-[q] Inbound endpoint / IP trong VPC
--> 
-[cache] Route 53 Resolver / private hosted zone
--> rule forward corp.local
-[q] Outbound endpoint / IP trong VPC
--> qua VPN / DX
-[ext] DNS on-premises / corp.local
-</fig>
+<arch w="800" h="330" caption="Phân giải DNS hai chiều: on-premises hỏi tên trong AWS qua inbound endpoint; máy trong VPC hỏi tên on-premises qua outbound endpoint và forwarding rule">
+group 10 10 520 310 vpc "VPC (DNS .2 · private hosted zone aws.internal)"
+node ec2 90 90 ec2 "EC2" "hỏi app.corp.local"
+node rs 270 160 resolver "Route 53 Resolver" "rule: corp.local → 10.1.0.53"
+node phz 90 250 route53 "Private hosted zone" "db.aws.internal"
+node out 440 90 eni "Outbound endpoint" "SG: 53"
+node inb 440 250 eni "Inbound endpoint" "10.0.1.10, 10.0.2.10"
+group 580 10 210 310 onprem "Data center"
+node dns 690 160 dns "DNS on-prem" "10.1.0.53"
+node pc 690 270 laptop "Máy on-prem" "hỏi db.aws.internal"
+edge ec2 rs "" route=hv
+edge rs out "" route=hv
+edge out dns "corp.local" c=go route=hv
+edge pc inb "" c=ok
+edge inb rs "" c=ok route=hv
+edge phz rs "" dash route=hv
+</arch>
 <ul>
 <li>Resolver mặc định ở <code>VPC CIDR + 2</code> (ví dụ 10.0.0.2) hoặc <code>169.254.169.253</code>.</li>
 <li><b>Inbound endpoint</b>: ENI (ít nhất 2 AZ) nhận truy vấn từ on-premises. DNS on-premises đặt conditional forwarder tới IP của endpoint.</li>

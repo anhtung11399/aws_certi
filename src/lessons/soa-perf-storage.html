@@ -27,6 +27,24 @@
 <li><b>Snapshot Archive</b>: rẻ hơn 75%, giữ tối thiểu 90 ngày, khôi phục 24-72 giờ.</li>
 <li><b>Block public access for snapshots</b>: chặn chia sẻ công khai ở cấp Region.</li>
 </ul>
+<arch w="800" h="290" caption="Snapshot EBS: chụp tăng dần lên S3 do AWS quản lý, copy sang Region khác để DR, tạo volume mới ở AZ bất kỳ (bật FSR để có hiệu năng đầy đủ ngay)">
+group 10 10 470 270 region "Region ap-southeast-1"
+group 30 45 140 220 az "AZ a"
+node ebs 100 120 ebs "EBS gp3" "gắn EC2"
+node snap 250 120 snapshot "Snapshot" "incremental"
+group 320 45 140 220 az "AZ b"
+node ebs2 390 220 ebs "Volume mới" "FSR: nhanh ngay"
+group 500 10 290 270 region "Region us-east-1"
+node snap2 640 120 snapshot "Bản copy" "đổi KMS key được"
+node ebs3 640 230 ebs "Volume DR"
+edge ebs snap ""
+edge snap ebs2 "" c=ok route=hv
+edge snap snap2 "copy sang Region khác" c=go
+edge snap2 ebs3 ""
+node dlm 250 230 backup "DLM / AWS Backup" "lịch theo tag"
+edge dlm snap "" dash
+</arch>
+
 <h3>Mã hoá EBS</h3>
 <ul>
 <li>Mã hoá bằng KMS, trong suốt với OS, mã hoá cả dữ liệu, snapshot, dữ liệu truyền giữa instance và volume.</li>
@@ -64,6 +82,19 @@
 <li>Requester Pays: người tải trả phí truyền dữ liệu.</li>
 </ul>
 
+<arch w="800" h="250" caption="Vòng đời S3: lifecycle rule tự chuyển object xuống lớp rẻ hơn theo tuổi, rồi xoá. Version cũ (noncurrent) có rule riêng">
+node std 80 100 s3 "Standard" "0 ngày"
+node ia 230 100 s3 "Standard-IA" "sau 30 ngày"
+node gir 380 100 glacier "Glacier IR" "sau 90 ngày"
+node gda 530 100 glacier "Deep Archive" "sau 365 ngày"
+node del 690 100 s3 "Expiration" "xoá sau 7 năm"
+edge std ia ""
+edge ia gir ""
+edge gir gda ""
+edge gda del "" c=bad
+text 400 200 "Kèm: AbortIncompleteMultipartUpload 7 ngày · NoncurrentVersionExpiration 30 ngày · object dưới 128 KB không nên chuyển IA" small anchor=middle
+</arch>
+
 <h2>S3 Event Notifications</h2>
 <ul>
 <li>Sự kiện: <code>s3:ObjectCreated:*</code>, <code>ObjectRemoved</code>, <code>ObjectRestore</code>, <code>Replication</code>, <code>LifecycleExpiration</code>...</li>
@@ -86,6 +117,21 @@
 <li><b>EFS Replication</b> sang Region / AZ khác (RPO khoảng 15 phút). Backup bằng AWS Backup.</li>
 <li>Metric: <code>PercentIOLimit</code> (gần 100% ở General Purpose = chạm giới hạn I/O), <code>BurstCreditBalance</code>, <code>ClientConnections</code>, <code>MeteredIOBytes</code>.</li>
 </ul>
+
+<arch w="800" h="320" caption="EFS Regional: mỗi AZ một mount target có security group cho cổng NFS 2049; EC2 ở mọi AZ mount cùng một file system">
+group 10 10 780 300 vpc "VPC"
+group 30 45 360 180 az "AZ a"
+group 410 45 360 180 az "AZ b"
+node e1 110 120 ec2 "EC2"
+node mt1 290 120 eni "Mount target" "SG: TCP 2049"
+node e2 490 120 ec2 "EC2"
+node mt2 670 120 eni "Mount target" "SG: TCP 2049"
+node efs 400 265 efs "EFS" 
+edge e1 mt1 "NFS" c=ok
+edge e2 mt2 "NFS" c=ok
+edge mt1 efs "" route=vh
+edge mt2 efs "" route=vh
+</arch>
 
 <h2>FSx</h2>
 <table>

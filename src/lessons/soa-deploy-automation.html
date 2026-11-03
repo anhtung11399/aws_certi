@@ -15,6 +15,21 @@
 <li>Database thay đổi lược đồ: chú ý cả hai phiên bản cùng chạy trong lúc blue/green. <b>RDS Blue/Green Deployments</b> cho nâng cấp phiên bản engine với downtime rất ngắn.</li>
 </ul>
 
+<arch w="800" h="300" caption="Blue/green: môi trường mới (green) chạy song song, kiểm tra xong thì chuyển traffic. Có lỗi thì chuyển lại blue gần như tức thì">
+node users 90 140 users "Người dùng"
+node r53 240 140 route53 "Route 53 / ALB" "weighted 90 / 10"
+group 340 20 440 120 plain "Blue (v1, đang chạy)"
+node b1 450 80 asg "ASG v1"
+node b2 640 80 rds "Database dùng chung"
+group 340 160 440 120 plain "Green (v2, mới)"
+node g1 450 220 asg "ASG v2"
+edge users r53 "" c=ok
+path 266 130 300 130 300 80 424 80 "90%" c=ok
+path 266 150 300 150 300 220 424 220 "10% → 100%" c=go
+edge b1 b2 ""
+path 476 220 640 220 640 106 "" dash
+</arch>
+
 <h2>Elastic Beanstalk chi tiết</h2>
 <ul>
 <li>Thành phần: <b>application</b> → <b>application version</b> (gói code trên S3) → <b>environment</b> (web server hoặc worker tier dùng SQS).</li>

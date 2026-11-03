@@ -49,6 +49,32 @@
 </table>
 <p>Thêm máy vào cluster placement group bị thiếu capacity: stop hết máy trong group rồi start lại cùng lúc (để AWS tìm chỗ đủ cho cả nhóm), hoặc dùng cùng loại instance và launch một lần.</p>
 
+<arch w="800" h="300" caption="Ba loại placement group: cluster gom máy sát nhau trong một AZ, spread tách mỗi máy một rack, partition chia nhóm rack">
+group 10 10 250 280 az "Cluster (1 AZ)"
+group 275 10 250 280 az "Spread (tối đa 7 / AZ)"
+group 540 10 250 280 az "Partition (tối đa 7 / AZ)"
+group 35 50 200 160 plain "Một rack / gần nhau"
+node c1 85 100 ec2
+node c2 185 100 ec2
+node c3 85 170 ec2
+node c4 185 170 ec2
+text 135 245 "độ trễ thấp nhất · HPC" small anchor=middle
+group 290 50 65 100 plain "Rack 1"
+group 365 50 65 100 plain "Rack 2"
+group 440 50 70 100 plain "Rack 3"
+node s1 322 110 ec2
+node s2 397 110 ec2
+node s3 475 110 ec2
+text 400 245 "mỗi máy phần cứng riêng" small anchor=middle
+group 555 50 105 170 plain "Partition 1"
+group 670 50 105 170 plain "Partition 2"
+node p1 607 110 ec2
+node p2 607 175 ec2
+node p3 722 110 ec2
+node p4 722 175 ec2
+text 665 245 "Kafka, Cassandra, HDFS" small anchor=middle
+</arch>
+
 <h2>Burstable T-family</h2>
 <ul>
 <li>Mỗi kích thước có <b>baseline</b> (ví dụ t3.micro 10%). Dưới baseline thì tích <b>CPU credit</b>, trên baseline thì tiêu credit.</li>

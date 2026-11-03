@@ -46,6 +46,24 @@
 <li>Nâng cấp phiên bản chính (major version) phải chủ động; minor version có thể bật auto minor version upgrade.</li>
 </ul>
 
+<arch w="800" h="330" caption="Multi-AZ để chịu lỗi (standby không phục vụ đọc), read replica để mở rộng đọc và làm DR khác Region. RDS Proxy gom kết nối từ Lambda">
+group 10 10 570 310 region "Region chính"
+group 130 40 210 270 az "AZ a"
+group 360 40 210 270 az "AZ b"
+node lam 65 240 lambda "Lambda" "nghìn lần gọi"
+node prx 235 240 proxy "RDS Proxy" "secret: Secrets Manager"
+node pri 235 105 rds "Primary" "đọc + ghi"
+node stb 465 105 rds "Standby" "không phục vụ đọc"
+node rr 465 240 rds "Read replica" "báo cáo"
+group 600 10 190 310 region "Region DR"
+node xrr 695 240 rds "Cross-Region replica" "promote khi DR"
+edge lam prx ""
+edge prx pri "ít kết nối" c=ok
+edge pri stb "đồng bộ" dash
+path 261 120 300 120 300 200 440 200 440 214 "bất đồng bộ" dash
+edge rr xrr "bất đồng bộ" dash
+</arch>
+
 <h2>Aurora</h2>
 <ul>
 <li>Storage dùng chung tự mở rộng tới 128 TiB (256 TiB bản mới), 6 bản sao trên 3 AZ, tự chữa lỗi.</li>
@@ -57,6 +75,8 @@
 <li><b>Backtrack</b> (Aurora MySQL): quay ngược cluster về thời điểm trước (tối đa 72 giờ) tại chỗ, không restore. <b>Cloning</b>: tạo cluster mới dùng chung storage (copy-on-write), nhanh và rẻ cho test.</li>
 <li><b>Aurora I/O-Optimized</b>: không tính phí I/O, hợp khi I/O chiếm trên 25% chi phí.</li>
 </ul>
+
+
 
 <h2>DynamoDB</h2>
 <ul>

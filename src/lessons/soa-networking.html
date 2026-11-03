@@ -13,6 +13,40 @@
 <tr><td>IPAM</td><td>Quản lý, cấp phát, theo dõi dải IP cho nhiều VPC / account, phát hiện trùng</td></tr>
 </table>
 
+<arch w="800" h="540" caption="VPC chuẩn 2 AZ. Mũi tên xanh: người dùng vào qua IGW → ALB → EC2. Mũi tên cam: EC2 ở private subnet ra Internet qua NAT Gateway cùng AZ → IGW">
+group 10 10 780 520 cloud "AWS Cloud · Region ap-southeast-1"
+group 30 60 740 455 vpc "VPC 10.0.0.0/16"
+group 48 105 342 395 az "AZ a"
+group 410 105 342 395 az "AZ b"
+group 62 130 314 120 public "Public subnet 10.0.1.0/24"
+group 424 130 314 120 public "Public subnet 10.0.2.0/24"
+group 62 270 314 215 private "Private subnet 10.0.11.0/24"
+group 424 270 314 215 private "Private subnet 10.0.12.0/24"
+node igw 400 60 igw
+text 428 50 "Internet Gateway" bold
+node alb 150 180 alb "ALB node a"
+node nata 300 180 nat "NAT GW a"
+node albb 510 180 alb "ALB node b"
+node natb 660 180 nat "NAT GW b"
+node ec2a 150 330 ec2 "EC2 app"
+node ec2b 510 330 ec2 "EC2 app"
+node rdsa 300 420 rds "RDS primary"
+node rdsb 660 420 rds "RDS standby"
+edge igw alb "" c=ok route=vhv off=-30
+edge igw albb "" c=ok route=vhv off=-30
+edge alb ec2a "8080" c=ok
+edge albb ec2b "8080" c=ok
+edge ec2a nata "" c=go route=hv
+edge nata igw "" c=go route=vh
+edge ec2a rdsa "5432" route=vh
+edge ec2b rdsb "" dash route=vh
+edge rdsa rdsb "đồng bộ (Multi-AZ)" dash
+text 74 474 "route: 0.0.0.0/0 → nat-a" small
+text 436 474 "route: 0.0.0.0/0 → nat-b" small
+text 74 242 "route: 0.0.0.0/0 → igw" small
+text 436 242 "route: 0.0.0.0/0 → igw" small
+</arch>
+
 <h2>Security group vs NACL</h2>
 <table>
 <tr><th></th><th>Security group</th><th>NACL</th></tr>
@@ -29,6 +63,21 @@
 <li><b>Connection tracking</b>: đổi rule SG không cắt kết nối đang mở đã được theo dõi; NACL cắt ngay.</li>
 </ul>
 
+<arch w="800" h="300" caption="Gói tin đi qua NACL ở biên subnet (xét cả hai chiều) rồi mới tới security group của ENI (chỉ xét chiều vào, chiều về tự được phép)">
+group 10 10 780 280 vpc "VPC"
+group 230 40 540 235 private "Subnet"
+text 248 82 "NACL: rule 100 Allow TCP 443 vào · rule 110 Allow 1024-65535 ra · * Deny" small
+node client 90 160 users "Client" "IP 203.0.113.9"
+node nacl 300 160 nacl "NACL" "stateless"
+node sg 470 160 sg "Security group" "stateful"
+node ec2 660 160 ec2 "EC2"
+edge client nacl "→ :443" c=ok
+edge nacl sg "khớp rule 100" c=ok
+edge sg ec2 "cho 443" c=ok
+arrow 640 222 320 222 "trả lời → cổng tạm 49152 (NACL phải cho ra)" c=go
+text 480 258 "SG không cần rule chiều về · NACL thiếu rule 110 thì trả lời bị REJECT" small anchor=middle
+</arch>
+
 <h2>VPC endpoint</h2>
 <table>
 <tr><th></th><th>Gateway endpoint</th><th>Interface endpoint (PrivateLink)</th></tr>
@@ -43,6 +92,25 @@
 <li>Interface endpoint lỗi: SG của endpoint chưa cho 443 từ nguồn; Private DNS tắt hoặc VPC thiếu DNS attributes nên tên dịch vụ vẫn phân giải ra IP public.</li>
 <li>Interface endpoint cho S3 dùng tên DNS riêng của endpoint (hoặc Private DNS cho S3), hợp khi cần truy cập từ on-premises.</li>
 </ul>
+
+<arch w="800" h="340" caption="Gateway endpoint (chỉ S3, DynamoDB) là một đích trong route table. Interface endpoint là ENI có IP riêng trong subnet, có security group và tên DNS. Dịch vụ AWS nằm ngoài VPC, traffic không ra Internet">
+group 10 10 560 320 vpc "VPC (không có NAT, không có IGW)"
+group 25 45 255 270 private "Private subnet A"
+group 295 45 260 270 private "Private subnet B"
+group 600 10 190 320 plain "Dịch vụ AWS (ngoài VPC)"
+node ec2a 80 120 ec2 "EC2"
+node rt 210 120 vpc "Route table" "pl-s3 → vpce"
+node gw 210 250 endpoint "Gateway endpoint"
+node ec2b 360 120 ec2 "Lambda / EC2"
+node ife 470 120 eni "Interface endpoint" "ENI + SG :443"
+node s3 695 250 s3 "S3"
+node sm 695 120 secrets "Secrets Manager"
+edge ec2a rt ""
+edge rt gw ""
+edge gw s3 "mạng AWS" c=ok
+edge ec2b ife "HTTPS 443" c=ok
+edge ife sm "PrivateLink" c=ok
+</arch>
 
 <h2>Công cụ chẩn đoán</h2>
 <h3>VPC Flow Logs</h3>

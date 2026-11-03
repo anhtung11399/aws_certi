@@ -22,6 +22,23 @@
 </table>
 <p>Kết hợp nhiều policy thành cây quyết định bằng <b>Traffic Flow</b> (traffic policy), ví dụ latency giữa 2 Region, trong mỗi Region là failover.</p>
 
+<arch w="800" h="370" caption="Failover giữa hai Region: Route 53 trả bản ghi primary khi health check khoẻ, hỏng thì trả secondary. Dữ liệu được sao chép sẵn sang Region dự phòng">
+node user 400 45 users "Người dùng"
+node r53 400 135 route53 "Route 53" "failover"
+group 20 195 360 165 region "Primary · ap-southeast-1"
+group 420 195 360 165 region "Secondary · ap-northeast-1"
+node alb1 120 260 alb "ALB"
+node db1 280 260 aurora "Aurora writer"
+node alb2 520 260 alb "ALB" "warm standby"
+node db2 680 260 aurora "Aurora Global"
+edge user r53 "" c=ok
+path 374 135 120 135 120 234 "PRIMARY" c=ok
+path 426 135 520 135 520 234 "SECONDARY" dash
+edge alb1 db1 ""
+edge alb2 db2 ""
+path 280 304 280 340 680 340 680 304 "sao chép dưới 1 giây" dash
+</arch>
+
 <h2>Health check</h2>
 <table>
 <tr><th>Loại</th><th>Cách hoạt động</th></tr>

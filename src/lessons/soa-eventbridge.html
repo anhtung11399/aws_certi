@@ -60,6 +60,26 @@
 <li><b>Global endpoints</b>: tự chuyển việc nhận event sang Region phụ khi Region chính lỗi (cho ứng dụng tự gửi event).</li>
 </ul>
 
+<arch w="800" h="300" caption="Gom event của mọi account về một event bus trung tâm của đội vận hành để xử lý tập trung">
+group 10 10 260 280 ou "OU Workloads"
+group 300 10 490 280 account "Account Operations"
+node ec2 70 80 ec2 "EC2 đổi trạng thái"
+node bus1 200 80 eventbridge "Default bus" "rule: forward"
+node gd 70 210 guardduty "GuardDuty finding"
+node bus2 200 210 eventbridge "Default bus" "account B"
+node cbus 400 150 eventbridge "Central bus" "policy: aws:PrincipalOrgID"
+node lam 560 70 lambda "Lambda" "làm giàu, phân loại"
+node sfn 560 230 stepfunctions "Step Functions" "khắc phục"
+node chat 710 150 chatbot "Chatbot" "Slack"
+edge ec2 bus1 ""
+edge gd bus2 ""
+edge bus1 cbus "cross-account" c=go
+edge bus2 cbus "" c=go
+edge cbus lam ""
+edge cbus sfn ""
+edge lam chat ""
+</arch>
+
 <h2>Các thành phần khác</h2>
 <table>
 <tr><th>Thành phần</th><th>Dùng khi</th></tr>

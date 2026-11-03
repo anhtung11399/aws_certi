@@ -11,15 +11,21 @@
 </ul>
 
 <h2>EC2 Image Builder</h2>
-<fig type="flow" caption="Pipeline dựng image tự động">
-[ext] Image recipe / AMI gốc + component (cài phần mềm, hardening)
--> build instance
-[go] Build / chạy component
--> test instance
-[q] Test / component kiểm tra, quét Inspector
--> 
-[ok] Distribution / copy sang Region, chia sẻ account, launch template, AMI tags
-</fig>
+<arch w="800" h="300" caption="EC2 Image Builder: pipeline theo lịch dựng AMI từ image gốc và component, kiểm thử, rồi phân phối sang Region / account khác và cập nhật launch template">
+node sched 70 140 scheduler "Lịch / bản vá mới"
+node rec 210 140 imagebuilder "Image recipe" "AMI gốc + component"
+node build 350 140 ec2 "Build instance" "cài, hardening CIS"
+node test 490 140 ec2 "Test instance" "test + Inspector"
+node ami 630 70 ami "AMI ap-southeast-1"
+node ami2 630 210 ami "AMI us-east-1" "chia sẻ account Prod"
+node lt 740 140 asg "Launch template" "ASG instance refresh"
+edge sched rec "" c=go
+edge rec build ""
+edge build test ""
+edge test ami "" c=ok route=hv
+edge test ami2 "" c=ok route=hv
+edge ami lt "" dash route=hv
+</arch>
 <ul>
 <li><b>Component</b>: tài liệu YAML gồm các bước build / validate / test. Có sẵn component của AWS (cập nhật Linux, CIS hardening STIG, cài CloudWatch agent...).</li>
 <li><b>Infrastructure configuration</b>: instance type, subnet, SG, IAM instance profile (cần <code>EC2InstanceProfileForImageBuilder</code> và SSM), nơi ghi log (S3).</li>

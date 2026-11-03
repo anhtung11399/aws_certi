@@ -72,6 +72,24 @@ parse @message "user=* action=*" as user, action
 </table>
 <aside class="prod"><p>"Gom log của nhiều account về một account log trung tâm <b>gần thời gian thực</b>" → subscription filter + cross-account destination (Kinesis / Firehose). "Lưu log 7 năm chi phí thấp" → đưa sang S3 + lifecycle Glacier, đặt retention ngắn cho log group.</p></aside>
 
+<arch w="800" h="330" caption="Gom log nhiều account về account log trung tâm gần thời gian thực bằng subscription filter và destination, rồi lưu lâu dài trên S3 và phân tích bằng OpenSearch">
+group 10 10 250 310 account "Account ứng dụng A, B, C..."
+group 290 10 500 310 account "Account Log Archive"
+node lg 80 90 logs "Log group" "/app/api"
+node sf 190 90 logs "Subscription filter"
+node lg2 80 230 logs "Log group" "VPC Flow Logs"
+node dest 360 160 kinesis "Destination" "resource policy"
+node fh 500 160 firehose "Firehose"
+node s3 650 80 s3 "S3" "lifecycle → Glacier"
+node os 650 240 opensearch "OpenSearch" "dashboard, tìm kiếm"
+edge lg sf ""
+edge sf dest "gần thời gian thực" c=go
+edge lg2 dest "" c=go
+edge dest fh ""
+edge fh s3 "" c=ok
+edge fh os "" c=ok
+</arch>
+
 <h2>Tracing và giám sát ứng dụng</h2>
 <table>
 <tr><th>Công cụ</th><th>Trả lời câu hỏi</th></tr>

@@ -11,6 +11,22 @@
 <li>Logs: standard logs về S3, real-time logs qua Kinesis. Metric: <code>CacheHitRate</code> (bật thêm metric), <code>4xxErrorRate</code>, <code>5xxErrorRate</code>, <code>OriginLatency</code>.</li>
 <li>Chạy code ở edge: <b>CloudFront Functions</b> (rất nhẹ, viewer request / response, sửa header, redirect) và <b>Lambda@Edge</b> (nặng hơn, gọi được mạng, có cả origin request / response).</li>
 </ul>
+<arch w="800" h="330" caption="Một distribution, nhiều origin: /static/* lấy từ S3 private qua OAC, /api/* tới ALB không cache. WAF và chứng chỉ ACM (us-east-1) gắn ở distribution">
+node u 60 160 users "Người dùng"
+node waf 180 70 waf "WAF" "web ACL"
+node cf 300 160 cloudfront "CloudFront" "cert ACM us-east-1"
+node edge1 300 280 cloudfront "Edge cache"
+group 420 20 370 130 plain "Behavior /static/* · cache 1 ngày"
+node s3 620 85 s3 "S3 private" "bucket policy cho OAC"
+group 420 180 370 130 plain "Behavior /api/* · không cache"
+node alb 620 245 alb "ALB" "SG: prefix list CloudFront"
+edge u cf "HTTPS" c=ok
+edge waf cf "" dash route=hv
+edge cf edge1 "" dash
+path 326 150 370 150 370 85 594 85 "OAC (SigV4)" c=ok
+path 326 170 370 170 370 245 594 245 "HTTPS" c=ok
+</arch>
+
 <h3>Các thiết lập quan trọng khác</h3>
 <ul>
 <li><b>Price class</b>: giới hạn edge location (All, 200, 100) để giảm chi phí.</li>

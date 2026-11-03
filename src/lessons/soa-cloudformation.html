@@ -74,6 +74,18 @@ Outputs:
 <li>Bật <b>termination protection</b> và DeletionPolicy cho dữ liệu là câu trả lời cho "tránh mất dữ liệu khi xoá stack nhầm".</li>
 </ul>
 
+<arch w="800" h="260" caption="Cập nhật stack an toàn: sửa template, tạo change set để xem tài nguyên nào bị thay thế, duyệt rồi mới execute. Alarm trong rollback configuration tự quay lại nếu có lỗi">
+node tpl 70 110 file "Template mới" "Git / S3"
+node cs 230 110 cfn "Change set" "Add / Modify / Replace"
+node rev 390 110 admin "Người duyệt"
+node ex 550 110 cfn "Execute" "stack policy chặn DB"
+node alm 720 110 alarm "Alarm" "rollback trigger"
+edge tpl cs ""
+edge cs rev "xem Replacement"
+edge rev ex "duyệt" c=ok
+edge alm ex "lỗi → rollback" c=bad
+</arch>
+
 <h3>Bootstrap EC2: helper scripts</h3>
 <table>
 <tr><th>Script</th><th>Làm gì</th></tr>
@@ -81,6 +93,17 @@ Outputs:
 <tr><td><code>cfn-signal</code></td><td>Báo cho CloudFormation là máy đã cài xong. Kết hợp <b>CreationPolicy</b> / <b>WaitCondition</b>: không nhận đủ tín hiệu trong timeout thì tạo thất bại, rollback</td></tr>
 <tr><td><code>cfn-hup</code></td><td>Daemon theo dõi metadata thay đổi để áp lại cấu hình khi update stack</td></tr>
 </table>
+
+<arch w="800" h="270" caption="CreationPolicy + cfn-signal: CloudFormation chờ tín hiệu từ trong máy. Không nhận đủ tín hiệu trong timeout thì tạo thất bại và rollback">
+node cfn 90 120 cfn "CloudFormation" "CreationPolicy 15 phút"
+node ec2 340 120 ec2 "EC2" "user data"
+node init 560 60 file "cfn-init" "đọc Metadata, cài gói"
+node sig 560 190 file "cfn-signal" "mã thoát 0 = thành công"
+edge cfn ec2 "tạo instance" c=go
+edge ec2 init "" route=vh
+edge init sig ""
+path 534 190 90 190 90 164 "SUCCESS" c=ok
+</arch>
 
 <h3>Lỗi hay gặp và cách xử lý</h3>
 <table>
@@ -119,6 +142,23 @@ Outputs:
 <li>Service-managed: dùng <b>delegated administrator</b> để không phải làm việc ở management account; <b>automatic deployment</b> khi account vào / rời OU (tuỳ chọn giữ hay xoá stack khi rời).</li>
 <li>Không deploy vào management account bằng service-managed permission.</li>
 </ul>
+
+<arch w="800" h="330" caption="StackSets service-managed: một StackSet ở account quản trị (delegated admin) triển khai stack instance vào mọi account của OU và mọi Region đã chọn. Account mới vào OU tự được triển khai">
+group 10 10 230 310 account "Delegated admin"
+node ss 125 160 stackset "StackSet" "baseline: Config, role"
+group 270 10 520 310 ou "OU Production"
+group 285 40 240 130 account "Account A"
+group 535 40 240 130 account "Account B"
+group 285 180 240 130 account "Account C (mới vào OU)"
+node a1 345 105 cfn "ap-southeast-1"
+node a2 465 105 cfn "us-east-1"
+node b1 595 105 cfn "ap-southeast-1"
+node b2 715 105 cfn "us-east-1"
+node c1 405 245 cfn "auto deployment" 
+edge ss a1 "" c=go route=hvh
+edge ss c1 "" c=go route=hvh
+text 655 245 "max concurrent · failure tolerance" small anchor=middle
+</arch>
 
 <h2>AWS CDK, Terraform</h2>
 <ul>

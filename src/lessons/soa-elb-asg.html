@@ -10,6 +10,25 @@
 <tr><td>Cross-zone</td><td>Luôn bật (có thể tắt ở mức target group), không phí</td><td>Mặc định tắt, bật thì tính phí dữ liệu giữa AZ</td><td>Mặc định tắt</td></tr>
 </table>
 
+<arch w="800" h="340" caption="ALB nhận request, listener rule chọn target group theo path, health check quyết định target nào nhận tải. ASG tự đăng ký instance vào target group">
+group 10 10 780 320 vpc "VPC"
+node users 60 150 users "Người dùng"
+node alb 200 150 alb "ALB" "listener :443 + ACM"
+group 300 30 470 130 plain "Target group: web · health check /health"
+node w1 380 100 ec2 "EC2"
+node w2 500 100 ec2 "EC2"
+node w3 620 100 ec2 "EC2 unhealthy"
+group 300 190 470 130 plain "Target group: api"
+node l1 380 260 lambda "Lambda"
+node c1 500 260 ecs "ECS task" "target type IP"
+node asg 700 260 asg "Auto Scaling group" "gắn target group web"
+edge users alb "HTTPS" c=ok
+path 226 140 270 140 270 100 354 100 "/*" c=ok
+path 226 160 270 160 270 260 354 260 "/api/*" c=ok
+edge asg w3 "" dash route=vh
+text 620 150 "không nhận request" small anchor=middle c=bad
+</arch>
+
 <h2>Target group và health check</h2>
 <table>
 <tr><th>Tham số</th><th>Mặc định ALB</th><th>Ghi nhớ</th></tr>
@@ -57,6 +76,18 @@
 <li>Redirect HTTP → HTTPS bằng rule của listener 80.</li>
 </ul>
 
+<arch w="800" h="250" caption="Cách đọc mã lỗi: 4xx / 5xx do chính ALB sinh (HTTPCode_ELB_*) khác với mã do ứng dụng trả về (HTTPCode_Target_*)">
+node c 70 110 users "Client"
+node alb 290 110 alb "ALB" "idle timeout 60 giây"
+node t 560 110 ec2 "Target"
+edge c alb "request" c=ok
+edge alb t "" c=ok
+text 290 200 "503: không có target khoẻ · 502: target đóng kết nối / trả sai" small anchor=middle c=bad
+text 290 220 "504: target xử lý quá idle timeout" small anchor=middle c=bad
+text 580 200 "HTTPCode_Target_5XX: lỗi của ứng dụng" small anchor=middle
+text 700 110 "keep-alive phải > 60s" small anchor=middle
+</arch>
+
 <h2>Auto Scaling</h2>
 <h3>Thành phần</h3>
 <ul>
@@ -96,6 +127,17 @@
 <li><b>Capacity Rebalancing</b>: với Spot, chủ động thay instance có nguy cơ bị thu hồi.</li>
 <li><b>Maximum instance lifetime</b>: tự thay instance sau N ngày (vá định kỳ).</li>
 </ul>
+<arch w="800" h="230" caption="Scale theo SQS: metric backlog per instance = số message đang chờ / số instance, target tracking giữ nó quanh giá trị chấp nhận được">
+node prod 70 110 app "Producer"
+node q 230 110 sqs "SQS" "MessagesVisible"
+node cw 420 110 cloudwatch "Metric math" "backlog / instance"
+node asg 620 110 asg "ASG worker" "target tracking"
+edge prod q ""
+edge q cw "" dash
+edge cw asg "scale out / in" c=go
+path 620 84 620 40 230 40 230 84 "worker kéo message" c=ok
+</arch>
+
 <h3>Health check</h3>
 <ul>
 <li>Mặc định chỉ EC2 status check. Bật <b>ELB health check</b> để thay máy khi ứng dụng chết. Có thêm EBS health check và VPC Lattice health check.</li>

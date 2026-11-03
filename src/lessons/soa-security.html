@@ -19,6 +19,19 @@
 </ol>
 <p>Cross-account: cần Allow ở <b>cả hai</b> phía (identity policy bên gọi + resource policy / trust policy bên sở hữu).</p>
 
+<arch w="800" h="300" caption="Truy cập cross-account bằng role: account B tạo role có trust policy tin account A; user ở A cần quyền sts:AssumeRole; credential tạm thời chỉ có quyền của role">
+group 10 10 340 280 account "Account A (111111111111)"
+group 450 10 340 280 account "Account B (222222222222)"
+node dev 90 140 user "Dev / Lambda" "policy: sts:AssumeRole"
+node sts 270 140 sts "STS" "AssumeRole"
+node role 560 90 iam "Role ReadReports" "trust: account A"
+node s3 700 200 s3 "Bucket báo cáo" "bucket policy"
+edge dev sts "1" c=go
+path 296 130 400 130 400 90 534 90 "2 kiểm tra trust policy" c=go
+path 296 150 420 150 420 200 674 200 "3 credential tạm thời → GetObject" c=ok
+text 560 165 "permission: s3:GetObject" small anchor=middle
+</arch>
+
 <h3>Xử lý AccessDenied</h3>
 <ol>
 <li>Đọc thông báo lỗi: nhiều dịch vụ ghi rõ "because no identity-based policy allows", "with an explicit deny in a service control policy", "permissions boundary"...</li>
