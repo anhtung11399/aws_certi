@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · AMI, container image và chia sẻ tài nguyên · Ôn thi AWS</title>
+<meta name="description" content="EC2 Image Builder, quản lý AMI, ECR, chia sẻ AMI / snapshot, AWS RAM, Service Catalog, Service Quotas.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing" aria-current="page"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-ami-sharing">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</span><span>Bài 12</span><span>40 phút</span></div>
+    <h1>AMI, container image và chia sẻ tài nguyên</h1>
+    <p class="lead">EC2 Image Builder, quản lý AMI, ECR, chia sẻ AMI / snapshot, AWS RAM, Service Catalog, Service Quotas.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Dựng image chuẩn tự động</li><li>Chia sẻ tài nguyên giữa account an toàn</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="ami-vong-doi"><a href="#ami-vong-doi" class="anchor" aria-hidden="true">#</a>AMI: vòng đời</h2>
+<ul>
+<li>AMI gồm: snapshot EBS của các volume, launch permission, block device mapping. AMI là tài nguyên <b>theo Region</b>: dùng ở Region khác phải <b>copy</b>.</li>
+<li>Tạo AMI từ instance: mặc định instance bị <b>reboot</b> để file system nhất quán (có tuỳ chọn no-reboot nhưng có thể không nhất quán).</li>
+<li><b>Chia sẻ AMI</b>: thêm account ID / Organization / OU vào launch permission. AMI có snapshot mã hoá: phải dùng customer managed key và cấp quyền key cho account nhận (<code>kms:CreateGrant</code>, <code>Decrypt</code>, <code>DescribeKey</code>, <code>ReEncrypt</code>, <code>GenerateDataKey</code>). AMI mã hoá bằng <code>aws/ebs</code> không chia sẻ được: copy lại với customer managed key.</li>
+<li><b>Block public access for AMIs</b> bật mặc định cho account mới: chặn chia sẻ công khai.</li>
+<li><b>Deprecate</b> AMI (ẩn khỏi danh sách nhưng vẫn launch được bằng ID), <b>disable</b> AMI, <b>deregister</b> (không launch được, snapshot vẫn còn và vẫn tính phí cho tới khi xoá). <b>Recycle Bin</b> giữ AMI bị deregister nhầm.</li>
+<li><b>Allowed AMIs</b> (cấu hình account / declarative policy): chỉ cho launch AMI từ nhà cung cấp / account được phép.</li>
+<li>AMI Marketplace / có product code: không copy sang account khác được theo cách thông thường.</li>
+<li>Lấy AMI mới nhất của AWS qua Parameter Store public parameter thay vì ghi cứng ID (ID khác nhau theo Region).</li>
+</ul>
+
+<h2 id="ec2-image-builder"><a href="#ec2-image-builder" class="anchor" aria-hidden="true">#</a>EC2 Image Builder</h2>
+<figure class="dg"><svg viewBox="0 0 1466.72 86" style="min-width:600px;max-width:1466.72px" role="img" aria-label="Pipeline dựng image tự động"><g class="nd ext"><rect x="10" y="10" width="328.40000000000003" height="66" rx="10"/><text x="174.20000000000002" y="40" class="tt" text-anchor="middle">Image recipe</text><text x="174.20000000000002" y="58" class="ts" text-anchor="middle">AMI gốc + component (cài phần mềm, hardening)</text></g><line x1="340.40000000000003" y1="43" x2="460.32000000000005" y2="43" class="ln" marker-end="url(#ar)"/><text x="401.36" y="34" class="tl" text-anchor="middle">build instance</text><g class="nd go"><rect x="464.32000000000005" y="10" width="120.08000000000001" height="66" rx="10"/><text x="524.36" y="40" class="tt" text-anchor="middle">Build</text><text x="524.36" y="58" class="ts" text-anchor="middle">chạy component</text></g><line x1="586.4000000000001" y1="43" x2="699.0400000000001" y2="43" class="ln" marker-end="url(#ar)"/><text x="643.7200000000001" y="34" class="tl" text-anchor="middle">test instance</text><g class="nd q"><rect x="703.0400000000001" y="10" width="254.48000000000002" height="66" rx="10"/><text x="830.2800000000001" y="40" class="tt" text-anchor="middle">Test</text><text x="830.2800000000001" y="58" class="ts" text-anchor="middle">component kiểm tra, quét Inspector</text></g><line x1="959.5200000000001" y1="43" x2="1023.52" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd ok"><rect x="1027.52" y="10" width="429.20000000000005" height="66" rx="10"/><text x="1242.12" y="40" class="tt" text-anchor="middle">Distribution</text><text x="1242.12" y="58" class="ts" text-anchor="middle">copy sang Region, chia sẻ account, launch template, AMI tags</text></g></svg><figcaption>Pipeline dựng image tự động</figcaption></figure>
+<ul>
+<li><b>Component</b>: tài liệu YAML gồm các bước build / validate / test. Có sẵn component của AWS (cập nhật Linux, CIS hardening STIG, cài CloudWatch agent...).</li>
+<li><b>Infrastructure configuration</b>: instance type, subnet, SG, IAM instance profile (cần <code>EC2InstanceProfileForImageBuilder</code> và SSM), nơi ghi log (S3).</li>
+<li><b>Distribution settings</b>: Region đích, account đích, cập nhật launch template (ASG dùng AMI mới), KMS key.</li>
+<li><b>Schedule</b>: theo cron hoặc <b>khi có bản cập nhật của image gốc / component</b>.</li>
+<li><b>Lifecycle policy</b>: tự deprecate / xoá AMI cũ.</li>
+<li>Dựng được cả <b>container image</b> đẩy lên ECR.</li>
+<li>Pipeline lỗi: xem log trong S3 / CloudWatch, build instance không kết nối được SSM (thiếu role / mạng), component lỗi.</li>
+</ul>
+<aside class="prod"><p>"Tạo golden AMI đã vá, kiểm thử, phân phối sang nhiều Region / account một cách tự động, ít công sức" → <b>EC2 Image Builder</b>. Đáp án tự viết Lambda + SSM Automation hay Packer trên EC2 thường nhiều công sức hơn.</p></aside>
+
+<h2 id="container-image-amazon-ecr"><a href="#container-image-amazon-ecr" class="anchor" aria-hidden="true">#</a>Container image: Amazon ECR</h2>
+<ul>
+<li>Repository private / public. <b>Lifecycle policy</b> xoá image cũ (giữ N image gần nhất, xoá image untagged sau N ngày).</li>
+<li><b>Image scanning</b>: basic (quét lúc push / thủ công, CVE hệ điều hành) hoặc <b>enhanced</b> (Inspector, quét liên tục cả thư viện ngôn ngữ).</li>
+<li><b>Tag immutability</b>: không ghi đè tag (tránh <code>latest</code> bị thay âm thầm).</li>
+<li><b>Replication</b> cross-Region / cross-account. <b>Pull through cache</b> từ Docker Hub, Quay, GitHub... Repository policy để cho account khác pull.</li>
+<li>Pull lỗi trên ECS / EKS: execution role thiếu <code>ecr:GetAuthorizationToken</code>, <code>BatchGetImage</code>; private subnet thiếu endpoint <code>ecr.api</code>, <code>ecr.dkr</code> và gateway endpoint <code>s3</code> (layer nằm ở S3).</li>
+</ul>
+
+<h2 id="chia-se-tai-nguyen-giua-account-aws-ram"><a href="#chia-se-tai-nguyen-giua-account-aws-ram" class="anchor" aria-hidden="true">#</a>Chia sẻ tài nguyên giữa account: AWS RAM</h2>
+<table>
+<tr><th>Chia sẻ được (ví dụ)</th><th>Ứng dụng</th></tr>
+<tr><td><b>Subnet</b> (VPC sharing)</td><td>Account mạng sở hữu VPC, account ứng dụng tạo tài nguyên trong subnet được chia sẻ. Account tham gia không sửa được VPC, route table, NACL; tự quản lý SG và tài nguyên của mình</td></tr>
+<tr><td>Transit Gateway</td><td>Mọi account gắn VPC vào TGW trung tâm</td></tr>
+<tr><td>Route 53 Resolver rules, DNS Firewall rule groups</td><td>Phân giải DNS on-premises thống nhất</td></tr>
+<tr><td>Prefix list, IPAM pool</td><td>Dải IP dùng chung</td></tr>
+<tr><td>License Manager configurations, Capacity Reservations, Dedicated Hosts</td><td>Dùng chung giấy phép / capacity</td></tr>
+<tr><td>Aurora DB cluster (clone), Glue catalog, Outposts, Network Firewall policy, Private CA...</td><td></td></tr>
+</table>
+<ul>
+<li>Trong Organization: bật "sharing with AWS Organizations" để chia sẻ không cần lời mời chấp nhận; ngoài Organization phải accept invitation.</li>
+<li>Có thể giới hạn chỉ chia sẻ trong Organization bằng SCP / RAM settings.</li>
+</ul>
+
+<h2 id="service-catalog-va-service-quotas"><a href="#service-catalog-va-service-quotas" class="anchor" aria-hidden="true">#</a>Service Catalog và Service Quotas</h2>
+<ul>
+<li><b>Service Catalog</b>: danh mục sản phẩm (template CloudFormation / Terraform) đã được phê duyệt. Người dùng launch qua catalog mà không cần quyền tạo tài nguyên trực tiếp, nhờ <b>launch constraint</b> (role của Service Catalog). Có <b>TagOptions</b> bắt buộc tag, chia sẻ portfolio cho Organization.</li>
+<li><b>Service Quotas</b>: xem và xin tăng giới hạn (vCPU, EIP, VPC...), dùng <b>quota request template</b> để account mới tự xin tăng; tạo <b>CloudWatch alarm</b> trên usage của quota.</li>
+<li>Trusted Advisor có check "Service Limits" và gửi event khi gần chạm.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Account B không launch được AMI mà account A đã chia sẻ. AMI có snapshot mã hoá bằng customer managed key của A. Thiếu gì?</p><div class="qo"><button type="button" class="opt" data-ok>Key policy của A cho phép account B dùng key (CreateGrant, Decrypt, DescribeKey...) và B có quyền IAM tương ứng</button><button type="button" class="opt">B phải copy AMI trước bằng aws/ebs</button><button type="button" class="opt">Bật block public access</button><button type="button" class="opt">B phải ở cùng Region với IAM</button></div><p class="why" hidden>Snapshot mã hoá cần cả quyền launch AMI lẫn quyền dùng KMS key.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Mỗi tháng đội phải dựng AMI mới với bản vá OS và agent bảo mật, chạy kiểm thử, rồi cập nhật launch template của ASG ở 3 Region. Giải pháp ít công sức nhất?</p><div class="qo"><button type="button" class="opt" data-ok>EC2 Image Builder pipeline theo lịch, distribution cập nhật launch template ở 3 Region</button><button type="button" class="opt">Packer chạy trên EC2 theo cron</button><button type="button" class="opt">Tạo AMI thủ công từ instance mẫu</button><button type="button" class="opt">AWS Backup</button></div><p class="why" hidden>Image Builder bao trọn build, test, distribution và cập nhật launch template.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ECS Fargate task trong private subnet (không NAT) không kéo được image từ ECR. Chọn 2 thứ cần có.</p><div class="qo"><button type="button" class="opt" data-ok>Interface endpoint ecr.api và ecr.dkr</button><button type="button" class="opt" data-ok>Gateway endpoint cho S3</button><button type="button" class="opt">Internet Gateway</button><button type="button" class="opt">Elastic IP cho task</button><button type="button" class="opt">VPC peering với ECR</button></div><p class="why" hidden>ECR cần API và registry endpoint; các layer image được lưu trên S3 nên cần cả endpoint S3.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-ami-sharing">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-cloudformation.html"><small>Bài trước</small>CloudFormation chuyên sâu</a><a class="next" href="soa-deploy-automation.html"><small>Bài tiếp theo</small>Deploy và vận hành ứng dụng</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#ami-vong-doi">AMI: vòng đời</a><a href="#ec2-image-builder">EC2 Image Builder</a><a href="#container-image-amazon-ecr">Container image: Amazon ECR</a><a href="#chia-se-tai-nguyen-giua-account-aws-ram">Chia sẻ tài nguyên giữa account: AWS RAM</a><a href="#service-catalog-va-service-quotas">Service Catalog và Service Quotas</a></nav>
+</div>
+</body>
+</html>

@@ -28,6 +28,42 @@ Outputs:
 <li>Secret không ghi trong template: dùng <b>dynamic reference</b> <code>{{resolve:secretsmanager:...}}</code> hoặc <code>{{resolve:ssm-secure:...}}</code>, tham số dùng <code>NoEcho</code>.</li>
 </ul>
 
+<h3>Intrinsic function và pseudo parameter</h3>
+<table>
+<tr><th>Hàm</th><th>Dùng</th></tr>
+<tr><td><code>!Ref</code></td><td>Giá trị parameter, hoặc ID mặc định của tài nguyên (ví dụ instance ID, tên bucket)</td></tr>
+<tr><td><code>!GetAtt Res.Attr</code></td><td>Thuộc tính khác của tài nguyên (ARN, DNS name, endpoint)</td></tr>
+<tr><td><code>!Sub</code></td><td>Ghép chuỗi có biến: <code>!Sub "arn:aws:s3:::${BucketName}/*"</code></td></tr>
+<tr><td><code>!Join</code>, <code>!Split</code>, <code>!Select</code></td><td>Xử lý chuỗi / danh sách</td></tr>
+<tr><td><code>!FindInMap</code></td><td>Tra Mappings theo Region / môi trường</td></tr>
+<tr><td><code>!GetAZs</code>, <code>!Cidr</code></td><td>Danh sách AZ, chia dải CIDR</td></tr>
+<tr><td><code>!If</code>, <code>!Equals</code>, <code>!And</code>, <code>!Or</code>, <code>!Not</code></td><td>Điều kiện; <code>AWS::NoValue</code> để bỏ một thuộc tính</td></tr>
+<tr><td><code>!ImportValue</code></td><td>Lấy Output được export từ stack khác cùng Region</td></tr>
+<tr><td><code>Fn::Transform</code>, <code>Transform: AWS::Serverless-2016-10-31</code></td><td>Macro; SAM cho serverless; <code>AWS::Include</code> chèn đoạn template từ S3</td></tr>
+</table>
+<p>Pseudo parameter: <code>AWS::Region</code>, <code>AWS::AccountId</code>, <code>AWS::StackName</code>, <code>AWS::StackId</code>, <code>AWS::Partition</code>, <code>AWS::URLSuffix</code>, <code>AWS::NoValue</code>.</p>
+<h3>Parameter</h3>
+<ul>
+<li>Kiểu đặc biệt kiểm tra giá trị có thật: <code>AWS::EC2::KeyPair::KeyName</code>, <code>AWS::EC2::VPC::Id</code>, <code>List&lt;AWS::EC2::Subnet::Id&gt;</code>, <code>AWS::SSM::Parameter::Value&lt;...&gt;</code>.</li>
+<li>Ràng buộc: <code>AllowedValues</code>, <code>AllowedPattern</code>, <code>MinLength</code>, <code>ConstraintDescription</code>. <code>NoEcho: true</code> để không hiển thị giá trị.</li>
+<li><b>Dynamic reference</b>: <code>{{resolve:ssm:/app/ami}}</code>, <code>{{resolve:ssm-secure:/db/pass}}</code> (chỉ một số thuộc tính hỗ trợ), <code>{{resolve:secretsmanager:prod/db:SecretString:password}}</code>. Tốt hơn: <code>ManageMasterUserPassword: true</code> cho RDS để RDS tự quản lý secret.</li>
+</ul>
+<h3>Thứ tự tạo và phụ thuộc</h3>
+<ul>
+<li>CloudFormation tự suy phụ thuộc từ <code>!Ref</code> / <code>!GetAtt</code>. Phụ thuộc ngầm (ví dụ instance cần route tới Internet Gateway đã gắn xong) thì dùng <code>DependsOn</code>.</li>
+<li><b>Custom resource</b>: gọi Lambda (hoặc SNS) để làm việc CloudFormation không hỗ trợ sẵn (tra cứu, làm rỗng bucket trước khi xoá). Lambda phải gửi phản hồi về pre-signed URL, nếu không stack treo tới timeout (1 giờ).</li>
+<li><b>Nested stack</b> (<code>AWS::CloudFormation::Stack</code>): chia template lớn, dùng lại thành phần; cập nhật qua stack cha. Khác <b>cross-stack reference</b> (Export / ImportValue) giữa các stack độc lập.</li>
+<li>Giới hạn: template 1 MB (từ S3), 500 tài nguyên mỗi stack, 200 parameter, 200 output.</li>
+</ul>
+<h3>Update behavior của tài nguyên</h3>
+<table>
+<tr><th>Kiểu</th><th>Ví dụ</th></tr>
+<tr><td>Update with no interruption</td><td>Đổi tag, đổi một số thuộc tính của SG</td></tr>
+<tr><td>Update with some interruption</td><td>Đổi instance type của EC2 (stop / start)</td></tr>
+<tr><td><b>Replacement</b></td><td>Đổi tên bucket, đổi <code>DBInstanceIdentifier</code>, đổi AZ của subnet: tạo mới rồi xoá cũ (mất dữ liệu nếu không có UpdateReplacePolicy)</td></tr>
+</table>
+<p>Tài nguyên có <b>tên cố định</b> (custom name) không thể bị replace vì trùng tên: update thất bại. Để CloudFormation tự sinh tên nếu có thể.</p>
+
 <h3>Cập nhật an toàn</h3>
 <ul>
 <li><b>Change set</b>: xem trước thay đổi, đặc biệt cột <b>Replacement</b> (tài nguyên sẽ bị xoá và tạo mới, ví dụ đổi tên RDS instance).</li>
@@ -58,6 +94,15 @@ Outputs:
 <tr><td>Wait condition timeout</td><td>Máy không gọi được cfn-signal: không ra được Internet / thiếu endpoint, script lỗi</td></tr>
 </table>
 
+<h3>Đưa tài nguyên có sẵn vào và tách ra</h3>
+<ul>
+<li><b>Resource import</b>: đưa tài nguyên đã tạo tay vào stack (cần DeletionPolicy trong template). <b>IaC generator</b>: quét tài nguyên có sẵn và sinh template.</li>
+<li>Tách tài nguyên khỏi stack mà không xoá: đặt <code>DeletionPolicy: Retain</code>, update, rồi xoá khỏi template.</li>
+<li><b>CloudFormation Hooks</b>: kiểm tra tài nguyên trước khi tạo / sửa (ví dụ bắt buộc mã hoá), có thể dùng Guard rule hoặc Lambda.</li>
+<li><b>Git sync</b>: stack tự cập nhật khi template trong repo Git thay đổi.</li>
+<li><code>cfn-lint</code> kiểm tra cú pháp, <code>cfn-guard</code> kiểm tra chính sách, <code>aws cloudformation validate-template</code>.</li>
+</ul>
+
 <h2>StackSets: nhiều account, nhiều Region</h2>
 <ul>
 <li>Deploy cùng một template ra nhiều account và Region trong một thao tác.</li>
@@ -66,11 +111,20 @@ Outputs:
 </ul>
 <aside class="prod"><p>"Mọi account mới trong Organization phải tự động có CloudTrail / Config / IAM role chuẩn" → <b>StackSets service-managed với automatic deployment</b> gắn vào OU (hoặc Control Tower).</p></aside>
 
-<h2>AWS CDK, Image Builder, RAM</h2>
+<h3>StackSets chi tiết</h3>
+<ul>
+<li><b>Stack instance</b> = một stack trong một account + Region của StackSet.</li>
+<li>Thao tác: create, update, delete stack instances, <b>override parameter</b> cho từng account / Region.</li>
+<li>Lỗi hay gặp: execution role thiếu ở account đích hoặc trust policy sai account quản trị; account đích chưa bật Region (opt-in Region); vượt failure tolerance làm dừng cả thao tác; tài nguyên có tên trùng (bucket toàn cầu) khi deploy nhiều Region.</li>
+<li>Service-managed: dùng <b>delegated administrator</b> để không phải làm việc ở management account; <b>automatic deployment</b> khi account vào / rời OU (tuỳ chọn giữ hay xoá stack khi rời).</li>
+<li>Không deploy vào management account bằng service-managed permission.</li>
+</ul>
+
+<h2>AWS CDK, Terraform</h2>
 <ul>
 <li><b>CDK</b>: viết hạ tầng bằng TypeScript / Python..., <code>cdk synth</code> sinh template CloudFormation, <code>cdk deploy</code> triển khai. Lần đầu mỗi account / Region phải <code>cdk bootstrap</code> (tạo bucket, role cho CDK). Lỗi "không tìm thấy bucket staging" → chưa bootstrap.</li>
-<li><b>EC2 Image Builder</b>: pipeline tự động dựng AMI / container image: image recipe (AMI gốc + component cài phần mềm), test, phân phối sang Region / account khác, chạy theo lịch hoặc khi có bản vá. Thay cho tự viết Packer + script.</li>
-<li><b>AWS RAM</b>: chia sẻ tài nguyên cho account khác mà không copy: <b>subnet</b> (VPC sharing), Transit Gateway, Route 53 Resolver rules, License Manager, Aurora cluster (clone)...</li>
+<li>CDK có construct L1 (tương ứng 1-1 tài nguyên CloudFormation), L2 (mặc định hợp lý), L3 (pattern nhiều tài nguyên). <code>cdk diff</code> xem thay đổi trước khi deploy. <b>CDK Pipelines</b> để deploy nhiều môi trường.</li>
+<li><b>AWS SAM</b>: mở rộng CloudFormation cho serverless (<code>AWS::Serverless::Function</code>), <code>sam build</code>, <code>sam deploy</code>, deploy Lambda an toàn bằng CodeDeploy (canary / linear).</li>
 <li>Bên thứ ba: <b>Terraform</b> (state lưu ở S3 + khoá DynamoDB / S3 native locking), Git làm nguồn sự thật cho IaC.</li>
 </ul>
 

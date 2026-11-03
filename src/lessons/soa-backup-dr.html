@@ -32,6 +32,21 @@
 </ul>
 <aside class="prod"><p>"Backup tập trung, nhiều dịch vụ, nhiều account, ít công sức" → <b>AWS Backup</b>. Script Lambda tự chụp snapshot là đáp án sai về operational overhead.</p></aside>
 
+<h3>AWS Backup chi tiết</h3>
+<table>
+<tr><th>Thành phần</th><th>Giải thích</th></tr>
+<tr><td>Backup rule</td><td>Lịch (cron, mặc định 12 giờ / ngày), start window, completion window, lifecycle (chuyển cold storage sau N ngày, xoá sau M ngày; cold phải giữ ít nhất 90 ngày), <b>copy action</b> sang vault Region / account khác, bật <b>continuous backup</b> (PITR cho RDS, S3, SAP HANA trên EC2, tới 35 ngày)</td></tr>
+<tr><td>Resource assignment</td><td>Chọn theo tag, theo loại tài nguyên, theo ARN; cần IAM role (mặc định <code>AWSBackupDefaultServiceRole</code>)</td></tr>
+<tr><td>Backup vault</td><td>Kho chứa recovery point, mã hoá bằng KMS key riêng (độc lập key của tài nguyên với nhiều loại), có <b>vault access policy</b> (ví dụ Deny xoá recovery point)</td></tr>
+<tr><td>Vault Lock</td><td><b>Governance mode</b> (người có quyền đặc biệt gỡ được) hoặc <b>Compliance mode</b> (sau grace time thì không ai gỡ được, kể cả root, kể cả AWS)</td></tr>
+<tr><td>Logically air-gapped vault</td><td>Vault do AWS quản lý, mã hoá bằng key của AWS, khoá sẵn; chia sẻ cho account khác (qua RAM) để khôi phục khi account gốc bị chiếm</td></tr>
+<tr><td>Backup policy (Organizations)</td><td>Áp backup plan cho mọi account trong OU, account không sửa được</td></tr>
+<tr><td>Backup Audit Manager</td><td>Framework và control (ví dụ "mọi tài nguyên có tag Critical phải có backup hằng ngày, giữ 35 ngày, copy cross-Region"), báo cáo hằng ngày về S3</td></tr>
+<tr><td>Restore testing</td><td>Lịch tự khôi phục thử, kiểm tra dữ liệu, tự xoá tài nguyên thử</td></tr>
+<tr><td>Application-consistent</td><td>Windows VSS cho EC2 Windows; với Linux dùng pre / post script (DLM) hoặc tạm dừng ghi</td></tr>
+</table>
+<aside class="tip"><p>Copy cross-account: cả hai account phải trong cùng Organization và bật cross-account backup, vault đích phải có access policy cho phép account nguồn copy vào. Recovery point mã hoá bằng key của nguồn phải dùng customer managed key và chia sẻ key cho account đích.</p></aside>
+
 <h2>Khôi phục từng loại tài nguyên</h2>
 <table>
 <tr><th>Tài nguyên</th><th>Cơ chế</th><th>Ghi nhớ</th></tr>
@@ -42,6 +57,15 @@
 <tr><td>EC2</td><td>AMI, EBS snapshot, copy sang Region khác</td><td>AMI dùng snapshot mã hoá KMS: phải chia sẻ cả key cho account / Region đích</td></tr>
 <tr><td>EFS</td><td>AWS Backup, EFS replication sang Region khác</td><td></td></tr>
 </table>
+
+<h2>S3: chống xoá nhầm và sao chép</h2>
+<ul>
+<li><b>Versioning</b>: mỗi lần ghi đè tạo version mới, xoá chỉ thêm <b>delete marker</b> (khôi phục bằng cách xoá delete marker). Một khi bật chỉ có thể tạm dừng (suspend), không tắt hẳn.</li>
+<li><b>Replication</b>: CRR (khác Region), SRR (cùng Region). Cần versioning cả hai bucket, IAM role cho S3. Tuỳ chọn: đổi chủ sở hữu (owner override), đổi storage class, replicate object mã hoá SSE-KMS (chọn key ở đích), replicate delete marker, <b>Replication Time Control</b> (99,99% object trong 15 phút, có metric). Object có trước khi bật: dùng <b>S3 Batch Replication</b>.</li>
+<li>Replication không bắc cầu (A → B → C không tự sang C nếu không cấu hình B → C).</li>
+<li><b>Object Lock</b> và <b>MFA Delete</b> chống xoá; <b>AWS Backup cho S3</b> có PITR.</li>
+<li><b>Multi-Region Access Points</b>: một endpoint cho nhiều bucket ở nhiều Region, có failover controls.</li>
+</ul>
 
 <h2>AWS Elastic Disaster Recovery (DRS)</h2>
 <p>Sao chép liên tục ở mức block từ máy chủ (on-premises hoặc EC2 Region khác) sang một vùng staging rẻ tiền ở AWS. Khi có sự cố, launch máy thật trong vài phút. RPO tính bằng giây, RTO tính bằng phút. Đúng cho câu "DR cho máy chủ on-premises với RPO giây, RTO phút, chi phí thấp".</p>

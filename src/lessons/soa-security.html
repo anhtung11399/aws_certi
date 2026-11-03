@@ -1,59 +1,88 @@
-<h2>IAM: xử lý lỗi AccessDenied</h2>
-<p>Một request bị từ chối nếu có <b>Deny tường minh</b> ở bất kỳ đâu, hoặc <b>không có Allow</b> ở chỗ cần có. Khi gặp AccessDenied, kiểm tra theo thứ tự:</p>
-<ol>
-<li><b>SCP</b> của Organization có chặn hành động / Region đó không.</li>
-<li>Identity policy của user / role có Allow không, có điều kiện (<code>Condition</code>) nào không khớp (IP, MFA, tag, Region).</li>
-<li><b>Permission boundary</b> có giới hạn không.</li>
-<li><b>Resource policy</b> (bucket policy, key policy của KMS) có Deny hay thiếu Allow (với truy cập cross-account cần Allow ở <b>cả hai phía</b>).</li>
-<li>Session policy khi assume role.</li>
-</ol>
-<ul>
-<li>Công cụ: <b>IAM Policy Simulator</b> (thử một hành động có được phép không), <b>CloudTrail</b> (xem errorCode <code>AccessDenied</code>, ai gọi, gọi gì), thông báo lỗi chi tiết của nhiều dịch vụ ghi rõ loại policy chặn.</li>
-<li>Lỗi giải mã <code>encoded authorization message</code> của EC2: dùng <code>aws sts decode-authorization-message</code>.</li>
-<li><b>IAM Access Analyzer</b>: tìm tài nguyên được chia sẻ ra ngoài account, tìm quyền không dùng, sinh policy từ hoạt động thật trong CloudTrail.</li>
-<li><b>Credential report</b> (mọi user, trạng thái mật khẩu, MFA, tuổi access key) và <b>Access Advisor</b> (dịch vụ nào được dùng lần cuối khi nào) để dọn quyền.</li>
-</ul>
-<aside class="fe"><p>Phần policy evaluation chi tiết (RCP, session policy, ABAC...) được học sâu trong lộ trình SCS. Với SOA chỉ cần biết thứ tự kiểm tra ở trên và các công cụ.</p></aside>
-
-<h2>Mã hoá và quản lý bí mật</h2>
-<ul>
-<li><b>KMS</b>: key do AWS quản lý (<code>aws/s3</code>...) và customer managed key (tự đặt key policy, bật rotation tự động hằng năm hoặc theo chu kỳ tự chọn). Lỗi "không giải mã được" thường do key policy không cho principal đó dùng key, hoặc key đã bị disable / lên lịch xoá.</li>
-<li>Bật mã hoá EBS mặc định cho Region. RDS không mã hoá được sau khi tạo: snapshot → copy có mã hoá → restore.</li>
-<li><b>ACM</b>: chứng chỉ TLS miễn phí cho ELB, CloudFront, API Gateway, tự gia hạn nếu xác thực bằng <b>DNS validation</b> (email validation phải bấm duyệt mỗi lần). Chứng chỉ cho CloudFront phải ở <b>us-east-1</b>. Chứng chỉ nhập từ ngoài (imported) không tự gia hạn: theo dõi <code>DaysToExpiry</code> hoặc event từ ACM / Config rule <code>acm-certificate-expiration-check</code>.</li>
-<li><b>Secrets Manager</b> (tự xoay vòng mật khẩu RDS bằng Lambda, tính phí theo secret) vs <b>Parameter Store SecureString</b> (rẻ / miễn phí, không tự xoay vòng).</li>
-</ul>
-
-<h2>Config: tuân thủ và tự sửa</h2>
-<ul>
-<li>Config ghi lại <b>lịch sử cấu hình</b> của tài nguyên (ai đổi gì, khi nào, kết hợp CloudTrail) và đánh giá bằng <b>Config rules</b> (managed rule có sẵn hoặc custom rule bằng Lambda / Guard).</li>
-<li><b>Remediation</b>: gắn SSM Automation runbook, chạy tay hoặc tự động.</li>
-<li><b>Conformance pack</b>: bộ rule + remediation theo chuẩn (CIS, PCI DSS...), deploy cho cả Organization.</li>
-<li><b>Aggregator</b>: gom kết quả nhiều account / Region về một chỗ.</li>
-<li>Config không ngăn thay đổi, chỉ phát hiện (detective). Muốn <b>ngăn</b> thì dùng SCP / IAM (preventive).</li>
-</ul>
-
-<h2>Bản đồ các dịch vụ bảo mật</h2>
+<h2>IAM: những gì người vận hành phải nắm</h2>
 <table>
-<tr><th>Dịch vụ</th><th>Một câu để nhớ</th></tr>
-<tr><td>GuardDuty</td><td>Phát hiện mối đe doạ từ CloudTrail, VPC Flow Logs, DNS log, EKS, S3, RDS, Lambda, malware (không cần cài agent)</td></tr>
-<tr><td>Inspector</td><td>Quét <b>lỗ hổng phần mềm</b> (CVE) trên EC2 (qua SSM agent), image ECR, Lambda, và kiểm tra network reachability</td></tr>
-<tr><td>Macie</td><td>Tìm <b>dữ liệu nhạy cảm</b> (PII) trong S3</td></tr>
-<tr><td>Security Hub</td><td>Gom finding từ các dịch vụ trên + chấm điểm theo chuẩn (CIS, AWS Foundational Security Best Practices)</td></tr>
-<tr><td>Detective</td><td>Điều tra nguyên nhân gốc của một finding (đồ thị quan hệ)</td></tr>
-<tr><td>Trusted Advisor</td><td>Khuyến nghị về chi phí, hiệu năng, bảo mật, chịu lỗi, <b>service quotas</b></td></tr>
-<tr><td>Firewall Manager</td><td>Áp WAF, Shield, security group, Network Firewall cho cả Organization</td></tr>
+<tr><th>Thành phần</th><th>Ghi nhớ</th></tr>
+<tr><td>User</td><td>Người / ứng dụng cũ cần credential dài hạn. Hạn chế dùng: ưu tiên Identity Center cho người, role cho ứng dụng</td></tr>
+<tr><td>Group</td><td>Gắn policy cho nhiều user. Group không lồng nhau, không phải principal (không đặt trong resource policy được)</td></tr>
+<tr><td>Role</td><td>Credential tạm thời. <b>Trust policy</b> (ai được assume) + <b>permission policy</b> (được làm gì). Instance profile để gắn role vào EC2</td></tr>
+<tr><td>Managed policy</td><td>AWS managed (cập nhật bởi AWS) hoặc customer managed (có version, tối đa 5 version). Inline policy gắn chặt với một principal</td></tr>
+<tr><td>Service-linked role</td><td>Role do dịch vụ tạo và quản lý (Auto Scaling, ELB, Config...), không sửa quyền được</td></tr>
+<tr><td><code>iam:PassRole</code></td><td>Quyền "giao" một role cho dịch vụ (gắn role vào EC2, Lambda, CloudFormation). Thiếu quyền này là lỗi rất hay gặp khi launch / deploy</td></tr>
 </table>
-<aside class="prod"><p>"Thông báo khi một service quota sắp chạm giới hạn" → <b>Trusted Advisor</b> check service limits + EventBridge, hoặc <b>Service Quotas</b> CloudWatch alarm trên metric usage. Không phải AWS Health.</p></aside>
 
-<quiz q="Một Lambda gọi s3:GetObject trên bucket của account khác bị AccessDenied. Role của Lambda đã có Allow s3:GetObject cho bucket đó. Thiếu gì nhiều khả năng nhất?">
-+ Bucket policy ở account kia chưa cho phép role của Lambda (cross-account cần Allow ở cả hai phía), hoặc object mã hoá KMS mà key policy chưa cho phép
-- Lambda cần chạy trong VPC
-- Phải bật S3 Transfer Acceleration
-? Truy cập cross-account cần identity policy bên gọi và resource policy bên sở hữu đều cho phép. Object SSE-KMS còn cần quyền trên key.
+<h3>Logic đánh giá rút gọn</h3>
+<ol>
+<li>Có <b>Deny</b> tường minh ở bất kỳ policy nào → <b>Deny</b>.</li>
+<li><b>SCP</b> / <b>RCP</b> của Organization không cho phép → Deny.</li>
+<li>Resource policy cho phép (cùng account) → có thể Allow.</li>
+<li>Identity policy cho phép, và <b>permission boundary</b>, <b>session policy</b> (nếu có) cũng cho phép → Allow.</li>
+<li>Không có Allow nào → Deny ngầm định.</li>
+</ol>
+<p>Cross-account: cần Allow ở <b>cả hai</b> phía (identity policy bên gọi + resource policy / trust policy bên sở hữu).</p>
+
+<h3>Xử lý AccessDenied</h3>
+<ol>
+<li>Đọc thông báo lỗi: nhiều dịch vụ ghi rõ "because no identity-based policy allows", "with an explicit deny in a service control policy", "permissions boundary"...</li>
+<li>Tra <b>CloudTrail</b>: <code>errorCode = AccessDenied</code>, xem chính xác principal (role nào, session nào), action, resource, Region.</li>
+<li>EC2 trả <code>encoded authorization message</code>: giải mã bằng <code>aws sts decode-authorization-message</code> (cần quyền <code>sts:DecodeAuthorizationMessage</code>).</li>
+<li><b>IAM Policy Simulator</b>: thử principal + action + resource + điều kiện (không mô phỏng được đầy đủ SCP / resource policy của mọi dịch vụ).</li>
+<li>Kiểm tra: SCP (Region bị chặn?), điều kiện (<code>aws:SourceIp</code> không khớp khi đi qua VPC endpoint, <code>aws:MultiFactorAuthPresent</code> với CLI không dùng MFA), tag, KMS key policy (object S3 mã hoá), bucket policy, VPC endpoint policy.</li>
+</ol>
+<aside class="prod"><p>Bẫy kinh điển: policy chỉ cho phép theo <code>aws:SourceIp</code> của công ty. EC2 trong VPC gọi S3 qua <b>gateway endpoint</b> thì request mang IP private, không khớp → AccessDenied. Dùng <code>aws:SourceVpce</code> / <code>aws:SourceVpc</code> thay thế.</p></aside>
+
+<h3>Dọn quyền và kiểm toán</h3>
+<ul>
+<li><b>Credential report</b>: CSV mọi user, mật khẩu đổi lúc nào, MFA, access key tuổi bao nhiêu, dùng lần cuối.</li>
+<li><b>Last accessed information</b> (Access Advisor): dịch vụ / action nào được dùng lần cuối khi nào, để gỡ quyền thừa.</li>
+<li><b>IAM Access Analyzer</b>: external access (tài nguyên chia sẻ ra ngoài), unused access (role, key, quyền không dùng), policy validation, policy generation từ CloudTrail.</li>
+<li><b>Password policy</b> của account: độ dài, độ phức tạp, hạn đổi, cấm dùng lại.</li>
+<li>Xoay vòng access key: tạo key thứ hai → cập nhật ứng dụng → vô hiệu hoá key cũ → xác nhận không lỗi → xoá. Config rule <code>access-keys-rotated</code>.</li>
+<li>Root: bật MFA, không tạo access key, chỉ dùng cho việc bắt buộc root (đổi gói support, đóng account, khôi phục bucket policy chặn mọi người).</li>
+</ul>
+
+<h2>Organizations và SCP trong vận hành</h2>
+<ul>
+<li>SCP giới hạn <b>quyền tối đa</b>, không cấp quyền. Không áp cho management account và service-linked role.</li>
+<li>Mẫu SCP hay gặp: chặn Region không dùng (<code>aws:RequestedRegion</code>), cấm rời Organization, cấm tắt CloudTrail / Config / GuardDuty, cấm tạo IAM user / access key, bắt buộc tag khi tạo, chặn instance type đắt.</li>
+<li>Chiến lược: <b>deny list</b> (giữ FullAWSAccess, thêm SCP Deny) hay <b>allow list</b> (gỡ FullAWSAccess, chỉ cho các dịch vụ được phép). SCP ở OU cha và con đều phải cho phép.</li>
+<li><b>Tag policy</b> chuẩn hoá tag, <b>backup policy</b>, <b>AI opt-out</b>, <b>declarative policy</b> (ép IMDSv2, chặn public snapshot / AMI...).</li>
+<li><b>IAM Identity Center</b>: đăng nhập một lần vào mọi account bằng permission set; người vận hành dùng CLI với <code>aws configure sso</code>.</li>
+</ul>
+
+<h2>KMS trong vận hành</h2>
+<ul>
+<li>Customer managed key: key policy, rotation tự động (mặc định 365 ngày, chọn 90-2560 ngày) hoặc on-demand; rotation giữ key ID, dữ liệu cũ vẫn giải mã được.</li>
+<li>Không giải mã được: key bị <b>disable</b> / <b>pending deletion</b> (huỷ lịch xoá trong 7-30 ngày chờ), key policy / grant thiếu, sai Region (key là Regional, trừ multi-Region key).</li>
+<li>Copy snapshot / AMI sang Region khác: phải chọn key ở Region đích.</li>
+<li>Quota request KMS (5.500 - 100.000 / giây tuỳ Region và loại thao tác): <code>ThrottlingException</code> → S3 Bucket Key, data key caching, xin tăng.</li>
+<li>Theo dõi: CloudTrail event <code>Decrypt</code>, <code>ScheduleKeyDeletion</code>, <code>DisableKey</code>; EventBridge cảnh báo.</li>
+</ul>
+
+<h2>Chứng chỉ và bí mật</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Ghi nhớ vận hành</th></tr>
+<tr><td><b>ACM</b></td><td>Chứng chỉ public miễn phí cho ELB, CloudFront, API Gateway, App Runner. DNS validation → tự gia hạn (CNAME phải còn). Email validation → phải bấm duyệt. Imported cert không tự gia hạn. CloudFront dùng cert ở <b>us-east-1</b>. ACM phát event / metric <code>DaysToExpiry</code>; Config rule <code>acm-certificate-expiration-check</code>. Cert không gắn trực tiếp vào EC2 (trừ khi dùng ACM for Nitro Enclaves / exportable public certificate mới)</td></tr>
+<tr><td><b>Secrets Manager</b></td><td>Lưu và <b>tự xoay vòng</b> secret (RDS, Redshift, DocumentDB có sẵn; loại khác dùng Lambda rotation). Replica sang Region khác. Resource policy cho cross-account. Rotation lỗi: Lambda không ra mạng / thiếu quyền / DB không cho kết nối</td></tr>
+<tr><td><b>Parameter Store</b></td><td>SecureString rẻ, không tự rotate</td></tr>
+</table>
+
+<quiz q="Ứng dụng trên EC2 gọi S3 qua gateway endpoint bị AccessDenied. Bucket policy chỉ cho phép khi aws:SourceIp là dải IP public của công ty. Cách sửa đúng?">
++ Đổi điều kiện sang aws:SourceVpce (hoặc aws:SourceVpc) cho truy cập từ VPC
+- Gắn Elastic IP cho EC2
+- Bỏ gateway endpoint, dùng NAT
+- Thêm aws:SecureTransport
+? Request qua VPC endpoint dùng IP private, điều kiện SourceIp không khớp.
 </quiz>
-<quiz q="Đội muốn tự động phát hiện và đóng mọi security group cho phép 0.0.0.0/0 vào cổng 22. Giải pháp?">
-- GuardDuty
-+ AWS Config managed rule restricted-ssh với automatic remediation chạy SSM runbook AWS-DisableIncomingSSHOnPort22
-- Inspector network reachability
-? Config phát hiện cấu hình sai, remediation bằng SSM Automation tự sửa.
+<quiz q="DevOps engineer chạy CloudFormation tạo EC2 có instance profile bị lỗi không đủ quyền dù có ec2:RunInstances. Thiếu quyền nào?">
++ iam:PassRole cho role của instance profile
+- iam:CreateRole
+- sts:AssumeRole
+- ec2:AssociateIamInstanceProfile trên role
+? Gán role cho dịch vụ cần iam:PassRole.
+</quiz>
+<quiz q="Một chứng chỉ ACM gắn ALB không tự gia hạn, ACM báo không xác thực được. Chứng chỉ dùng DNS validation. Nguyên nhân có khả năng nhất?">
++ Bản ghi CNAME xác thực đã bị xoá khỏi DNS
+- ALB không hỗ trợ gia hạn
+- Chứng chỉ phải ở us-east-1
+- Thiếu key KMS
+? ACM cần CNAME xác thực còn tồn tại để tự gia hạn.
 </quiz>

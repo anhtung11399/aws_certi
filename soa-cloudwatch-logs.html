@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · CloudWatch Logs, tracing và observability · Ôn thi AWS</title>
+<meta name="description" content="Log group, retention, metric filter, Logs Insights, subscription, export, Embedded Metric Format, X-Ray, Application Signals, Synthetics, RUM, Container / Lambda Insights, Prometheus, Grafana, CloudTrail cho vận hành.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs" aria-current="page"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-cloudwatch-logs">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</span><span>Bài 02</span><span>70 phút</span></div>
+    <h1>CloudWatch Logs, tracing và observability</h1>
+    <p class="lead">Log group, retention, metric filter, Logs Insights, subscription, export, Embedded Metric Format, X-Ray, Application Signals, Synthetics, RUM, Container / Lambda Insights, Prometheus, Grafana, CloudTrail cho vận hành.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đưa log từ mọi nguồn vào CloudWatch và phân tích được</li><li>Chọn đúng công cụ tracing / giám sát người dùng</li><li>Gom log nhiều account</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="cau-truc-cloudwatch-logs"><a href="#cau-truc-cloudwatch-logs" class="anchor" aria-hidden="true">#</a>Cấu trúc CloudWatch Logs</h2>
+<table>
+<tr><th>Thành phần</th><th>Giải thích</th></tr>
+<tr><td><b>Log event</b></td><td>Một dòng log: timestamp + nội dung (tối đa 1 MB)</td></tr>
+<tr><td><b>Log stream</b></td><td>Chuỗi event từ một nguồn: một instance, một container, một lần chạy Lambda</td></tr>
+<tr><td><b>Log group</b></td><td>Nhóm stream cùng loại, nơi đặt <b>retention</b>, <b>KMS key</b>, <b>metric filter</b>, <b>subscription filter</b>, quyền truy cập</td></tr>
+<tr><td><b>Log class</b></td><td><b>Standard</b> (đầy đủ tính năng) hoặc <b>Infrequent Access</b> (rẻ hơn khoảng 50% khi ingest, không có metric filter / Live Tail / subscription đầy đủ, vẫn query bằng Logs Insights)</td></tr>
+</table>
+<ul>
+<li>Retention mặc định <b>Never expire</b>: tốn tiền dần. Đặt retention (1 ngày tới 10 năm) cho mọi log group. Kiểm tra bằng Config rule <code>cw-loggroup-retention-period-check</code>.</li>
+<li>Mã hoá: luôn được mã hoá bởi AWS. Muốn tự kiểm soát key: gắn KMS key, key policy cho <code>logs.&lt;region&gt;.amazonaws.com</code> với điều kiện <code>kms:EncryptionContext:aws:logs:arn</code>.</li>
+<li><b>Data protection policy</b>: tự phát hiện và che (mask) dữ liệu nhạy cảm trong log (email, số thẻ, khoá AWS). Người có quyền <code>logs:Unmask</code> mới xem được bản gốc.</li>
+</ul>
+
+<h2 id="nguon-log-hay-gap"><a href="#nguon-log-hay-gap" class="anchor" aria-hidden="true">#</a>Nguồn log hay gặp</h2>
+<table>
+<tr><th>Nguồn</th><th>Cách đưa vào CloudWatch Logs</th></tr>
+<tr><td>File log trên EC2 / on-premises</td><td>CloudWatch agent (mục <code>logs</code> trong cấu hình)</td></tr>
+<tr><td>Lambda</td><td>Tự động (cần quyền logs trong execution role). Có thể chọn JSON log format và log level</td></tr>
+<tr><td>ECS / Fargate</td><td>Log driver <code>awslogs</code> hoặc <b>FireLens</b> (Fluent Bit) để lọc / đẩy nhiều đích</td></tr>
+<tr><td>EKS</td><td>Control plane logging (api, audit, authenticator...) bật ở cluster; log container qua Fluent Bit / Container Insights</td></tr>
+<tr><td>VPC Flow Logs, Route 53 Resolver query logs, CloudTrail</td><td>Chọn đích là CloudWatch Logs (hoặc S3, Firehose)</td></tr>
+<tr><td>API Gateway</td><td>Execution logs và access logs (cần role ở cấp account)</td></tr>
+<tr><td>RDS</td><td>Bật "log exports" (error, slow query, general, audit, postgresql)</td></tr>
+<tr><td>Session Manager</td><td>Session logging tới CloudWatch Logs / S3</td></tr>
+</table>
+
+<h2 id="metric-filter"><a href="#metric-filter" class="anchor" aria-hidden="true">#</a>Metric filter</h2>
+<ul>
+<li>Biến log thành metric: đếm số dòng khớp, hoặc trích một giá trị số trong log (ví dụ thời gian xử lý).</li>
+<li>Cú pháp mẫu: chuỗi đơn giản <code>"ERROR"</code>, nhiều từ <code>"ERROR" "payment"</code> (AND), <code>?ERROR ?WARN</code> (OR), JSON <code>{ $.status = 500 }</code>, khoảng trắng <code>[ip, user, ..., status=5*, size]</code>.</li>
+<li>Đặt <b>default value</b> (ví dụ 0) để metric có điểm dữ liệu cả khi không có dòng khớp, tránh alarm ở INSUFFICIENT_DATA.</li>
+<li>Chỉ xử lý log <b>mới</b> sau khi tạo filter. Muốn phân tích dữ liệu cũ dùng Logs Insights.</li>
+<li>Mẫu kinh điển (CIS): CloudTrail → CloudWatch Logs → metric filter cho <code>ConsoleLogin</code> thất bại, đổi security group, dùng root → alarm → SNS.</li>
+</ul>
+
+<h2 id="logs-insights"><a href="#logs-insights" class="anchor" aria-hidden="true">#</a>Logs Insights</h2>
+<div class="code"><div class="code-h"><span>Ví dụ truy vấn</span><button class="copy" type="button">Sao chép</button></div><pre><code># Top 20 request chậm nhất trong log JSON của API
+fields @timestamp, path, duration
+| filter duration &gt; 1000
+| sort duration desc
+| limit 20
+
+# Số lỗi theo từng phút
+filter @message like /ERROR/
+| stats count(*) as errors by bin(1m)
+
+# Lambda: thời gian chạy và bộ nhớ dùng
+filter @type = &quot;REPORT&quot;
+| stats avg(@duration), max(@maxMemoryUsed / 1000 / 1000) as maxMB by bin(5m)
+
+# Tách trường từ log văn bản
+parse @message &quot;user=* action=*&quot; as user, action
+| stats count(*) by action</code></pre></div>
+<ul>
+<li>Truy vấn được nhiều log group cùng lúc (tới 50), kể cả từ nhiều account qua cross-account observability.</li>
+<li>Hỗ trợ cả cú pháp <b>OpenSearch PPL / SQL</b>. Có trợ lý viết truy vấn bằng ngôn ngữ tự nhiên.</li>
+<li>Lưu truy vấn, đưa kết quả lên dashboard. Tính tiền theo lượng dữ liệu quét: thu hẹp khoảng thời gian.</li>
+<li><b>Contributor Insights</b>: tìm "ai đóng góp nhiều nhất" (top IP, top URL lỗi) liên tục, có metric và alarm. <b>Pattern analysis</b>: tự gom log thành mẫu để thấy lỗi lạ.</li>
+<li><b>Live Tail</b>: xem log trực tiếp khi gỡ lỗi.</li>
+</ul>
+
+<h2 id="dua-log-di-noi-khac"><a href="#dua-log-di-noi-khac" class="anchor" aria-hidden="true">#</a>Đưa log đi nơi khác</h2>
+<table>
+<tr><th>Cách</th><th>Độ trễ</th><th>Dùng khi</th></tr>
+<tr><td><b>Subscription filter</b> → Kinesis Data Streams / Firehose / Lambda / OpenSearch</td><td>Gần thời gian thực</td><td>Phân tích liên tục, SIEM, gom nhiều account về account trung tâm (destination + resource policy). Mỗi log group tối đa 2 subscription filter</td></tr>
+<tr><td><b>Account-level subscription</b></td><td>Gần thời gian thực</td><td>Một cấu hình cho mọi log group của account</td></tr>
+<tr><td><b>Export to S3</b> (CreateExportTask)</td><td>Tới 12 giờ</td><td>Lưu trữ lô, không cần thời gian thực. Bucket không được mã hoá SSE-KMS kiểu cũ trong một số trường hợp, cần bucket policy cho logs</td></tr>
+<tr><td>Firehose → S3 → lifecycle Glacier</td><td>Vài phút</td><td>Lưu lâu năm rẻ nhất</td></tr>
+</table>
+<aside class="prod"><p>"Gom log của nhiều account về một account log trung tâm <b>gần thời gian thực</b>" → subscription filter + cross-account destination (Kinesis / Firehose). "Lưu log 7 năm chi phí thấp" → đưa sang S3 + lifecycle Glacier, đặt retention ngắn cho log group.</p></aside>
+
+<h2 id="tracing-va-giam-sat-ung-dung"><a href="#tracing-va-giam-sat-ung-dung" class="anchor" aria-hidden="true">#</a>Tracing và giám sát ứng dụng</h2>
+<table>
+<tr><th>Công cụ</th><th>Trả lời câu hỏi</th></tr>
+<tr><td><b>AWS X-Ray</b></td><td>Một request đi qua API Gateway, Lambda, DynamoDB, dịch vụ ngoài... chậm ở đâu, lỗi ở đâu. Service map, trace, segment / subsegment, sampling rule. Cần SDK / OpenTelemetry trong ứng dụng, X-Ray daemon / agent trên EC2 / ECS, bật active tracing cho Lambda và API Gateway</td></tr>
+<tr><td><b>CloudWatch Application Signals</b></td><td>APM tự động (dựa trên OpenTelemetry): latency, lỗi, SLO cho từng dịch vụ và từng API mà ít phải sửa code</td></tr>
+<tr><td><b>CloudWatch Synthetics</b></td><td>Canary (script Node.js / Python, Puppeteer / Selenium) chạy theo lịch, mô phỏng người dùng: kiểm tra trang còn sống, luồng đăng nhập, API, liên kết hỏng, so sánh ảnh chụp</td></tr>
+<tr><td><b>CloudWatch RUM</b></td><td>Đo trải nghiệm người dùng thật trên trình duyệt: thời gian tải trang, lỗi JavaScript</td></tr>
+<tr><td><b>Container Insights</b></td><td>Metric CPU / RAM / mạng theo cluster, service, task, pod (ECS, EKS, Kubernetes trên EC2)</td></tr>
+<tr><td><b>Lambda Insights</b></td><td>Metric chi tiết của Lambda (CPU, RAM, cold start) qua Lambda extension</td></tr>
+<tr><td><b>Internet Monitor</b> / <b>Network Monitor</b></td><td>Chất lượng Internet tới người dùng ở các vùng / chất lượng kết nối hybrid</td></tr>
+<tr><td><b>Amazon Managed Service for Prometheus</b></td><td>Prometheus được quản lý cho EKS / Kubernetes, truy vấn PromQL</td></tr>
+<tr><td><b>Amazon Managed Grafana</b></td><td>Grafana được quản lý, đăng nhập bằng Identity Center, nguồn dữ liệu CloudWatch, Prometheus, X-Ray, OpenSearch...</td></tr>
+<tr><td><b>CloudWatch Investigations</b> / Amazon Q</td><td>Trợ lý AI gợi ý nguyên nhân khi có sự cố dựa trên metric, log, trace, thay đổi gần đây</td></tr>
+</table>
+<aside class="tip"><p>Phân biệt nhanh: <b>Synthetics</b> = người dùng giả chạy theo lịch (biết lỗi trước khi khách gặp). <b>RUM</b> = người dùng thật. <b>X-Ray / Application Signals</b> = bên trong hệ thống chậm ở đâu.</p></aside>
+
+<h2 id="cloudtrail-cho-doi-van-hanh"><a href="#cloudtrail-cho-doi-van-hanh" class="anchor" aria-hidden="true">#</a>CloudTrail cho đội vận hành</h2>
+<ul>
+<li><b>Event history</b>: 90 ngày management events, miễn phí, mọi Region, tra theo user, tên sự kiện, tài nguyên.</li>
+<li><b>Trail</b>: lưu lâu dài về S3 (và CloudWatch Logs). Trail multi-Region, organization trail.</li>
+<li>Management events (mặc định), <b>data events</b> (S3 object, Lambda invoke, DynamoDB item: phải bật, tính phí), <b>Insights events</b> (phát hiện số API call / lỗi bất thường, ví dụ ai đó gọi TerminateInstances hàng loạt).</li>
+<li><b>CloudTrail Lake</b>: kho event truy vấn bằng SQL, giữ tới 10 năm.</li>
+<li>Trả lời câu "ai đã làm X lúc nào": tìm trong Event history hoặc dùng Athena / CloudTrail Lake trên trail.</li>
+<li>Trường hữu ích: <code>userIdentity</code>, <code>eventName</code>, <code>sourceIPAddress</code>, <code>userAgent</code>, <code>errorCode</code> (AccessDenied), <code>requestParameters</code>.</li>
+<li>Kết hợp <b>Config</b>: Config cho biết cấu hình <b>trước và sau</b>, CloudTrail cho biết <b>ai</b> đổi.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần đếm số giao dịch thất bại từ log JSON có trường status và tạo alarm, kể cả các phút không có giao dịch nào. Chọn 2 cấu hình.</p><div class="qo"><button type="button" class="opt" data-ok>Metric filter với pattern { $.status = "FAILED" }</button><button type="button" class="opt" data-ok>Default value của metric filter là 0</button><button type="button" class="opt">Subscription filter tới Lambda</button><button type="button" class="opt">Export to S3</button><button type="button" class="opt">Contributor Insights</button></div><p class="why" hidden>Metric filter biến log thành metric, default value 0 giúp có điểm dữ liệu khi không có lỗi.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Website bán hàng muốn biết luồng thanh toán bị lỗi trước khi khách hàng phàn nàn, kể cả lúc nửa đêm không có khách. Dùng gì?</p><div class="qo"><button type="button" class="opt">CloudWatch RUM</button><button type="button" class="opt" data-ok>CloudWatch Synthetics canary chạy luồng thanh toán mỗi 5 phút</button><button type="button" class="opt">X-Ray</button><button type="button" class="opt">ALB access logs</button></div><p class="why" hidden>Canary là người dùng giả chạy theo lịch, phát hiện lỗi cả khi không có lưu lượng thật.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội muốn che số thẻ tín dụng xuất hiện nhầm trong log ứng dụng để người đọc log không thấy. Tính năng?</p><div class="qo"><button type="button" class="opt" data-ok>CloudWatch Logs data protection policy</button><button type="button" class="opt">Metric filter</button><button type="button" class="opt">KMS encryption cho log group</button><button type="button" class="opt">Log class Infrequent Access</button></div><p class="why" hidden>Data protection policy tự phát hiện và mask dữ liệu nhạy cảm, chỉ người có logs:Unmask xem được.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-cloudwatch-logs">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-cloudwatch.html"><small>Bài trước</small>CloudWatch metrics và alarms</a><a class="next" href="soa-eventbridge.html"><small>Bài tiếp theo</small>EventBridge: tự động hoá theo sự kiện</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cau-truc-cloudwatch-logs">Cấu trúc CloudWatch Logs</a><a href="#nguon-log-hay-gap">Nguồn log hay gặp</a><a href="#metric-filter">Metric filter</a><a href="#logs-insights">Logs Insights</a><a href="#dua-log-di-noi-khac">Đưa log đi nơi khác</a><a href="#tracing-va-giam-sat-ung-dung">Tracing và giám sát ứng dụng</a><a href="#cloudtrail-cho-doi-van-hanh">CloudTrail cho đội vận hành</a></nav>
+</div>
+</body>
+</html>

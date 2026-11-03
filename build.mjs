@@ -403,7 +403,7 @@ function extraPage(e) {
   const raw = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '<p>Trang này đang được viết.</p>';
   const { html, toc } = render(raw);
   const t = TRACKS.find((x) => x.id === e.track);
-  const exam = t ? `<div id="exam" data-track="${t.id}"></div><script src="questions-${t.id}.js"></script><script src="exam.js"></script>` : '';
+  const exam = t ? `<div id="exam" data-track="${t.id}"></div>${fs.readdirSync(path.join(SRC, 'static')).filter((f) => f.startsWith('questions-' + t.id) && f.endsWith('.js')).sort().map((f) => `<script src="${f}"></script>`).join('')}<script src="exam.js"></script>` : '';
   const body = `<article class="lesson"><header class="l-head"><div class="l-meta"><span class="ph" style="--pc:${t ? t.color : '#64748b'}">${t ? t.code : 'Tra cứu'}</span></div><h1>${esc(e.title)}</h1><p class="lead">${esc(e.desc)}</p></header><div class="prose">${html}</div>${exam}</article>`;
   return page({ title: `${e.title} · ${SITE}`, desc: e.desc, slug: e.slug, body, toc });
 }

@@ -1,0 +1,65 @@
+<h2>AWS Config chi tiết</h2>
+<fig type="flow" caption="Config ghi nhận cấu hình, đánh giá theo rule, sửa bằng runbook">
+[go] Configuration recorder / ghi lại cấu hình tài nguyên
+-> configuration item
+[cache] Config rules / managed hoặc custom (Lambda, Guard)
+-> NON_COMPLIANT
+[warn] Remediation / SSM Automation (thủ công hoặc tự động)
+-> 
+[q] Thông báo / SNS, EventBridge, Security Hub
+</fig>
+<ul>
+<li><b>Configuration recorder</b>: ghi mọi loại tài nguyên hoặc chọn loại; tần suất <b>continuous</b> hoặc <b>daily</b> (rẻ hơn). Ghi vào <b>delivery channel</b> (S3 bucket, tuỳ chọn SNS). Cần bật ở <b>mọi Region</b>; tài nguyên global (IAM) chỉ ghi ở một Region để tránh trùng.</li>
+<li><b>Configuration timeline</b>: xem cấu hình tài nguyên qua thời gian, kèm liên kết tới CloudTrail event gây thay đổi, quan hệ với tài nguyên khác.</li>
+<li><b>Rule trigger</b>: <b>configuration changes</b> (khi tài nguyên đổi) hoặc <b>periodic</b> (1, 3, 6, 12, 24 giờ).</li>
+<li>Rule: <b>managed rule</b> (hơn 400 rule có sẵn: <code>s3-bucket-public-read-prohibited</code>, <code>encrypted-volumes</code>, <code>restricted-ssh</code>, <code>required-tags</code>, <code>rds-multi-az-support</code>, <code>ec2-instance-managed-by-systems-manager</code>, <code>cloudtrail-enabled</code>, <code>iam-password-policy</code>...), <b>custom Lambda rule</b>, <b>custom Guard rule</b> (cú pháp CloudFormation Guard, không cần Lambda).</li>
+<li><b>Proactive evaluation</b>: kiểm tra tài nguyên <b>trước khi</b> tạo (qua CloudFormation Hooks).</li>
+<li><b>Remediation</b>: gắn SSM Automation document; tham số lấy từ resource ID; automatic remediation có số lần thử và khoảng thời gian; cần role cho Automation.</li>
+<li><b>Conformance pack</b>: bộ rule + remediation dạng YAML (mẫu CIS, PCI DSS, Operational Best Practices...), deploy cho cả Organization.</li>
+<li><b>Aggregator</b>: gom dữ liệu Config của nhiều account / Region (theo Organization hoặc danh sách account) về một account, xem compliance tổng hợp, <b>advanced query</b> (SQL trên cấu hình: "liệt kê mọi EBS chưa mã hoá ở mọi account").</li>
+<li>Config là <b>detective</b>: phát hiện sau khi có. Muốn <b>preventive</b>: SCP, IAM, declarative policy, CloudFormation Hooks / proactive rule.</li>
+<li>Chi phí: tính theo configuration item ghi nhận và số lần đánh giá rule. Giảm bằng ghi daily, loại trừ loại tài nguyên thay đổi liên tục.</li>
+</ul>
+<aside class="prod"><p>Ba câu hay bị đánh tráo: "ai đã đổi security group" → <b>CloudTrail</b>. "Security group này trước đây cấu hình thế nào" → <b>Config</b>. "Tự động phát hiện và sửa security group mở 22" → <b>Config rule + remediation</b>.</p></aside>
+
+<h2>Các dịch vụ bảo mật ở góc nhìn vận hành</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Làm gì</th><th>Ghi nhớ cho SOA</th></tr>
+<tr><td><b>GuardDuty</b></td><td>Phát hiện mối đe doạ từ CloudTrail, VPC Flow Logs, DNS log (tự đọc), cùng các protection plan (S3, EKS, RDS, Lambda, Malware, Runtime)</td><td>Bật mọi Region, delegated admin; finding → EventBridge → tự động phản ứng</td></tr>
+<tr><td><b>Inspector</b></td><td>Quét lỗ hổng EC2 (cần SSM agent hoặc agentless), ECR image, Lambda</td><td>Kết quả có điểm theo bối cảnh (network reachability); tích hợp Security Hub</td></tr>
+<tr><td><b>Macie</b></td><td>Tìm dữ liệu nhạy cảm trong S3</td><td>Automated sensitive data discovery</td></tr>
+<tr><td><b>Security Hub</b></td><td>Gom finding, kiểm tra chuẩn (FSBP, CIS)</td><td>Cần Config bật</td></tr>
+<tr><td><b>Detective</b></td><td>Điều tra nguyên nhân</td><td></td></tr>
+<tr><td><b>Trusted Advisor</b></td><td>Check chi phí, hiệu năng, bảo mật, chịu lỗi, <b>service limits</b>, vận hành xuất sắc</td><td>Đầy đủ check cần Business / Enterprise support; check refresh, gửi email hằng tuần; Organizational view; event trong EventBridge (us-east-1)</td></tr>
+<tr><td><b>Firewall Manager</b></td><td>Áp WAF / SG / Network Firewall / Shield policy cho Organization</td><td>Cần Config</td></tr>
+<tr><td><b>Audit Manager</b>, <b>Artifact</b></td><td>Bằng chứng kiểm toán / báo cáo tuân thủ của AWS</td><td></td></tr>
+</table>
+
+<h2>CloudTrail cho tuân thủ</h2>
+<ul>
+<li>Trail multi-Region + organization trail, lưu S3 có versioning / Object Lock, mã hoá SSE-KMS, <b>log file integrity validation</b>.</li>
+<li>Cảnh báo khi CloudTrail bị tắt: EventBridge rule cho <code>StopLogging</code> / <code>DeleteTrail</code>, Config rule <code>cloudtrail-enabled</code>, SCP cấm.</li>
+<li>Gửi sang CloudWatch Logs để làm metric filter + alarm (các control CIS).</li>
+</ul>
+
+<quiz q="Cần một truy vấn liệt kê mọi volume EBS chưa mã hoá ở 30 account và 4 Region. Cách nhanh nhất?">
++ Config aggregator ở account trung tâm và dùng advanced query
+- Đăng nhập từng account chạy describe-volumes
+- Trusted Advisor
+- CloudTrail Lake
+? Aggregator + advanced query cho phép truy vấn SQL trên cấu hình của mọi account / Region.
+</quiz>
+<quiz q="Muốn chặn việc tạo bucket S3 không mã hoá ngay từ lúc deploy bằng CloudFormation, thay vì phát hiện sau. Lựa chọn?">
+- Config rule periodic
++ Config proactive evaluation / CloudFormation Hook kiểm tra trước khi tạo
+- GuardDuty
+- Macie
+? Proactive evaluation chặn tài nguyên không tuân thủ trước khi được tạo.
+</quiz>
+<quiz q="Config rule required-tags báo NON_COMPLIANT cho nhiều EC2. Muốn tự gắn tag mặc định CostCenter=unassigned. Cách làm?">
++ Gắn remediation action là SSM Automation (ví dụ AWS-SetRequiredTags) với automatic remediation
+- Tạo SCP
+- Bật Trusted Advisor
+- Tạo tag policy
+? Remediation của Config chạy runbook sửa tài nguyên không tuân thủ.
+</quiz>

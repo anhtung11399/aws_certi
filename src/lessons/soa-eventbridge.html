@@ -1,0 +1,124 @@
+<h2>Mô hình</h2>
+<fig type="flow" caption="Event vào bus, rule lọc, target xử lý">
+[ext] Nguồn / dịch vụ AWS, CloudTrail, ứng dụng (PutEvents), SaaS partner, lịch
+-> 
+[q] Event bus / default, custom, partner
+-> rule: event pattern
+[go] Target / tối đa 5 mỗi rule
+</fig>
+<pre lang="json" file="Cấu trúc một event (rút gọn)">
+{
+  "version": "0",
+  "id": "a1b2...",
+  "detail-type": "EC2 Instance State-change Notification",
+  "source": "aws.ec2",
+  "account": "111122223333",
+  "time": "2026-11-03T09:00:00Z",
+  "region": "ap-southeast-1",
+  "resources": ["arn:aws:ec2:ap-southeast-1:111122223333:instance/i-0abc"],
+  "detail": { "instance-id": "i-0abc", "state": "stopped" }
+}
+</pre>
+
+<h2>Event pattern</h2>
+<p>Pattern là JSON có cùng cấu trúc với event, giá trị là <b>mảng</b> các giá trị chấp nhận. Event khớp khi mọi trường trong pattern khớp.</p>
+<table>
+<tr><th>Kiểu lọc</th><th>Ví dụ</th></tr>
+<tr><td>Bằng một trong nhiều giá trị</td><td><code>"state": ["stopped", "terminated"]</code></td></tr>
+<tr><td>Tiền tố / hậu tố</td><td><code>"bucket": [{ "prefix": "logs-" }]</code>, <code>{ "suffix": ".jpg" }</code></td></tr>
+<tr><td>Phủ định</td><td><code>"state": [{ "anything-but": "running" }]</code></td></tr>
+<tr><td>Số</td><td><code>"severity": [{ "numeric": [">=", 7] }]</code></td></tr>
+<tr><td>Tồn tại / không</td><td><code>"errorCode": [{ "exists": true }]</code></td></tr>
+<tr><td>Wildcard</td><td><code>"eventName": [{ "wildcard": "Delete*" }]</code></td></tr>
+<tr><td>Không phân biệt hoa thường</td><td><code>{ "equals-ignore-case": "admin" }</code></td></tr>
+</table>
+<pre lang="json" file="Bắt mọi API xoá security group hoặc mở cổng, ghi qua CloudTrail">
+{
+  "source": ["aws.ec2"],
+  "detail-type": ["AWS API Call via CloudTrail"],
+  "detail": {
+    "eventSource": ["ec2.amazonaws.com"],
+    "eventName": ["AuthorizeSecurityGroupIngress", "DeleteSecurityGroup"]
+  }
+}
+</pre>
+<aside class="prod"><p>Event "AWS API Call via CloudTrail" chỉ có với API <b>ghi</b> (không có Get / List / Describe) và chỉ khi có CloudTrail ghi management events. Dịch vụ global (IAM, STS global, CloudFront, Route 53, Organizations) sinh event ở <b>us-east-1</b>.</p></aside>
+
+<h2>Target</h2>
+<ul>
+<li>Lambda, SNS, SQS (kể cả FIFO), Kinesis Data Streams / Firehose, Step Functions, ECS task, Batch job, CodeBuild, CodePipeline, SSM Automation / Run Command / OpsItem, API Gateway, <b>API destination</b> (gọi HTTP endpoint bên ngoài có xác thực), event bus khác, CloudWatch Logs log group, Redshift, SageMaker Pipelines, Incident Manager...</li>
+<li><b>Quyền gọi target</b>: Lambda, SNS, SQS, Logs dùng <b>resource-based policy</b> cho <code>events.amazonaws.com</code>. Kinesis, Step Functions, ECS, SSM, event bus khác Region / account dùng <b>IAM role</b> gắn với rule.</li>
+<li><b>Input transformer</b>: lấy trường từ event (<code>InputPathsMap</code>) rồi ghép thành nội dung mới (<code>InputTemplate</code>). Ví dụ thông báo "Instance &lt;id&gt; vừa chuyển sang &lt;state&gt;".</li>
+<li><b>Retry policy</b> (mặc định thử lại 24 giờ, 185 lần) và <b>DLQ</b> (SQS) cho từng target.</li>
+</ul>
+
+<h2>Cross-account và cross-Region</h2>
+<ul>
+<li>Gửi event sang bus của account khác: target là ARN của bus đích, bus đích có <b>resource policy</b> cho phép account gửi (hoặc cả Organization bằng <code>aws:PrincipalOrgID</code>).</li>
+<li>Gửi sang Region khác: target là bus ở Region đích, rule cần IAM role.</li>
+<li>Mẫu gom sự kiện bảo mật / vận hành: mọi account gửi event về một bus trung tâm ở account vận hành.</li>
+<li><b>Global endpoints</b>: tự chuyển việc nhận event sang Region phụ khi Region chính lỗi (cho ứng dụng tự gửi event).</li>
+</ul>
+
+<h2>Các thành phần khác</h2>
+<table>
+<tr><th>Thành phần</th><th>Dùng khi</th></tr>
+<tr><td><b>EventBridge Scheduler</b></td><td>Hẹn giờ: cron / rate / một lần, có <b>time zone</b>, flexible time window, retry, DLQ, hàng triệu lịch. Gọi trực tiếp hơn 270 dịch vụ (universal target). Thay rule schedule kiểu cũ</td></tr>
+<tr><td><b>EventBridge Pipes</b></td><td>Nối một nguồn (SQS, Kinesis, DynamoDB Streams, MSK...) tới một đích, có lọc và làm giàu (enrichment bằng Lambda / Step Functions / API) mà không cần viết code kết nối</td></tr>
+<tr><td><b>Archive và replay</b></td><td>Lưu event để phát lại sau (khôi phục sau khi sửa lỗi xử lý, thử nghiệm)</td></tr>
+<tr><td><b>Schema registry</b></td><td>Tự phát hiện cấu trúc event, sinh code binding</td></tr>
+</table>
+
+<h2>Event hay dùng cho vận hành</h2>
+<table>
+<tr><th>Nguồn / detail-type</th><th>Tự động hoá</th></tr>
+<tr><td><code>aws.ec2</code> EC2 Instance State-change Notification</td><td>Thông báo / tự start lại máy bị stop</td></tr>
+<tr><td><code>aws.ec2</code> EC2 Spot Instance Interruption Warning</td><td>Còn 2 phút: drain, lưu trạng thái</td></tr>
+<tr><td><code>aws.autoscaling</code> EC2 Instance-terminate Lifecycle Action</td><td>Chạy việc dọn dẹp rồi CompleteLifecycleAction</td></tr>
+<tr><td><code>aws.cloudwatch</code> CloudWatch Alarm State Change</td><td>Gọi SSM Automation khắc phục</td></tr>
+<tr><td><code>aws.health</code> AWS Health Event</td><td>Lịch retire instance, sự cố dịch vụ, khoá IAM bị lộ (AWS_RISK_CREDENTIALS_EXPOSED)</td></tr>
+<tr><td><code>aws.config</code> Config Rules Compliance Change</td><td>Thông báo / sửa tài nguyên NON_COMPLIANT</td></tr>
+<tr><td><code>aws.guardduty</code> GuardDuty Finding</td><td>Cô lập instance</td></tr>
+<tr><td><code>aws.s3</code> Object Created (khi bucket bật gửi tới EventBridge)</td><td>Xử lý file mới, lọc phức tạp hơn S3 Event Notifications</td></tr>
+<tr><td><code>aws.ecs</code> ECS Task State Change</td><td>Báo khi task dừng bất thường</td></tr>
+<tr><td><code>aws.codepipeline</code> Pipeline Execution State Change</td><td>Báo deploy thất bại</td></tr>
+<tr><td><code>aws.trustedadvisor</code> Check Item Refresh Notification</td><td>Báo khi chạm service limit</td></tr>
+</table>
+
+<h2>AWS Health</h2>
+<ul>
+<li><b>AWS Health Dashboard</b> (Your account health): sự cố dịch vụ ảnh hưởng tới tài nguyên của bạn, thay đổi có lịch (bảo trì, retire phần cứng, hết hỗ trợ phiên bản RDS / EKS), thông báo tài khoản.</li>
+<li>API Health cần gói Business support trở lên; event qua EventBridge thì mọi account đều có.</li>
+<li><b>Organizational view</b>: xem Health event của mọi account từ management / delegated admin.</li>
+<li>Mẫu: Health event "scheduled retirement" → EventBridge → SSM Automation stop / start instance trong maintenance window.</li>
+</ul>
+
+<h2>Rule không chạy: checklist</h2>
+<ol>
+<li>Metric <code>TriggeredRules</code> = 0: pattern không khớp (sai hoa thường, thiếu mảng, sai <code>detail-type</code>), sai Region, event không tồn tại (thiếu CloudTrail, API là Describe).</li>
+<li><code>TriggeredRules</code> có nhưng <code>FailedInvocations</code> tăng: thiếu quyền gọi target (resource policy / role), target bị throttle, KMS của SQS / SNS không cho EventBridge.</li>
+<li>Dùng <b>sandbox</b> (Test event pattern) trên console để thử pattern với event mẫu.</li>
+<li>Gắn DLQ để xem event không gửi được và lý do.</li>
+</ol>
+
+<quiz q="Rule EventBridge có metric TriggeredRules tăng nhưng SQS queue đích không nhận message. Queue mã hoá bằng customer managed KMS key. Cần sửa gì?">
+- Sửa event pattern
++ Queue policy cho phép events.amazonaws.com gửi message, và key policy cho phép EventBridge dùng key (kms:GenerateDataKey, kms:Decrypt)
+- Bật long polling
+- Đổi sang FIFO queue
+? Rule đã khớp, lỗi ở bước gửi tới target: thiếu quyền trên queue hoặc trên KMS key.
+</quiz>
+<quiz q="Cần chạy job báo cáo lúc 7 giờ sáng giờ Việt Nam mỗi thứ Hai, kể cả khi đổi múi giờ hệ thống, có retry 3 lần. Dịch vụ?">
++ EventBridge Scheduler với cron và time zone Asia/Ho_Chi_Minh, retry policy
+- CloudWatch alarm
+- Rule schedule kiểu cũ (chỉ UTC) không cần đổi gì
+- SQS delay queue
+? Scheduler hỗ trợ time zone và retry policy cho từng lịch.
+</quiz>
+<quiz q="Đội muốn tự động xử lý khi AWS phát hiện access key của một IAM user bị lộ công khai. Nguồn event?">
+- CloudTrail Insights
++ AWS Health event AWS_RISK_CREDENTIALS_EXPOSED qua EventBridge
+- Config rule
+- Trusted Advisor
+? AWS Health phát event khi phát hiện credential bị lộ, EventBridge gọi Lambda vô hiệu hoá key.
+</quiz>

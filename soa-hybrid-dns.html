@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Kết nối lai và DNS · Ôn thi AWS</title>
+<meta name="description" content="VPC peering, Transit Gateway, Site-to-Site VPN, Direct Connect, Client VPN, PrivateLink, Route 53 Resolver endpoints và rules, DNS Firewall.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns" aria-current="page"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-hybrid-dns">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</span><span>Bài 17</span><span>60 phút</span></div>
+    <h1>Kết nối lai và DNS</h1>
+    <p class="lead">VPC peering, Transit Gateway, Site-to-Site VPN, Direct Connect, Client VPN, PrivateLink, Route 53 Resolver endpoints và rules, DNS Firewall.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn cách kết nối VPC và on-premises</li><li>Cấu hình phân giải DNS hai chiều</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="ket-noi-nhieu-vpc"><a href="#ket-noi-nhieu-vpc" class="anchor" aria-hidden="true">#</a>Kết nối nhiều VPC</h2>
+<table>
+<tr><th></th><th>VPC peering</th><th>Transit Gateway</th><th>PrivateLink</th><th>VPC Lattice / Cloud WAN</th></tr>
+<tr><td>Mô hình</td><td>1-1</td><td>Hub-and-spoke, hàng nghìn VPC</td><td>Một dịch vụ cho nhiều VPC tiêu dùng</td><td>Lattice: kết nối dịch vụ-dịch vụ (L7); Cloud WAN: mạng toàn cầu theo chính sách</td></tr>
+<tr><td>Bắc cầu</td><td>Không</td><td>Có (theo route table của TGW)</td><td>Không cần</td><td></td></tr>
+<tr><td>CIDR trùng</td><td>Không được</td><td>Không được (trong cùng route domain)</td><td>Được</td><td>Lattice: được</td></tr>
+<tr><td>Cross-Region / account</td><td>Có</td><td>Có (TGW peering, chia sẻ qua RAM)</td><td>Có</td><td></td></tr>
+<tr><td>Chi phí</td><td>Chỉ phí dữ liệu</td><td>Theo attachment + GB</td><td>Theo endpoint + GB</td><td></td></tr>
+</table>
+<h3>Transit Gateway chi tiết</h3>
+<ul>
+<li><b>Attachment</b>: VPC (chọn một subnet mỗi AZ), VPN, Direct Connect Gateway, TGW peering, Connect (SD-WAN).</li>
+<li><b>TGW route table</b>: <b>association</b> (attachment dùng route table nào để tra) và <b>propagation</b> (attachment tự học route vào route table nào). Dùng nhiều route table để <b>cô lập</b> (dev không tới prod nhưng cả hai tới shared services).</li>
+<li>Ở VPC vẫn phải thêm route trỏ dải đích → TGW.</li>
+<li><b>Appliance mode</b>: bật cho VPC chứa firewall để traffic hai chiều đi cùng một AZ (tránh định tuyến bất đối xứng).</li>
+<li>TGW Flow Logs, TGW Network Manager để quan sát; tối đa 50 Gbps mỗi attachment VPC.</li>
+<li>Lỗi hay gặp: thiếu route ở route table của VPC, sai association / propagation, SG / NACL, quên subnet attachment ở AZ của instance.</li>
+</ul>
+
+<h2 id="ket-noi-voi-on-premises"><a href="#ket-noi-voi-on-premises" class="anchor" aria-hidden="true">#</a>Kết nối với on-premises</h2>
+<table>
+<tr><th></th><th>Site-to-Site VPN</th><th>Direct Connect</th></tr>
+<tr><td>Đường truyền</td><td>Qua Internet, mã hoá IPsec</td><td>Kết nối vật lý riêng tại DX location</td></tr>
+<tr><td>Thời gian có</td><td>Vài phút</td><td>Vài tuần</td></tr>
+<tr><td>Băng thông</td><td>Tới 1,25 Gbps mỗi tunnel (ECMP qua TGW để cộng gộp; large bandwidth tunnel tới 5 Gbps)</td><td>1, 10, 100, 400 Gbps (dedicated) hoặc 50 Mbps - 25 Gbps (hosted)</td></tr>
+<tr><td>Ổn định</td><td>Phụ thuộc Internet</td><td>Ổn định, độ trễ đều</td></tr>
+<tr><td>Mã hoá</td><td>Có</td><td><b>Không mặc định</b>: dùng VPN trên DX hoặc MACsec</td></tr>
+</table>
+<h3>Site-to-Site VPN</h3>
+<ul>
+<li>Thành phần: <b>customer gateway</b> (thiết bị phía bạn), <b>virtual private gateway</b> (gắn một VPC) hoặc <b>Transit Gateway</b>. Mỗi kết nối có <b>2 tunnel</b> ở 2 thiết bị AWS khác nhau để dự phòng.</li>
+<li>Định tuyến tĩnh hoặc <b>BGP</b> (dynamic). Bật <b>route propagation</b> trên route table của VPC để tự học route từ VGW.</li>
+<li>Tunnel down: kiểm tra cấu hình IKE / IPsec phía khách hàng, dead peer detection, NAT-T, IP public của customer gateway, giới hạn băng thông. Metric <code>TunnelState</code>; nhật ký VPN gửi CloudWatch Logs.</li>
+<li><b>Accelerated VPN</b> (chỉ với TGW) đi qua Global Accelerator.</li>
+<li><b>VPN CloudHub</b>: nhiều văn phòng nối với nhau qua một VGW.</li>
+</ul>
+<h3>Direct Connect</h3>
+<ul>
+<li><b>Virtual interface (VIF)</b>: <b>private VIF</b> (vào VPC qua VGW / DX Gateway), <b>public VIF</b> (tới dịch vụ AWS public như S3 bằng IP public), <b>transit VIF</b> (tới TGW qua DX Gateway).</li>
+<li><b>Direct Connect Gateway</b>: một kết nối DX tới VPC ở nhiều Region / account.</li>
+<li>Dự phòng: 2 kết nối DX ở 2 location khác nhau (maximum resiliency), hoặc DX + VPN backup (BGP ưu tiên DX qua AS path / local preference).</li>
+<li><b>LAG</b> gộp nhiều kết nối. <b>MACsec</b> mã hoá lớp 2 trên kết nối dedicated tốc độ cao. <b>SiteLink</b> nối các DX location với nhau.</li>
+<li>BGP down: kiểm tra VLAN, ASN, MD5 key, IP peering; metric <code>ConnectionState</code>, <code>ConnectionBpsEgress</code>.</li>
+</ul>
+<h3>Client VPN</h3>
+<p>Người dùng từ laptop (OpenVPN client) vào VPC; xác thực bằng chứng chỉ (mutual), Active Directory hoặc SAML; authorization rule theo nhóm; split tunnel để chỉ traffic tới AWS đi qua VPN.</p>
+
+<h2 id="route-53-resolver"><a href="#route-53-resolver" class="anchor" aria-hidden="true">#</a>Route 53 Resolver</h2>
+<figure class="dg"><svg viewBox="0 0 1326.1599999999999 86" style="min-width:600px;max-width:1326.1599999999999px" role="img" aria-label="Phân giải DNS hai chiều giữa VPC và data center"><g class="nd fe"><rect x="10" y="10" width="156" height="66" rx="10"/><text x="88" y="40" class="tt" text-anchor="middle">Máy on-premises</text><text x="88" y="58" class="ts" text-anchor="middle">hỏi db.internal.aws</text></g><line x1="168" y1="43" x2="273.36" y2="43" class="ln" marker-end="url(#ar)"/><text x="221.68" y="34" class="tl" text-anchor="middle">qua VPN / DX</text><g class="nd q"><rect x="277.36" y="10" width="164.4" height="66" rx="10"/><text x="359.56" y="40" class="tt" text-anchor="middle">Inbound endpoint</text><text x="359.56" y="58" class="ts" text-anchor="middle">IP trong VPC</text></g><line x1="443.76" y1="43" x2="507.76" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="511.76" y="10" width="172.8" height="66" rx="10"/><text x="598.16" y="40" class="tt" text-anchor="middle">Route 53 Resolver</text><text x="598.16" y="58" class="ts" text-anchor="middle">private hosted zone</text></g><line x1="686.56" y1="43" x2="872" y2="43" class="ln" marker-end="url(#ar)"/><text x="780.28" y="34" class="tl" text-anchor="middle">rule forward corp.local</text><g class="nd q"><rect x="876" y="10" width="172.8" height="66" rx="10"/><text x="962.4" y="40" class="tt" text-anchor="middle">Outbound endpoint</text><text x="962.4" y="58" class="ts" text-anchor="middle">IP trong VPC</text></g><line x1="1050.8" y1="43" x2="1156.1599999999999" y2="43" class="ln" marker-end="url(#ar)"/><text x="1104.48" y="34" class="tl" text-anchor="middle">qua VPN / DX</text><g class="nd ext"><rect x="1160.1599999999999" y="10" width="156" height="66" rx="10"/><text x="1238.1599999999999" y="40" class="tt" text-anchor="middle">DNS on-premises</text><text x="1238.1599999999999" y="58" class="ts" text-anchor="middle">corp.local</text></g></svg><figcaption>Phân giải DNS hai chiều giữa VPC và data center</figcaption></figure>
+<ul>
+<li>Resolver mặc định ở <code>VPC CIDR + 2</code> (ví dụ 10.0.0.2) hoặc <code>169.254.169.253</code>.</li>
+<li><b>Inbound endpoint</b>: ENI (ít nhất 2 AZ) nhận truy vấn từ on-premises. DNS on-premises đặt conditional forwarder tới IP của endpoint.</li>
+<li><b>Outbound endpoint</b> + <b>forwarding rule</b> (tên miền → IP DNS on-premises). Rule <b>system</b> để loại trừ tên miền con. Chia sẻ rule cho account khác bằng <b>RAM</b>, mỗi VPC phải được associate với rule.</li>
+<li>SG của endpoint cho phép UDP / TCP 53.</li>
+<li><b>Resolver query logging</b>: ghi mọi truy vấn DNS từ VPC về CloudWatch Logs / S3 / Firehose.</li>
+<li><b>DNS Firewall</b>: rule group chặn / cảnh báo tên miền (danh sách tự tạo hoặc managed list của AWS: malware, botnet), <b>fail open / fail closed</b>.</li>
+<li>Private hosted zone trùng tên với public zone: trong VPC đã liên kết, private zone thắng (split-horizon DNS).</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty có 40 VPC ở 3 account cần nối với nhau và với data center qua một kết nối Direct Connect, dev không được nói chuyện với prod. Thiết kế?</p><div class="qo"><button type="button" class="opt">VPC peering full mesh</button><button type="button" class="opt" data-ok>Transit Gateway chia sẻ qua RAM, DX Gateway với transit VIF, nhiều TGW route table tách dev và prod</button><button type="button" class="opt">Mỗi VPC một VPN</button><button type="button" class="opt">PrivateLink cho mọi VPC</button></div><p class="why" hidden>TGW là hub cho nhiều VPC, route table của TGW cho phép cô lập theo môi trường.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Yêu cầu traffic qua Direct Connect phải được mã hoá. Lựa chọn nào? Chọn 2.</p><div class="qo"><button type="button" class="opt" data-ok>Chạy Site-to-Site VPN trên public VIF / transit VIF của Direct Connect</button><button type="button" class="opt" data-ok>Dùng MACsec trên kết nối dedicated hỗ trợ</button><button type="button" class="opt">Direct Connect mặc định đã mã hoá</button><button type="button" class="opt">Bật TLS cho VIF</button><button type="button" class="opt">Dùng private VIF là đủ</button></div><p class="why" hidden>DX không tự mã hoá; IPsec VPN trên DX hoặc MACsec là các cách được hỗ trợ.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Sau khi tạo Site-to-Site VPN với VGW, máy on-premises không tới được EC2. Tunnel UP. Bước hay bị quên?</p><div class="qo"><button type="button" class="opt" data-ok>Bật route propagation (hoặc thêm route tĩnh tới dải on-premises qua VGW) trong route table của subnet</button><button type="button" class="opt">Gắn Elastic IP cho EC2</button><button type="button" class="opt">Tạo Internet Gateway</button><button type="button" class="opt">Bật DNS hostnames</button></div><p class="why" hidden>Tunnel lên nhưng VPC không có route trả về dải on-premises.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-hybrid-dns">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-networking.html"><small>Bài trước</small>VPC và xử lý sự cố mạng</a><a class="next" href="soa-cdn.html"><small>Bài tiếp theo</small>CloudFront, WAF, Shield và Global Accelerator</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#ket-noi-nhieu-vpc">Kết nối nhiều VPC</a><a href="#ket-noi-voi-on-premises">Kết nối với on-premises</a><a href="#route-53-resolver">Route 53 Resolver</a></nav>
+</div>
+</body>
+</html>

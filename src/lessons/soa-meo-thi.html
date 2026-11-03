@@ -23,6 +23,43 @@
 <tr><td>IP tĩnh, failover Region nhanh, TCP/UDP</td><td>Global Accelerator</td></tr>
 <tr><td>chặn IP gửi quá nhiều request</td><td>WAF rate-based rule</td></tr>
 <tr><td>cảnh báo sắp chạm service quota</td><td>Trusted Advisor / Service Quotas + CloudWatch</td></tr>
+<tr><td>dịch vụ trong máy chết, theo dõi process</td><td>CloudWatch agent procstat</td></tr>
+<tr><td>metric chỉ có khi lỗi, alarm treo INSUFFICIENT_DATA</td><td>Treat missing data = notBreaching</td></tr>
+<tr><td>heartbeat không gửi nghĩa là chết</td><td>Treat missing data = breaching</td></tr>
+<tr><td>mô phỏng người dùng theo lịch</td><td>CloudWatch Synthetics canary</td></tr>
+<tr><td>request chậm ở thành phần nào</td><td>X-Ray / Application Signals</td></tr>
+<tr><td>che dữ liệu nhạy cảm trong log</td><td>CloudWatch Logs data protection policy</td></tr>
+<tr><td>gom log nhiều account gần thời gian thực</td><td>Subscription filter + cross-account destination</td></tr>
+<tr><td>xem metric nhiều account một chỗ</td><td>CloudWatch cross-account observability</td></tr>
+<tr><td>lịch có time zone, retry</td><td>EventBridge Scheduler</td></tr>
+<tr><td>credential IAM bị lộ</td><td>AWS Health event AWS_RISK_CREDENTIALS_EXPOSED</td></tr>
+<tr><td>vá nhiều account từ một nơi</td><td>Patch policy (Quick Setup)</td></tr>
+<tr><td>vào RDS private từ laptop không VPN</td><td>Session Manager port forwarding</td></tr>
+<tr><td>quản lý máy on-premises bằng SSM</td><td>Hybrid activation</td></tr>
+<tr><td>đổi sang dòng Nitro máy không lên</td><td>Thiếu driver ENA / NVMe</td></tr>
+<tr><td>OS hỏng, máy mất mạng</td><td>EC2 Serial Console / EC2Rescue</td></tr>
+<tr><td>volume từ snapshot chậm lúc đầu</td><td>Fast Snapshot Restore</td></tr>
+<tr><td>KMS ThrottlingException khi dùng S3</td><td>S3 Bucket Key</td></tr>
+<tr><td>EFS chậm dần, BurstCreditBalance về 0</td><td>Throughput mode Elastic</td></tr>
+<tr><td>file server on-prem dùng AWS làm kho, có cache</td><td>Storage Gateway File Gateway</td></tr>
+<tr><td>nâng cấp engine RDS ít downtime</td><td>RDS Blue/Green Deployments</td></tr>
+<tr><td>thử failover RDS</td><td>Reboot with failover</td></tr>
+<tr><td>tách báo cáo khỏi replica phục vụ khách (Aurora)</td><td>Custom endpoint</td></tr>
+<tr><td>ALB 504 với request dài</td><td>Tăng idle timeout</td></tr>
+<tr><td>scale worker theo hàng đợi SQS</td><td>Target tracking backlog per instance</td></tr>
+<tr><td>thay toàn bộ instance sang AMI mới</td><td>ASG instance refresh</td></tr>
+<tr><td>health check cho tài nguyên private</td><td>Route 53 health check theo CloudWatch alarm</td></tr>
+<tr><td>chuyển traffic khỏi AZ lỗi</td><td>Route 53 ARC zonal shift</td></tr>
+<tr><td>thử khả năng chịu lỗi</td><td>Fault Injection Service</td></tr>
+<tr><td>chống xoá backup kể cả root</td><td>Backup Vault Lock compliance mode</td></tr>
+<tr><td>chặn tài nguyên sai trước khi tạo</td><td>CloudFormation Hooks / Config proactive</td></tr>
+<tr><td>truy vấn cấu hình mọi account</td><td>Config aggregator advanced query</td></tr>
+<tr><td>NAT ErrorPortAllocation</td><td>Thêm IP phụ cho NAT Gateway</td></tr>
+<tr><td>Lambda trong VPC không gọi được API ngoài</td><td>NAT Gateway / VPC endpoint</td></tr>
+<tr><td>cô lập dev / prod khi dùng TGW</td><td>Nhiều TGW route table</td></tr>
+<tr><td>mã hoá trên Direct Connect</td><td>VPN trên DX hoặc MACsec</td></tr>
+<tr><td>chặn tên miền độc hại trong VPC</td><td>Route 53 Resolver DNS Firewall</td></tr>
+<tr><td>origin ALB private sau CloudFront</td><td>CloudFront VPC origins</td></tr>
 </table>
 
 <h2>Bẫy hay gặp</h2>

@@ -15,6 +15,55 @@
 <li>Database thay đổi lược đồ: chú ý cả hai phiên bản cùng chạy trong lúc blue/green. <b>RDS Blue/Green Deployments</b> cho nâng cấp phiên bản engine với downtime rất ngắn.</li>
 </ul>
 
+<h2>Elastic Beanstalk chi tiết</h2>
+<ul>
+<li>Thành phần: <b>application</b> → <b>application version</b> (gói code trên S3) → <b>environment</b> (web server hoặc worker tier dùng SQS).</li>
+<li>Cấu hình bằng <code>.ebextensions/*.config</code> (YAML: gói cần cài, file, lệnh, tài nguyên CloudFormation thêm), <code>.platform/hooks</code> trên nền tảng Amazon Linux 2023, <b>saved configuration</b>.</li>
+<li>Đừng tạo RDS bên trong environment cho production (xoá environment là mất database); tạo RDS riêng và truyền endpoint qua biến môi trường.</li>
+<li>Kiểu deploy: <b>All at once</b>, <b>Rolling</b>, <b>Rolling with additional batch</b>, <b>Immutable</b>, <b>Traffic splitting</b> (canary theo % trong thời gian đánh giá). Blue/green = clone environment + <b>Swap environment URLs</b> (đổi CNAME).</li>
+<li><b>Enhanced health reporting</b>: trạng thái Ok / Warning / Degraded / Severe, nguyên nhân (CPU, 5xx, deploy lỗi). Log: request logs (last 100 lines / full), stream log về CloudWatch Logs.</li>
+<li><b>Managed platform updates</b>: tự cập nhật nền tảng trong maintenance window.</li>
+<li>Lỗi deploy hay gặp: health check URL sai, ứng dụng không nghe đúng cổng, thiếu quyền của instance profile / service role, hết dung lượng.</li>
+</ul>
+
+<h2>CodeDeploy chi tiết</h2>
+<table>
+<tr><th>Nền tảng</th><th>Cách triển khai</th><th>Cấu hình có sẵn</th></tr>
+<tr><td>EC2 / on-premises</td><td>In-place (từng nhóm máy) hoặc blue/green (ASG mới, chuyển ALB)</td><td>AllAtOnce, HalfAtATime, OneAtATime</td></tr>
+<tr><td>Lambda</td><td>Chuyển traffic của alias giữa 2 version</td><td>Canary10Percent5Minutes, Linear10PercentEvery1Minute, AllAtOnce</td></tr>
+<tr><td>ECS</td><td>Blue/green qua 2 target group của ALB / NLB (hoặc native ECS blue/green)</td><td>Canary, Linear, AllAtOnce</td></tr>
+</table>
+<ul>
+<li>EC2 cần <b>CodeDeploy agent</b> (cài qua SSM) và instance profile đọc được bundle trên S3; deployment group chọn máy theo tag hoặc ASG.</li>
+<li><code>appspec.yml</code>: <code>files</code> (chép file), <code>hooks</code>: ApplicationStop → DownloadBundle → BeforeInstall → Install → AfterInstall → ApplicationStart → <b>ValidateService</b>. Lambda / ECS có hook BeforeAllowTraffic, AfterAllowTraffic.</li>
+<li><b>Rollback</b> tự động khi deploy lỗi hoặc khi <b>CloudWatch alarm</b> kêu. Rollback thực chất là deploy lại bản cũ thành một deployment mới.</li>
+<li>Lỗi hay gặp: agent không chạy, thiếu quyền S3, script trong hook trả mã lỗi hoặc quá thời gian, health check ALB không qua trong blue/green.</li>
+</ul>
+
+<h2>Container và serverless ở góc vận hành</h2>
+<h3>ECS</h3>
+<ul>
+<li>Launch type: <b>Fargate</b> (không quản lý máy) hoặc <b>EC2</b> (cluster của bạn, ECS agent). <b>Capacity provider</b> kết hợp ASG với managed scaling.</li>
+<li><b>Task role</b> (quyền của ứng dụng) khác <b>task execution role</b> (kéo image, đọc secret, ghi log).</li>
+<li><b>Service auto scaling</b> theo CPU / RAM / request count / SQS. <b>Deployment circuit breaker</b> tự rollback khi task mới không khoẻ. <code>minimumHealthyPercent</code> / <code>maximumPercent</code> cho rolling update.</li>
+<li>Task dừng ngay: xem <b>stopped reason</b> (OOM do memory limit, image không kéo được, health check container lỗi, essential container thoát).</li>
+<li><b>ECS Exec</b> (dùng SSM) để vào container gỡ lỗi.</li>
+</ul>
+<h3>EKS</h3>
+<ul>
+<li>Node: managed node group, Fargate profile, <b>Karpenter</b> / Cluster Autoscaler, <b>EKS Auto Mode</b> (AWS quản lý node).</li>
+<li>Nâng cấp phiên bản: control plane trước, rồi add-on và node; có <b>upgrade insights</b> báo API sắp bị gỡ.</li>
+<li>Quan sát: control plane logging, Container Insights, Managed Prometheus / Grafana.</li>
+<li>Pod không lên: thiếu IP trong subnet (VPC CNI dùng IP của VPC), image pull lỗi, thiếu tài nguyên node, IAM (Pod Identity / IRSA).</li>
+</ul>
+<h3>Lambda</h3>
+<ul>
+<li><b>Throttles</b>: chạm concurrency của account (mặc định 1.000 / Region) hoặc <b>reserved concurrency</b> của hàm. <b>Provisioned concurrency</b> chống cold start (có thể scale theo lịch bằng Application Auto Scaling).</li>
+<li>Async invoke lỗi: retry 2 lần, gửi tới <b>DLQ</b> hoặc <b>on-failure destination</b>. Event source mapping (SQS, Kinesis): batch size, partial batch response, bisect batch, maximum retry, <code>IteratorAge</code>.</li>
+<li>Lambda trong VPC cần NAT / endpoint để gọi dịch vụ AWS; timeout do không ra được mạng là lỗi kinh điển.</li>
+<li>Version + alias, deploy an toàn qua CodeDeploy / SAM.</li>
+</ul>
+
 <h2>Automation hướng sự kiện</h2>
 <table>
 <tr><th>Cần</th><th>Giải pháp</th></tr>

@@ -1,0 +1,107 @@
+<h2>RDS: giám sát</h2>
+<table>
+<tr><th>Công cụ</th><th>Cho biết</th><th>Ghi nhớ</th></tr>
+<tr><td>CloudWatch metrics</td><td>CPU, DatabaseConnections, FreeableMemory, FreeStorageSpace, ReadIOPS / WriteIOPS, Read / WriteLatency, DiskQueueDepth, ReplicaLag, SwapUsage, BurstBalance</td><td>1 phút, miễn phí</td></tr>
+<tr><td><b>Enhanced Monitoring</b></td><td>Metric của <b>OS</b>: từng process, RAM chi tiết, file system, tới 1 giây</td><td>Agent chạy trong host RDS, gửi về CloudWatch Logs (<code>RDSOSMetrics</code>), cần IAM role</td></tr>
+<tr><td><b>Performance Insights</b></td><td>Tải database (DB load, Average Active Sessions) chia theo <b>wait event</b>, <b>câu SQL</b>, user, host</td><td>Giữ 7 ngày miễn phí, tới 2 năm trả phí. Nay hợp nhất vào <b>CloudWatch Database Insights</b></td></tr>
+<tr><td><b>DevOps Guru for RDS</b></td><td>ML phát hiện bất thường và gợi ý nguyên nhân (câu SQL mới, thiếu index...)</td><td></td></tr>
+<tr><td>Log exports</td><td>Error log, slow query log, general log, audit log, PostgreSQL log → CloudWatch Logs</td><td>Slow query log cần bật trong parameter group</td></tr>
+<tr><td>RDS events</td><td>Failover, backup, đổi cấu hình, hết dung lượng</td><td>Event subscription → SNS, hoặc EventBridge</td></tr>
+</table>
+<aside class="tip"><p>Đọc Performance Insights: DB load vượt đường "Max vCPU" nghĩa là database quá tải. Wait event chủ yếu là CPU → câu SQL tốn CPU / thiếu index; IO → thiếu IOPS / bộ nhớ đệm; Lock → tranh chấp khoá.</p></aside>
+
+<h2>RDS: cấu hình và vận hành</h2>
+<ul>
+<li><b>Parameter group</b>: cấu hình engine. Parameter <b>dynamic</b> áp ngay (hoặc theo apply immediately); <b>static</b> cần <b>reboot</b>. Trạng thái <code>pending-reboot</code> cho biết còn chờ reboot. Default parameter group không sửa được: tạo custom rồi gán.</li>
+<li><b>Option group</b>: tính năng thêm (Oracle TDE, SQL Server native backup...).</li>
+<li><b>Maintenance window</b>: AWS vá engine / OS; Multi-AZ thì vá standby trước rồi failover để giảm gián đoạn.</li>
+<li>Sửa cấu hình (đổi instance class, storage): chọn <b>apply immediately</b> hoặc đợi maintenance window. Đổi class có gián đoạn (Multi-AZ giảm xuống còn thời gian failover).</li>
+<li><b>Storage autoscaling</b>: tự tăng khi còn dưới 10% trống trong 5 phút; đặt maximum storage threshold.</li>
+<li>Storage: gp3 (IOPS / throughput chỉnh riêng), io1 / io2 (Provisioned IOPS). Sau khi tăng storage phải chờ 6 giờ mới sửa tiếp.</li>
+<li>Kết nối không được: SG của RDS chưa cho SG của app ở cổng 3306 / 5432; RDS không public mà client ở ngoài; sai subnet group; hết <code>max_connections</code> (phụ thuộc RAM của instance class).</li>
+</ul>
+
+<h2>RDS Proxy</h2>
+<ul>
+<li>Pool và tái sử dụng kết nối: hàng nghìn kết nối từ ứng dụng (đặc biệt Lambda) dồn vào ít kết nối tới database.</li>
+<li>Giảm thời gian failover tới 66%: proxy giữ kết nối của ứng dụng, chuyển sang instance mới.</li>
+<li>Xác thực: secret trong <b>Secrets Manager</b>, ứng dụng có thể dùng <b>IAM authentication</b> tới proxy; có thể bắt buộc TLS.</li>
+<li>Chỉ truy cập từ trong VPC. Có <b>read-only endpoint</b> cho Aurora replica.</li>
+<li>"Pinning": một số thao tác (biến phiên, prepared statement kiểu cũ) ghim kết nối, làm giảm hiệu quả gộp.</li>
+</ul>
+
+<h2>Mở rộng và chịu lỗi</h2>
+<table>
+<tr><th></th><th>Multi-AZ instance</th><th>Multi-AZ DB cluster</th><th>Read replica</th></tr>
+<tr><td>Mục đích</td><td>Chịu lỗi</td><td>Chịu lỗi + đọc</td><td>Mở rộng đọc, DR</td></tr>
+<tr><td>Sao chép</td><td>Đồng bộ</td><td>Bán đồng bộ (1 writer + 2 reader)</td><td>Bất đồng bộ (có ReplicaLag)</td></tr>
+<tr><td>Standby đọc được?</td><td>Không</td><td>Có (reader endpoint)</td><td>Có</td></tr>
+<tr><td>Failover</td><td>Tự động, 60-120 giây, DNS endpoint giữ nguyên</td><td>Thường dưới 35 giây</td><td>Không tự động; <b>promote</b> tay thành instance độc lập</td></tr>
+<tr><td>Cross-Region</td><td>Không</td><td>Không</td><td>Có</td></tr>
+</table>
+<ul>
+<li>Failover xảy ra khi: AZ lỗi, primary lỗi, đổi instance class, vá OS, <b>reboot with failover</b> (dùng để thử).</li>
+<li>Read replica cần bật automated backup trên nguồn. Replica có thể có Multi-AZ riêng, có thể mã hoá (cùng trạng thái mã hoá với nguồn).</li>
+<li><b>RDS Blue/Green Deployments</b>: tạo môi trường xanh đồng bộ với môi trường hiện tại, nâng cấp engine / đổi schema / đổi parameter ở xanh, chuyển đổi trong khoảng 1 phút, giữ nguyên endpoint.</li>
+<li>Nâng cấp phiên bản chính (major version) phải chủ động; minor version có thể bật auto minor version upgrade.</li>
+</ul>
+
+<h2>Aurora</h2>
+<ul>
+<li>Storage dùng chung tự mở rộng tới 128 TiB (256 TiB bản mới), 6 bản sao trên 3 AZ, tự chữa lỗi.</li>
+<li>Tối đa 15 Aurora Replica, failover thường dưới 30 giây theo <b>failover priority tier</b> (0 cao nhất).</li>
+<li>Endpoint: <b>cluster (writer)</b>, <b>reader</b> (cân tải các replica), <b>custom endpoint</b> (nhóm replica riêng cho báo cáo), instance endpoint.</li>
+<li><b>Aurora Auto Scaling</b>: thêm / bớt replica theo CPU hoặc số kết nối.</li>
+<li><b>Aurora Serverless v2</b>: tự co giãn ACU theo tải trong vài giây, có thể giảm về 0 khi rảnh.</li>
+<li><b>Global Database</b>: Region phụ chỉ đọc, độ trễ sao chép dưới 1 giây; <b>managed switchover / failover</b> sang Region phụ (RTO khoảng 1 phút). <b>Write forwarding</b> cho phép ghi từ Region phụ.</li>
+<li><b>Backtrack</b> (Aurora MySQL): quay ngược cluster về thời điểm trước (tối đa 72 giờ) tại chỗ, không restore. <b>Cloning</b>: tạo cluster mới dùng chung storage (copy-on-write), nhanh và rẻ cho test.</li>
+<li><b>Aurora I/O-Optimized</b>: không tính phí I/O, hợp khi I/O chiếm trên 25% chi phí.</li>
+</ul>
+
+<h2>DynamoDB</h2>
+<ul>
+<li><b>On-demand</b> (trả theo request, tự co giãn) vs <b>provisioned</b> (đặt RCU / WCU, có <b>auto scaling</b> theo target utilization). Đổi mode mỗi 24 giờ một lần.</li>
+<li>1 RCU = 1 lần đọc strongly consistent / giây hoặc 2 eventually consistent, item tới 4 KB. 1 WCU = 1 lần ghi / giây, item tới 1 KB. Transaction gấp đôi.</li>
+<li><b>Throttling</b> (<code>ProvisionedThroughputExceededException</code>): capacity thấp, <b>hot partition</b> (một partition key nhận quá nhiều request; mỗi partition tối đa 3.000 RCU / 1.000 WCU), GSI bị throttle làm throttle cả bảng chính. SDK tự retry với backoff.</li>
+<li><b>DAX</b>: cache trong bộ nhớ cho đọc lặp lại, độ trễ micro giây, tương thích API (đổi endpoint). Không giúp ghi.</li>
+<li><b>Global Tables</b>: multi-Region, multi-active. <b>PITR</b> 35 ngày. <b>TTL</b> tự xoá item hết hạn (không tốn WCU). <b>Streams</b> + Lambda cho xử lý thay đổi.</li>
+<li>Metric: <code>ConsumedReadCapacityUnits</code>, <code>ThrottledRequests</code>, <code>ReadThrottleEvents</code>, <code>SystemErrors</code>; <b>CloudWatch Contributor Insights for DynamoDB</b> tìm partition key nóng.</li>
+</ul>
+
+<h2>ElastiCache</h2>
+<ul>
+<li>Engine: <b>Valkey</b> / <b>Redis OSS</b> (cấu trúc dữ liệu phong phú, replication, Multi-AZ auto failover, backup, cluster mode chia shard) và <b>Memcached</b> (đơn giản, đa luồng, không replication / backup).</li>
+<li><b>ElastiCache Serverless</b>: không cần chọn node, tự co giãn.</li>
+<li>Metric: <code>CPUUtilization</code> / <code>EngineCPUUtilization</code> (Redis đơn luồng: xem EngineCPU), <code>Evictions</code> (thiếu RAM), <code>CurrConnections</code>, <code>CacheHitRate</code>, <code>ReplicationLag</code>, <code>DatabaseMemoryUsagePercentage</code>.</li>
+<li>Mở rộng: <b>scale up</b> (node lớn hơn), <b>scale out</b> (thêm replica để đọc, thêm shard để ghi / tăng bộ nhớ trong cluster mode).</li>
+<li>Chiến lược cache: <b>lazy loading</b> (cache-aside), <b>write-through</b>, đặt <b>TTL</b>.</li>
+</ul>
+
+<quiz q="Performance Insights cho thấy DB load cao hơn số vCPU, wait event chủ yếu là CPU, một câu SELECT chiếm 70% tải. Bước đầu hợp lý nhất?">
++ Tối ưu câu SQL đó (thêm index, sửa truy vấn) trước khi tăng instance class
+- Thêm Multi-AZ
+- Bật RDS Proxy
+- Tăng storage
+? Một câu chiếm phần lớn tải trên CPU thường là thiếu index / truy vấn kém; tăng phần cứng chỉ là chữa triệu chứng.
+</quiz>
+<quiz q="Đội cần thử nghiệm quy trình failover của RDS Multi-AZ trước khi lên production. Cách làm?">
+- Xoá primary instance
++ Reboot với tuỳ chọn failover (Reboot with failover)
+- Promote read replica
+- Đổi parameter group
+? Reboot with failover buộc chuyển sang standby, kiểm tra ứng dụng có tự kết nối lại không.
+</quiz>
+<quiz q="Báo cáo nặng chạy trên Aurora làm chậm các replica phục vụ khách hàng. Cách tách tải?">
++ Tạo custom endpoint gồm một vài replica riêng cho báo cáo, ứng dụng khách dùng endpoint khác
+- Dùng cluster writer endpoint cho báo cáo
+- Tăng failover priority
+- Bật Backtrack
+? Custom endpoint cho phép nhóm replica theo mục đích sử dụng.
+</quiz>
+<quiz q="Bảng DynamoDB on-demand vẫn bị throttle vào giờ cao điểm, Contributor Insights cho thấy một partition key nhận 80% request. Nguyên nhân và hướng sửa?">
+- On-demand không bao giờ throttle, lỗi ở client
++ Hot partition; thiết kế lại khoá phân vùng (thêm hậu tố / chia nhỏ) để phân bố đều, hoặc thêm DAX nếu là đọc lặp lại
+- Chuyển sang provisioned với WCU thấp hơn
+- Bật Global Tables
+? Mỗi partition có giới hạn riêng, kể cả ở on-demand. Phân bố khoá kém là nguyên nhân.
+</quiz>

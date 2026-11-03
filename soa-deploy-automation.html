@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SOA-C03 · Chiến lược deploy và tự động hoá · Ôn thi AWS</title>
-<meta name="description" content="In-place, rolling, blue/green, canary; CodeDeploy, Elastic Beanstalk; S3 Event Notifications, Lambda, Terraform.">
+<title>SOA-C03 · Deploy và vận hành ứng dụng · Ôn thi AWS</title>
+<meta name="description" content="Chiến lược deploy, Elastic Beanstalk, CodeDeploy, ECS / EKS / Lambda ở góc vận hành, automation hướng sự kiện.">
 <meta name="theme-color" content="#ff9900">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,16 +25,16 @@
 <div class="layout">
   <aside class="side" aria-label="Danh sách bài">
     <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
-    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation" aria-current="page"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation" aria-current="page"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
   </aside>
   <div class="scrim"></div>
   <main id="main"><article class="lesson" data-slug="soa-deploy-automation">
   <header class="l-head">
-    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</span><span>Bài 08</span><span>40 phút</span></div>
-    <h1>Chiến lược deploy và tự động hoá</h1>
-    <p class="lead">In-place, rolling, blue/green, canary; CodeDeploy, Elastic Beanstalk; S3 Event Notifications, Lambda, Terraform.</p>
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</span><span>Bài 13</span><span>60 phút</span></div>
+    <h1>Deploy và vận hành ứng dụng</h1>
+    <p class="lead">Chiến lược deploy, Elastic Beanstalk, CodeDeploy, ECS / EKS / Lambda ở góc vận hành, automation hướng sự kiện.</p>
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
-    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn chiến lược deploy theo yêu cầu downtime và rollback</li><li>Dựng automation hướng sự kiện</li></ul></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn chiến lược deploy theo yêu cầu</li><li>Vận hành container và serverless</li><li>Dựng automation hướng sự kiện</li></ul></div>
   </header>
   <div class="prose"><h2 id="chien-luoc-deploy"><a href="#chien-luoc-deploy" class="anchor" aria-hidden="true">#</a>Chiến lược deploy</h2>
 <table>
@@ -53,6 +53,55 @@
 <li>Database thay đổi lược đồ: chú ý cả hai phiên bản cùng chạy trong lúc blue/green. <b>RDS Blue/Green Deployments</b> cho nâng cấp phiên bản engine với downtime rất ngắn.</li>
 </ul>
 
+<h2 id="elastic-beanstalk-chi-tiet"><a href="#elastic-beanstalk-chi-tiet" class="anchor" aria-hidden="true">#</a>Elastic Beanstalk chi tiết</h2>
+<ul>
+<li>Thành phần: <b>application</b> → <b>application version</b> (gói code trên S3) → <b>environment</b> (web server hoặc worker tier dùng SQS).</li>
+<li>Cấu hình bằng <code>.ebextensions/*.config</code> (YAML: gói cần cài, file, lệnh, tài nguyên CloudFormation thêm), <code>.platform/hooks</code> trên nền tảng Amazon Linux 2023, <b>saved configuration</b>.</li>
+<li>Đừng tạo RDS bên trong environment cho production (xoá environment là mất database); tạo RDS riêng và truyền endpoint qua biến môi trường.</li>
+<li>Kiểu deploy: <b>All at once</b>, <b>Rolling</b>, <b>Rolling with additional batch</b>, <b>Immutable</b>, <b>Traffic splitting</b> (canary theo % trong thời gian đánh giá). Blue/green = clone environment + <b>Swap environment URLs</b> (đổi CNAME).</li>
+<li><b>Enhanced health reporting</b>: trạng thái Ok / Warning / Degraded / Severe, nguyên nhân (CPU, 5xx, deploy lỗi). Log: request logs (last 100 lines / full), stream log về CloudWatch Logs.</li>
+<li><b>Managed platform updates</b>: tự cập nhật nền tảng trong maintenance window.</li>
+<li>Lỗi deploy hay gặp: health check URL sai, ứng dụng không nghe đúng cổng, thiếu quyền của instance profile / service role, hết dung lượng.</li>
+</ul>
+
+<h2 id="codedeploy-chi-tiet"><a href="#codedeploy-chi-tiet" class="anchor" aria-hidden="true">#</a>CodeDeploy chi tiết</h2>
+<table>
+<tr><th>Nền tảng</th><th>Cách triển khai</th><th>Cấu hình có sẵn</th></tr>
+<tr><td>EC2 / on-premises</td><td>In-place (từng nhóm máy) hoặc blue/green (ASG mới, chuyển ALB)</td><td>AllAtOnce, HalfAtATime, OneAtATime</td></tr>
+<tr><td>Lambda</td><td>Chuyển traffic của alias giữa 2 version</td><td>Canary10Percent5Minutes, Linear10PercentEvery1Minute, AllAtOnce</td></tr>
+<tr><td>ECS</td><td>Blue/green qua 2 target group của ALB / NLB (hoặc native ECS blue/green)</td><td>Canary, Linear, AllAtOnce</td></tr>
+</table>
+<ul>
+<li>EC2 cần <b>CodeDeploy agent</b> (cài qua SSM) và instance profile đọc được bundle trên S3; deployment group chọn máy theo tag hoặc ASG.</li>
+<li><code>appspec.yml</code>: <code>files</code> (chép file), <code>hooks</code>: ApplicationStop → DownloadBundle → BeforeInstall → Install → AfterInstall → ApplicationStart → <b>ValidateService</b>. Lambda / ECS có hook BeforeAllowTraffic, AfterAllowTraffic.</li>
+<li><b>Rollback</b> tự động khi deploy lỗi hoặc khi <b>CloudWatch alarm</b> kêu. Rollback thực chất là deploy lại bản cũ thành một deployment mới.</li>
+<li>Lỗi hay gặp: agent không chạy, thiếu quyền S3, script trong hook trả mã lỗi hoặc quá thời gian, health check ALB không qua trong blue/green.</li>
+</ul>
+
+<h2 id="container-va-serverless-o-goc-van-hanh"><a href="#container-va-serverless-o-goc-van-hanh" class="anchor" aria-hidden="true">#</a>Container và serverless ở góc vận hành</h2>
+<h3>ECS</h3>
+<ul>
+<li>Launch type: <b>Fargate</b> (không quản lý máy) hoặc <b>EC2</b> (cluster của bạn, ECS agent). <b>Capacity provider</b> kết hợp ASG với managed scaling.</li>
+<li><b>Task role</b> (quyền của ứng dụng) khác <b>task execution role</b> (kéo image, đọc secret, ghi log).</li>
+<li><b>Service auto scaling</b> theo CPU / RAM / request count / SQS. <b>Deployment circuit breaker</b> tự rollback khi task mới không khoẻ. <code>minimumHealthyPercent</code> / <code>maximumPercent</code> cho rolling update.</li>
+<li>Task dừng ngay: xem <b>stopped reason</b> (OOM do memory limit, image không kéo được, health check container lỗi, essential container thoát).</li>
+<li><b>ECS Exec</b> (dùng SSM) để vào container gỡ lỗi.</li>
+</ul>
+<h3>EKS</h3>
+<ul>
+<li>Node: managed node group, Fargate profile, <b>Karpenter</b> / Cluster Autoscaler, <b>EKS Auto Mode</b> (AWS quản lý node).</li>
+<li>Nâng cấp phiên bản: control plane trước, rồi add-on và node; có <b>upgrade insights</b> báo API sắp bị gỡ.</li>
+<li>Quan sát: control plane logging, Container Insights, Managed Prometheus / Grafana.</li>
+<li>Pod không lên: thiếu IP trong subnet (VPC CNI dùng IP của VPC), image pull lỗi, thiếu tài nguyên node, IAM (Pod Identity / IRSA).</li>
+</ul>
+<h3>Lambda</h3>
+<ul>
+<li><b>Throttles</b>: chạm concurrency của account (mặc định 1.000 / Region) hoặc <b>reserved concurrency</b> của hàm. <b>Provisioned concurrency</b> chống cold start (có thể scale theo lịch bằng Application Auto Scaling).</li>
+<li>Async invoke lỗi: retry 2 lần, gửi tới <b>DLQ</b> hoặc <b>on-failure destination</b>. Event source mapping (SQS, Kinesis): batch size, partial batch response, bisect batch, maximum retry, <code>IteratorAge</code>.</li>
+<li>Lambda trong VPC cần NAT / endpoint để gọi dịch vụ AWS; timeout do không ra được mạng là lỗi kinh điển.</li>
+<li>Version + alias, deploy an toàn qua CodeDeploy / SAM.</li>
+</ul>
+
 <h2 id="automation-huong-su-kien"><a href="#automation-huong-su-kien" class="anchor" aria-hidden="true">#</a>Automation hướng sự kiện</h2>
 <table>
 <tr><th>Cần</th><th>Giải pháp</th></tr>
@@ -68,9 +117,9 @@
 <div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Lambda mới cần được thử với 10% traffic trong 10 phút, nếu alarm lỗi kêu thì tự quay lại. Dùng gì?</p><div class="qo"><button type="button" class="opt" data-ok>CodeDeploy với cấu hình Canary10Percent10Minutes và CloudWatch alarm cho rollback</button><button type="button" class="opt">Tạo hai Lambda và chia bằng Route 53 weighted</button><button type="button" class="opt">Elastic Beanstalk immutable</button></div><p class="why" hidden>CodeDeploy hỗ trợ chuyển traffic canary giữa version qua alias, tự rollback theo alarm.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="soa-deploy-automation">Đánh dấu đã học xong bài này</button></div>
-  <nav class="pn"><a class="prev" href="soa-cloudformation.html"><small>Bài trước</small>CloudFormation, CDK và StackSets</a><a class="next" href="soa-security.html"><small>Bài tiếp theo</small>Bảo mật và tuân thủ trong vận hành</a></nav>
+  <nav class="pn"><a class="prev" href="soa-ami-sharing.html"><small>Bài trước</small>AMI, container image và chia sẻ tài nguyên</a><a class="next" href="soa-security.html"><small>Bài tiếp theo</small>IAM và bảo mật trong vận hành</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#chien-luoc-deploy">Chiến lược deploy</a><a href="#automation-huong-su-kien">Automation hướng sự kiện</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#chien-luoc-deploy">Chiến lược deploy</a><a href="#elastic-beanstalk-chi-tiet">Elastic Beanstalk chi tiết</a><a href="#codedeploy-chi-tiet">CodeDeploy chi tiết</a><a href="#container-va-serverless-o-goc-van-hanh">Container và serverless ở góc vận hành</a><a href="#automation-huong-su-kien">Automation hướng sự kiện</a></nav>
 </div>
 </body>
 </html>

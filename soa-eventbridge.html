@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · EventBridge: tự động hoá theo sự kiện · Ôn thi AWS</title>
+<meta name="description" content="Event bus, event pattern, target, input transformer, cross-account / cross-Region, Scheduler, Pipes, archive và replay, AWS Health, xử lý sự cố rule.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge" aria-current="page"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-eventbridge">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</span><span>Bài 03</span><span>50 phút</span></div>
+    <h1>EventBridge: tự động hoá theo sự kiện</h1>
+    <p class="lead">Event bus, event pattern, target, input transformer, cross-account / cross-Region, Scheduler, Pipes, archive và replay, AWS Health, xử lý sự cố rule.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Viết event pattern đúng</li><li>Ghép event với hành động khắc phục</li><li>Sửa rule không chạy</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="mo-hinh"><a href="#mo-hinh" class="anchor" aria-hidden="true">#</a>Mô hình</h2>
+<figure class="dg"><svg viewBox="0 0 1042.6400000000003 86" style="min-width:600px;max-width:1042.6400000000003px" role="img" aria-label="Event vào bus, rule lọc, target xử lý"><g class="nd ext"><rect x="10" y="10" width="462.80000000000007" height="66" rx="10"/><text x="241.40000000000003" y="40" class="tt" text-anchor="middle">Nguồn</text><text x="241.40000000000003" y="58" class="ts" text-anchor="middle">dịch vụ AWS, CloudTrail, ứng dụng (PutEvents), SaaS partner, lịch</text></g><line x1="474.80000000000007" y1="43" x2="538.8000000000001" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="542.8000000000001" y="10" width="187.28000000000003" height="66" rx="10"/><text x="636.44" y="40" class="tt" text-anchor="middle">Event bus</text><text x="636.44" y="58" class="ts" text-anchor="middle">default, custom, partner</text></g><line x1="732.0800000000002" y1="43" x2="888.4000000000002" y2="43" class="ln" marker-end="url(#ar)"/><text x="811.2400000000001" y="34" class="tl" text-anchor="middle">rule: event pattern</text><g class="nd go"><rect x="892.4000000000002" y="10" width="140.24" height="66" rx="10"/><text x="962.5200000000002" y="40" class="tt" text-anchor="middle">Target</text><text x="962.5200000000002" y="58" class="ts" text-anchor="middle">tối đa 5 mỗi rule</text></g></svg><figcaption>Event vào bus, rule lọc, target xử lý</figcaption></figure>
+<div class="code"><div class="code-h"><span>Cấu trúc một event (rút gọn)</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;version&quot;</span>: <span class="s">&quot;0&quot;</span>,
+  <span class="s">&quot;id&quot;</span>: <span class="s">&quot;a1b2...&quot;</span>,
+  <span class="s">&quot;detail-type&quot;</span>: <span class="s">&quot;EC2 Instance State-change Notification&quot;</span>,
+  <span class="s">&quot;source&quot;</span>: <span class="s">&quot;aws.ec2&quot;</span>,
+  <span class="s">&quot;account&quot;</span>: <span class="s">&quot;111122223333&quot;</span>,
+  <span class="s">&quot;time&quot;</span>: <span class="s">&quot;2026-11-03T09:00:00Z&quot;</span>,
+  <span class="s">&quot;region&quot;</span>: <span class="s">&quot;ap-southeast-1&quot;</span>,
+  <span class="s">&quot;resources&quot;</span>: [<span class="s">&quot;arn:aws:ec2:ap-southeast-1:111122223333:instance/i-0abc&quot;</span>],
+  <span class="s">&quot;detail&quot;</span>: { <span class="s">&quot;instance-id&quot;</span>: <span class="s">&quot;i-0abc&quot;</span>, <span class="s">&quot;state&quot;</span>: <span class="s">&quot;stopped&quot;</span> }
+}</code></pre></div>
+
+<h2 id="event-pattern"><a href="#event-pattern" class="anchor" aria-hidden="true">#</a>Event pattern</h2>
+<p>Pattern là JSON có cùng cấu trúc với event, giá trị là <b>mảng</b> các giá trị chấp nhận. Event khớp khi mọi trường trong pattern khớp.</p>
+<table>
+<tr><th>Kiểu lọc</th><th>Ví dụ</th></tr>
+<tr><td>Bằng một trong nhiều giá trị</td><td><code>"state": ["stopped", "terminated"]</code></td></tr>
+<tr><td>Tiền tố / hậu tố</td><td><code>"bucket": [{ "prefix": "logs-" }]</code>, <code>{ "suffix": ".jpg" }</code></td></tr>
+<tr><td>Phủ định</td><td><code>"state": [{ "anything-but": "running" }]</code></td></tr>
+<tr><td>Số</td><td><code>"severity": [{ "numeric": [">=", 7] }]</code></td></tr>
+<tr><td>Tồn tại / không</td><td><code>"errorCode": [{ "exists": true }]</code></td></tr>
+<tr><td>Wildcard</td><td><code>"eventName": [{ "wildcard": "Delete*" }]</code></td></tr>
+<tr><td>Không phân biệt hoa thường</td><td><code>{ "equals-ignore-case": "admin" }</code></td></tr>
+</table>
+<div class="code"><div class="code-h"><span>Bắt mọi API xoá security group hoặc mở cổng, ghi qua CloudTrail</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;source&quot;</span>: [<span class="s">&quot;aws.ec2&quot;</span>],
+  <span class="s">&quot;detail-type&quot;</span>: [<span class="s">&quot;AWS API Call via CloudTrail&quot;</span>],
+  <span class="s">&quot;detail&quot;</span>: {
+    <span class="s">&quot;eventSource&quot;</span>: [<span class="s">&quot;ec2.amazonaws.com&quot;</span>],
+    <span class="s">&quot;eventName&quot;</span>: [<span class="s">&quot;AuthorizeSecurityGroupIngress&quot;</span>, <span class="s">&quot;DeleteSecurityGroup&quot;</span>]
+  }
+}</code></pre></div>
+<aside class="prod"><p>Event "AWS API Call via CloudTrail" chỉ có với API <b>ghi</b> (không có Get / List / Describe) và chỉ khi có CloudTrail ghi management events. Dịch vụ global (IAM, STS global, CloudFront, Route 53, Organizations) sinh event ở <b>us-east-1</b>.</p></aside>
+
+<h2 id="target"><a href="#target" class="anchor" aria-hidden="true">#</a>Target</h2>
+<ul>
+<li>Lambda, SNS, SQS (kể cả FIFO), Kinesis Data Streams / Firehose, Step Functions, ECS task, Batch job, CodeBuild, CodePipeline, SSM Automation / Run Command / OpsItem, API Gateway, <b>API destination</b> (gọi HTTP endpoint bên ngoài có xác thực), event bus khác, CloudWatch Logs log group, Redshift, SageMaker Pipelines, Incident Manager...</li>
+<li><b>Quyền gọi target</b>: Lambda, SNS, SQS, Logs dùng <b>resource-based policy</b> cho <code>events.amazonaws.com</code>. Kinesis, Step Functions, ECS, SSM, event bus khác Region / account dùng <b>IAM role</b> gắn với rule.</li>
+<li><b>Input transformer</b>: lấy trường từ event (<code>InputPathsMap</code>) rồi ghép thành nội dung mới (<code>InputTemplate</code>). Ví dụ thông báo "Instance &lt;id&gt; vừa chuyển sang &lt;state&gt;".</li>
+<li><b>Retry policy</b> (mặc định thử lại 24 giờ, 185 lần) và <b>DLQ</b> (SQS) cho từng target.</li>
+</ul>
+
+<h2 id="cross-account-va-cross-region"><a href="#cross-account-va-cross-region" class="anchor" aria-hidden="true">#</a>Cross-account và cross-Region</h2>
+<ul>
+<li>Gửi event sang bus của account khác: target là ARN của bus đích, bus đích có <b>resource policy</b> cho phép account gửi (hoặc cả Organization bằng <code>aws:PrincipalOrgID</code>).</li>
+<li>Gửi sang Region khác: target là bus ở Region đích, rule cần IAM role.</li>
+<li>Mẫu gom sự kiện bảo mật / vận hành: mọi account gửi event về một bus trung tâm ở account vận hành.</li>
+<li><b>Global endpoints</b>: tự chuyển việc nhận event sang Region phụ khi Region chính lỗi (cho ứng dụng tự gửi event).</li>
+</ul>
+
+<h2 id="cac-thanh-phan-khac"><a href="#cac-thanh-phan-khac" class="anchor" aria-hidden="true">#</a>Các thành phần khác</h2>
+<table>
+<tr><th>Thành phần</th><th>Dùng khi</th></tr>
+<tr><td><b>EventBridge Scheduler</b></td><td>Hẹn giờ: cron / rate / một lần, có <b>time zone</b>, flexible time window, retry, DLQ, hàng triệu lịch. Gọi trực tiếp hơn 270 dịch vụ (universal target). Thay rule schedule kiểu cũ</td></tr>
+<tr><td><b>EventBridge Pipes</b></td><td>Nối một nguồn (SQS, Kinesis, DynamoDB Streams, MSK...) tới một đích, có lọc và làm giàu (enrichment bằng Lambda / Step Functions / API) mà không cần viết code kết nối</td></tr>
+<tr><td><b>Archive và replay</b></td><td>Lưu event để phát lại sau (khôi phục sau khi sửa lỗi xử lý, thử nghiệm)</td></tr>
+<tr><td><b>Schema registry</b></td><td>Tự phát hiện cấu trúc event, sinh code binding</td></tr>
+</table>
+
+<h2 id="event-hay-dung-cho-van-hanh"><a href="#event-hay-dung-cho-van-hanh" class="anchor" aria-hidden="true">#</a>Event hay dùng cho vận hành</h2>
+<table>
+<tr><th>Nguồn / detail-type</th><th>Tự động hoá</th></tr>
+<tr><td><code>aws.ec2</code> EC2 Instance State-change Notification</td><td>Thông báo / tự start lại máy bị stop</td></tr>
+<tr><td><code>aws.ec2</code> EC2 Spot Instance Interruption Warning</td><td>Còn 2 phút: drain, lưu trạng thái</td></tr>
+<tr><td><code>aws.autoscaling</code> EC2 Instance-terminate Lifecycle Action</td><td>Chạy việc dọn dẹp rồi CompleteLifecycleAction</td></tr>
+<tr><td><code>aws.cloudwatch</code> CloudWatch Alarm State Change</td><td>Gọi SSM Automation khắc phục</td></tr>
+<tr><td><code>aws.health</code> AWS Health Event</td><td>Lịch retire instance, sự cố dịch vụ, khoá IAM bị lộ (AWS_RISK_CREDENTIALS_EXPOSED)</td></tr>
+<tr><td><code>aws.config</code> Config Rules Compliance Change</td><td>Thông báo / sửa tài nguyên NON_COMPLIANT</td></tr>
+<tr><td><code>aws.guardduty</code> GuardDuty Finding</td><td>Cô lập instance</td></tr>
+<tr><td><code>aws.s3</code> Object Created (khi bucket bật gửi tới EventBridge)</td><td>Xử lý file mới, lọc phức tạp hơn S3 Event Notifications</td></tr>
+<tr><td><code>aws.ecs</code> ECS Task State Change</td><td>Báo khi task dừng bất thường</td></tr>
+<tr><td><code>aws.codepipeline</code> Pipeline Execution State Change</td><td>Báo deploy thất bại</td></tr>
+<tr><td><code>aws.trustedadvisor</code> Check Item Refresh Notification</td><td>Báo khi chạm service limit</td></tr>
+</table>
+
+<h2 id="aws-health"><a href="#aws-health" class="anchor" aria-hidden="true">#</a>AWS Health</h2>
+<ul>
+<li><b>AWS Health Dashboard</b> (Your account health): sự cố dịch vụ ảnh hưởng tới tài nguyên của bạn, thay đổi có lịch (bảo trì, retire phần cứng, hết hỗ trợ phiên bản RDS / EKS), thông báo tài khoản.</li>
+<li>API Health cần gói Business support trở lên; event qua EventBridge thì mọi account đều có.</li>
+<li><b>Organizational view</b>: xem Health event của mọi account từ management / delegated admin.</li>
+<li>Mẫu: Health event "scheduled retirement" → EventBridge → SSM Automation stop / start instance trong maintenance window.</li>
+</ul>
+
+<h2 id="rule-khong-chay-checklist"><a href="#rule-khong-chay-checklist" class="anchor" aria-hidden="true">#</a>Rule không chạy: checklist</h2>
+<ol>
+<li>Metric <code>TriggeredRules</code> = 0: pattern không khớp (sai hoa thường, thiếu mảng, sai <code>detail-type</code>), sai Region, event không tồn tại (thiếu CloudTrail, API là Describe).</li>
+<li><code>TriggeredRules</code> có nhưng <code>FailedInvocations</code> tăng: thiếu quyền gọi target (resource policy / role), target bị throttle, KMS của SQS / SNS không cho EventBridge.</li>
+<li>Dùng <b>sandbox</b> (Test event pattern) trên console để thử pattern với event mẫu.</li>
+<li>Gắn DLQ để xem event không gửi được và lý do.</li>
+</ol>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Rule EventBridge có metric TriggeredRules tăng nhưng SQS queue đích không nhận message. Queue mã hoá bằng customer managed KMS key. Cần sửa gì?</p><div class="qo"><button type="button" class="opt">Sửa event pattern</button><button type="button" class="opt" data-ok>Queue policy cho phép events.amazonaws.com gửi message, và key policy cho phép EventBridge dùng key (kms:GenerateDataKey, kms:Decrypt)</button><button type="button" class="opt">Bật long polling</button><button type="button" class="opt">Đổi sang FIFO queue</button></div><p class="why" hidden>Rule đã khớp, lỗi ở bước gửi tới target: thiếu quyền trên queue hoặc trên KMS key.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần chạy job báo cáo lúc 7 giờ sáng giờ Việt Nam mỗi thứ Hai, kể cả khi đổi múi giờ hệ thống, có retry 3 lần. Dịch vụ?</p><div class="qo"><button type="button" class="opt" data-ok>EventBridge Scheduler với cron và time zone Asia/Ho_Chi_Minh, retry policy</button><button type="button" class="opt">CloudWatch alarm</button><button type="button" class="opt">Rule schedule kiểu cũ (chỉ UTC) không cần đổi gì</button><button type="button" class="opt">SQS delay queue</button></div><p class="why" hidden>Scheduler hỗ trợ time zone và retry policy cho từng lịch.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội muốn tự động xử lý khi AWS phát hiện access key của một IAM user bị lộ công khai. Nguồn event?</p><div class="qo"><button type="button" class="opt">CloudTrail Insights</button><button type="button" class="opt" data-ok>AWS Health event AWS_RISK_CREDENTIALS_EXPOSED qua EventBridge</button><button type="button" class="opt">Config rule</button><button type="button" class="opt">Trusted Advisor</button></div><p class="why" hidden>AWS Health phát event khi phát hiện credential bị lộ, EventBridge gọi Lambda vô hiệu hoá key.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-eventbridge">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-cloudwatch-logs.html"><small>Bài trước</small>CloudWatch Logs, tracing và observability</a><a class="next" href="soa-ssm.html"><small>Bài tiếp theo</small>Systems Manager toàn tập</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#mo-hinh">Mô hình</a><a href="#event-pattern">Event pattern</a><a href="#target">Target</a><a href="#cross-account-va-cross-region">Cross-account và cross-Region</a><a href="#cac-thanh-phan-khac">Các thành phần khác</a><a href="#event-hay-dung-cho-van-hanh">Event hay dùng cho vận hành</a><a href="#aws-health">AWS Health</a><a href="#rule-khong-chay-checklist">Rule không chạy: checklist</a></nav>
+</div>
+</body>
+</html>

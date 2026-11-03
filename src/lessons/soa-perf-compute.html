@@ -1,72 +1,114 @@
-<h2>EC2: những thứ đề SOA hỏi sâu</h2>
-<h3>Status check</h3>
+<h2>Chọn instance đúng việc</h2>
 <table>
-<tr><th>Loại</th><th>Ý nghĩa</th><th>Xử lý</th></tr>
-<tr><td>System status check</td><td>Lỗi phía AWS: phần cứng, mạng, nguồn của máy chủ vật lý</td><td>Stop rồi Start (chuyển sang host khác), hoặc auto recovery. Reboot <b>không</b> chuyển host</td></tr>
-<tr><td>Instance status check</td><td>Lỗi bên trong máy: OS không khởi động, hết bộ nhớ, cấu hình mạng sai, file system hỏng</td><td>Reboot, sửa OS, xem System log / screenshot trên console</td></tr>
-<tr><td>Attached EBS status check</td><td>Volume EBS gắn vào không truy cập được</td><td>Kiểm tra volume, stop / start</td></tr>
-</table>
-<h3>Lỗi khi khởi chạy</h3>
-<ul>
-<li><code>InstanceLimitExceeded</code> / <code>VcpuLimitExceeded</code>: chạm service quota theo vCPU. Xin tăng quota qua Service Quotas.</li>
-<li><code>InsufficientInstanceCapacity</code>: AZ đó tạm hết loại máy. Đổi AZ, đổi instance type, thử lại sau, hoặc dùng <b>On-Demand Capacity Reservation</b> cho tải quan trọng.</li>
-<li>Instance chuyển ngay từ <code>pending</code> sang <code>terminated</code>: EBS snapshot hỏng, chạm giới hạn EBS, hoặc AMI cần KMS key mà role không có quyền giải mã.</li>
-</ul>
-<h3>Hiệu năng mạng và placement group</h3>
-<table>
-<tr><th>Placement group</th><th>Đặc điểm</th><th>Hợp với</th></tr>
-<tr><td><b>Cluster</b></td><td>Cùng một AZ, gần nhau, độ trễ cực thấp, băng thông cao</td><td>HPC, tính toán cần trao đổi dữ liệu giữa các node</td></tr>
-<tr><td><b>Spread</b></td><td>Mỗi instance trên một rack riêng, tối đa 7 instance mỗi AZ</td><td>Vài máy cực quan trọng không được hỏng cùng lúc</td></tr>
-<tr><td><b>Partition</b></td><td>Chia nhóm theo rack, tới 7 partition mỗi AZ, hàng trăm máy</td><td>Hadoop, Cassandra, Kafka (biết topology)</td></tr>
+<tr><th>Họ</th><th>Ví dụ</th><th>Hợp với</th></tr>
+<tr><td>General purpose</td><td>M7i, M7g, M8g, T3, T4g</td><td>Web, ứng dụng thông thường. T là burstable</td></tr>
+<tr><td>Compute optimized</td><td>C7i, C7g, C8g</td><td>Xử lý nặng CPU: batch, encode video, game server</td></tr>
+<tr><td>Memory optimized</td><td>R7i, R8g, X2, z1d</td><td>Database trong RAM, cache, phân tích</td></tr>
+<tr><td>Storage optimized</td><td>I4i, I7i, D3, Im4gn</td><td>IOPS cực cao trên instance store NVMe, data warehouse</td></tr>
+<tr><td>Accelerated</td><td>P5, G6, Inf2, Trn1</td><td>ML, đồ hoạ</td></tr>
 </table>
 <ul>
-<li><b>Enhanced networking</b> bằng ENA (tới 100 Gbps trở lên), <b>EFA</b> cho HPC / ML (bỏ qua kernel). Cần driver ENA trong AMI và instance type hỗ trợ.</li>
-<li>Thêm instance vào cluster placement group bị <code>InsufficientInstanceCapacity</code>: stop toàn bộ instance trong group rồi start lại cùng lúc.</li>
+<li>Hậu tố: <b>g</b> = Graviton (ARM, rẻ hơn khoảng 20%, hiệu năng / giá tốt), <b>i</b> = Intel, <b>a</b> = AMD, <b>d</b> = có instance store NVMe, <b>n</b> = mạng cao, <b>e</b> = thêm RAM / storage, <b>flex</b> = linh hoạt giá rẻ.</li>
+<li>Chuyển sang Graviton: AMI phải là ARM64, phần mềm phải hỗ trợ ARM.</li>
+<li>Đổi instance type: phải <b>stop</b> (EBS-backed), đổi, rồi start. Instance store mất dữ liệu khi stop.</li>
+<li><b>Nitro System</b>: nền tảng phần cứng hiện đại của EC2, cần driver <b>ENA</b> và <b>NVMe</b> trong AMI. Đổi từ dòng cũ (Xen, ví dụ M4) sang dòng Nitro (M5 trở lên) mà máy không khởi động: AMI thiếu driver ENA / NVMe.</li>
 </ul>
-<h3>Burstable (T-family)</h3>
-<p>T3 / T4g tích luỹ <b>CPU credit</b>. Hết credit (metric <code>CPUCreditBalance</code> về 0) thì CPU bị kìm xuống mức baseline, ứng dụng chậm hẳn. Cách sửa: bật <b>unlimited mode</b> (trả thêm khi vượt) hoặc đổi sang dòng M / C.</p>
 
-<h2>Auto Scaling ở góc nhìn vận hành</h2>
+<h2>Status check và khởi động lỗi</h2>
 <table>
-<tr><th>Loại policy</th><th>Cách hoạt động</th></tr>
-<tr><td><b>Target tracking</b></td><td>Giữ một metric quanh giá trị đích (CPU 50%, request mỗi target 1000). Dễ nhất, đề hay chọn</td></tr>
-<tr><td>Step scaling</td><td>Thêm / bớt số máy theo mức độ vượt ngưỡng của alarm</td></tr>
-<tr><td>Simple scaling</td><td>Kiểu cũ, chờ cooldown xong mới phản ứng tiếp</td></tr>
-<tr><td><b>Scheduled</b></td><td>Tải biết trước (8 giờ sáng thứ Hai)</td></tr>
-<tr><td><b>Predictive</b></td><td>Tự học chu kỳ tải hằng ngày / tuần và chuẩn bị máy trước</td></tr>
+<tr><th>Loại</th><th>Do</th><th>Xử lý</th></tr>
+<tr><td>System status check</td><td>Host vật lý: mất nguồn, mạng, phần cứng</td><td>Chờ AWS sửa, hoặc <b>stop / start</b> (chuyển host), hoặc auto recovery. Reboot không chuyển host</td></tr>
+<tr><td>Instance status check</td><td>Trong OS: kernel panic, cấu hình mạng sai, hết RAM, file system hỏng, fstab sai</td><td>Reboot; xem <b>Get system log</b>, <b>Get instance screenshot</b>; vào <b>EC2 Serial Console</b> để sửa khi máy không lên mạng; tháo volume gốc gắn vào máy cứu hộ để sửa (hoặc <b>EC2Rescue</b> / <code>AWSSupport-ExecuteEC2Rescue</code>)</td></tr>
+<tr><td>Attached EBS status check</td><td>EBS gắn vào không phản hồi</td><td>Kiểm tra volume, stop / start</td></tr>
 </table>
+<h3>Lỗi khi launch</h3>
+<table>
+<tr><th>Lỗi</th><th>Nguyên nhân / xử lý</th></tr>
+<tr><td><code>VcpuLimitExceeded</code> / <code>InstanceLimitExceeded</code></td><td>Chạm quota vCPU theo họ máy (On-Demand Standard, Spot...). Xin tăng qua <b>Service Quotas</b>, có thể đặt CloudWatch alarm trên usage</td></tr>
+<tr><td><code>InsufficientInstanceCapacity</code></td><td>AZ tạm hết loại máy đó. Thử AZ khác, loại máy khác, chờ; với tải quan trọng dùng <b>On-Demand Capacity Reservation</b></td></tr>
+<tr><td>Chuyển ngay sang <code>terminated</code></td><td>Chạm giới hạn EBS, snapshot hỏng, AMI / EBS mã hoá bằng KMS key mà người launch không có quyền <code>kms:CreateGrant</code> / <code>Decrypt</code></td></tr>
+<tr><td><code>InvalidKeyPair.NotFound</code></td><td>Key pair không có ở Region đó</td></tr>
+<tr><td>Không SSH được dù running</td><td>SG / NACL / route, sai user name (ec2-user, ubuntu), key sai quyền file (<code>chmod 400</code>), máy ở private subnet</td></tr>
+<tr><td>Hết IP trong subnet</td><td>Subnet nhỏ; tạo subnet lớn hơn</td></tr>
+</table>
+
+<h2>Mạng của EC2</h2>
 <ul>
-<li><b>Lifecycle hook</b>: tạm giữ instance ở <code>Pending:Wait</code> (cài phần mềm trước khi nhận tải) hoặc <code>Terminating:Wait</code> (đẩy log, rút khỏi cluster trước khi xoá). Kết hợp EventBridge → Lambda / SSM, xong gọi <code>CompleteLifecycleAction</code>.</li>
-<li><b>Warm pool</b>: giữ sẵn instance đã khởi tạo (ở trạng thái stopped) để scale-out nhanh với ứng dụng khởi động lâu.</li>
-<li><b>Instance refresh</b>: thay dần toàn bộ instance sang launch template mới (AMI mới), giữ tỉ lệ máy khoẻ tối thiểu.</li>
-<li><b>Health check</b> của ASG: mặc định chỉ EC2 status check. Bật <b>ELB health check</b> để thay máy khi ứng dụng chết mà OS còn sống.</li>
-<li><b>Health check grace period</b> quá ngắn: máy bị đánh dấu không khoẻ khi ứng dụng chưa kịp khởi động, ASG terminate và launch liên tục (vòng lặp). Tăng grace period.</li>
-<li>Muốn giữ một máy lại để điều tra: đặt <b>standby</b> hoặc <b>scale-in protection</b>, hoặc <b>suspend</b> process <code>ReplaceUnhealthy</code>, <code>Terminate</code>.</li>
-<li>Không launch được: launch template tham chiếu AMI đã xoá, key pair không tồn tại, security group ở VPC khác, hết quota.</li>
+<li>Băng thông phụ thuộc kích thước instance ("Up to 10 Gbps" nghĩa là có burst, baseline thấp hơn).</li>
+<li><b>Enhanced networking</b>: <b>ENA</b> (tới 100 / 200 Gbps), Intel 82599 VF (cũ). <b>EFA</b>: cho HPC / ML, giao tiếp bỏ qua kernel (OS-bypass), dùng với MPI / NCCL, trong cùng subnet / cluster placement group.</li>
+<li>Kiểm tra ENA bật: <code>ethtool -i eth0</code> driver là ena; thuộc tính <code>enaSupport</code> của instance.</li>
+<li>Metric ENA (qua <code>ethtool -S</code>, agent thu được): <code>bw_in_allowance_exceeded</code>, <code>pps_allowance_exceeded</code>, <code>conntrack_allowance_exceeded</code> cho biết đang bị giới hạn mạng của instance → nâng instance.</li>
+<li><b>Jumbo frames</b> (MTU 9001) trong VPC; ra Internet / qua VPN là 1500.</li>
+</ul>
+<h3>Placement group</h3>
+<table>
+<tr><th>Loại</th><th>Đặc điểm</th><th>Hợp với</th></tr>
+<tr><td><b>Cluster</b></td><td>Cùng AZ, gần nhau, độ trễ thấp nhất, 10 Gbps luồng đơn</td><td>HPC, tính toán liên kết chặt. Rủi ro: cùng hỏng</td></tr>
+<tr><td><b>Spread</b></td><td>Mỗi máy một rack riêng, tối đa 7 máy / AZ (rack-level)</td><td>Vài máy cực quan trọng</td></tr>
+<tr><td><b>Partition</b></td><td>Tối đa 7 partition / AZ, mỗi partition một nhóm rack, hàng trăm máy, metadata cho biết partition</td><td>Hadoop, Cassandra, Kafka</td></tr>
+</table>
+<p>Thêm máy vào cluster placement group bị thiếu capacity: stop hết máy trong group rồi start lại cùng lúc (để AWS tìm chỗ đủ cho cả nhóm), hoặc dùng cùng loại instance và launch một lần.</p>
+
+<h2>Burstable T-family</h2>
+<ul>
+<li>Mỗi kích thước có <b>baseline</b> (ví dụ t3.micro 10%). Dưới baseline thì tích <b>CPU credit</b>, trên baseline thì tiêu credit.</li>
+<li><b>Standard mode</b>: hết credit thì bị kìm về baseline (ứng dụng chậm hẳn). <b>Unlimited mode</b> (mặc định của T3 / T4g): được vượt, trả thêm phí nếu trung bình 24 giờ vượt baseline (<code>CPUSurplusCreditsCharged</code>).</li>
+<li>CPU cao liên tục → không hợp T-family, chuyển M / C.</li>
 </ul>
 
-<h2>Right-sizing và chi phí</h2>
+<h2>Mua máy và tiết kiệm</h2>
+<table>
+<tr><th>Cách mua</th><th>Ghi nhớ</th></tr>
+<tr><td>On-Demand</td><td>Linh hoạt, đắt nhất</td></tr>
+<tr><td><b>Savings Plans</b> (Compute / EC2 Instance)</td><td>Cam kết số tiền / giờ 1 hoặc 3 năm, giảm tới 66-72%. Compute SP áp cả Fargate, Lambda, mọi họ máy / Region</td></tr>
+<tr><td>Reserved Instances</td><td>Cam kết loại máy; Standard hoặc Convertible; Zonal RI có giữ capacity</td></tr>
+<tr><td><b>Spot</b></td><td>Rẻ tới 90%, bị thu hồi với cảnh báo 2 phút (event EventBridge, metadata <code>spot/instance-action</code>). Hợp batch, stateless, CI. Dùng <b>capacity-optimized</b> allocation, nhiều loại máy</td></tr>
+<tr><td>On-Demand Capacity Reservation</td><td>Giữ chỗ trong một AZ, trả tiền dù không chạy; kết hợp Savings Plans để giảm giá</td></tr>
+<tr><td>Dedicated Host / Instance</td><td>Giấy phép theo socket / core (BYOL), yêu cầu tuân thủ</td></tr>
+</table>
+
+<h2>Right-sizing</h2>
 <ul>
-<li><b>AWS Compute Optimizer</b>: phân tích metric 14 ngày, đề xuất loại instance, kích thước EBS, cấu hình Lambda, ASG phù hợp. Cần metric bộ nhớ (từ agent) để đề xuất chính xác hơn.</li>
-<li><b>Trusted Advisor</b>: kiểm tra instance chạy không tải, EBS không gắn, Elastic IP không dùng. Đầy đủ các check cần gói Business support trở lên.</li>
-<li>Tag tài nguyên (cost allocation tags) để chia chi phí theo dự án, kết hợp <b>Cost Explorer</b>, <b>AWS Budgets</b> (cảnh báo khi sắp vượt ngân sách).</li>
+<li><b>Compute Optimizer</b>: phân tích 14 ngày (tới 93 ngày với enhanced infrastructure metrics trả phí), đề xuất EC2, ASG, EBS, Lambda, ECS trên Fargate, RDS, license. Kết quả: Over-provisioned, Under-provisioned, Optimized. Bật cho cả Organization.</li>
+<li>Có metric RAM từ CloudWatch agent thì đề xuất chính xác hơn.</li>
+<li><b>Cost Explorer</b>: rightsizing recommendations, xem chi phí theo dịch vụ / tag / account. <b>Cost Optimization Hub</b>: gom mọi khuyến nghị tiết kiệm.</li>
+<li><b>Trusted Advisor</b>: low utilization EC2, idle load balancer, unassociated EIP, underutilized EBS.</li>
+<li><b>AWS Budgets</b>: cảnh báo theo chi phí / usage / RI coverage, có <b>budget actions</b> (tự áp SCP / IAM policy, dừng EC2 khi vượt ngân sách).</li>
+<li><b>Cost Anomaly Detection</b>: ML phát hiện chi phí tăng bất thường.</li>
 </ul>
 
-<quiz q="Ứng dụng web trên ASG sau ALB. Sau khi deploy bản mới, instance mới bị terminate và thay thế liên tục, dù log cho thấy ứng dụng khởi động mất khoảng 4 phút rồi chạy bình thường. Cách sửa?">
-- Chuyển ASG sang chỉ dùng EC2 health check
-+ Tăng health check grace period lên lớn hơn thời gian khởi động ứng dụng
-- Đổi sang instance type lớn hơn
-? ELB health check thất bại trong lúc ứng dụng còn đang khởi động. Grace period cho máy thời gian khởi động trước khi bị đánh giá.
+<h2>Kiểm tra từ bên trong</h2>
+<ul>
+<li>Instance metadata (IMDSv2): <code>TOKEN=$(curl -X PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")</code> rồi <code>curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id</code>.</li>
+<li><b>User data</b> chỉ chạy lần khởi động đầu (mặc định), log ở <code>/var/log/cloud-init-output.log</code>. Muốn chạy mỗi lần boot phải cấu hình cloud-init.</li>
+<li>Hibernate: lưu RAM xuống EBS gốc (phải mã hoá, đủ dung lượng), khởi động lại nhanh với trạng thái cũ.</li>
+</ul>
+
+<quiz q="Sau khi đổi instance type từ m4.large sang m6i.large, máy không qua được status check. Nguyên nhân có khả năng nhất?">
++ AMI / OS thiếu driver ENA hoặc NVMe cần cho nền tảng Nitro
+- m6i không hỗ trợ EBS
+- Hết credit CPU
+- Security group sai
+? Dòng Nitro dùng ENA cho mạng và NVMe cho EBS; OS cũ thiếu driver sẽ không khởi động / không có mạng.
 </quiz>
-<quiz q="Một instance báo StatusCheckFailed_System. Reboot không hết. Cách xử lý đúng?">
-+ Stop rồi Start instance (EBS-backed) để nó chạy trên host vật lý khác
-- Reboot thêm vài lần
-- Tạo lại từ AMI ở Region khác
-? Lỗi system check là lỗi host. Stop / Start chuyển instance sang host mới, reboot giữ nguyên host.
+<quiz q="Máy chủ không phản hồi mạng sau khi sửa file /etc/fstab, status check instance lỗi. Cách sửa nhanh nhất không cần tạo máy mới?">
+- Stop / start
++ Dùng EC2 Serial Console (hoặc tháo volume gốc gắn vào máy cứu hộ) để sửa fstab
+- Reboot nhiều lần
+- Restore từ snapshot cũ
+? Lỗi trong OS, máy không có mạng: Serial Console cho truy cập như cổng console vật lý.
 </quiz>
-<quiz q="Trước khi một instance bị scale-in, đội cần chép log ứng dụng trong máy lên S3. Giải pháp?">
-- Đặt cron chép log mỗi phút
-+ Lifecycle hook Terminating:Wait, EventBridge gọi SSM Run Command chép log, xong thì CompleteLifecycleAction
-- Tắt scale-in
-? Lifecycle hook giữ instance lại ở trạng thái chờ để làm việc dọn dẹp trước khi terminate.
+<quiz q="Batch xử lý video chạy mỗi đêm, có thể dừng và chạy lại, cần chi phí thấp nhất. Cách mua?">
+- Reserved Instance 3 năm
++ Spot Instances với nhiều instance type, chiến lược capacity-optimized
+- Dedicated Host
+- On-Demand Capacity Reservation
+? Tải chịu được gián đoạn là trường hợp lý tưởng của Spot.
+</quiz>
+<quiz q="Instance c5.large phục vụ API có metric ENA pps_allowance_exceeded tăng và độ trễ tăng, CPU chỉ 30%. Nên làm gì?">
++ Chuyển sang instance lớn hơn / dòng có mạng cao hơn vì đang chạm giới hạn packet-per-second
+- Thêm EBS gp3
+- Bật T3 Unlimited
+- Thêm security group
+? Allowance exceeded nghĩa là instance chạm giới hạn mạng của kích thước đó.
 </quiz>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Route 53 và tính sẵn sàng nhiều Region · Ôn thi AWS</title>
+<meta name="description" content="Hosted zone, record, alias, routing policy, health check, DNS failover, Application Recovery Controller, thiết kế Multi-AZ / Multi-Region.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53" aria-current="page"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-route53">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</span><span>Bài 09</span><span>50 phút</span></div>
+    <h1>Route 53 và tính sẵn sàng nhiều Region</h1>
+    <p class="lead">Hosted zone, record, alias, routing policy, health check, DNS failover, Application Recovery Controller, thiết kế Multi-AZ / Multi-Region.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn routing policy</li><li>Cấu hình health check và failover</li><li>Thiết kế sống sót khi mất AZ / Region</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="thanh-phan"><a href="#thanh-phan" class="anchor" aria-hidden="true">#</a>Thành phần</h2>
+<ul>
+<li><b>Hosted zone</b>: public (tên miền trên Internet) hoặc <b>private</b> (chỉ phân giải trong VPC đã liên kết; cần <code>enableDnsSupport</code> và <code>enableDnsHostnames</code>). Liên kết private zone với VPC ở account khác: tạo authorization rồi associate bằng CLI / API.</li>
+<li><b>Record</b>: A, AAAA, CNAME, MX, TXT, NS, SOA, SRV, CAA (CA nào được cấp chứng chỉ), PTR...</li>
+<li><b>Alias record</b>: tính năng riêng của Route 53, trỏ tới tài nguyên AWS (ELB, CloudFront, S3 website, API Gateway, VPC interface endpoint, Global Accelerator, record khác cùng zone). Dùng được ở <b>zone apex</b>, miễn phí truy vấn, tự cập nhật IP, có thể "evaluate target health". Không trỏ alias tới tên EC2.</li>
+<li><b>TTL</b>: thời gian resolver lưu cache. Hạ TTL trước khi đổi bản ghi. Alias không đặt TTL được (dùng TTL của đích).</li>
+<li>Đăng ký tên miền: Route 53 Domains; chuyển DNS sang Route 53 thì cập nhật <b>NS</b> ở nhà đăng ký đúng 4 name server của hosted zone.</li>
+<li><b>DNSSEC</b> signing cho public zone (KSK dùng KMS asymmetric key ở us-east-1); DNSSEC validation trên Resolver.</li>
+</ul>
+
+<h2 id="routing-policy"><a href="#routing-policy" class="anchor" aria-hidden="true">#</a>Routing policy</h2>
+<table>
+<tr><th>Policy</th><th>Hành vi</th><th>Dùng khi</th></tr>
+<tr><td>Simple</td><td>Trả một hoặc nhiều giá trị, client chọn ngẫu nhiên, không health check</td><td>Một tài nguyên</td></tr>
+<tr><td><b>Weighted</b></td><td>Chia theo trọng số (0-255); trọng số 0 để tạm ngừng</td><td>Canary, A/B, chuyển dần Region</td></tr>
+<tr><td><b>Latency</b></td><td>Trả Region có độ trễ thấp nhất tới người dùng</td><td>Ứng dụng đa Region</td></tr>
+<tr><td><b>Failover</b></td><td>Primary có health check; hỏng thì trả secondary</td><td>Active-passive, trang bảo trì trên S3</td></tr>
+<tr><td>Geolocation</td><td>Theo châu lục / quốc gia / bang của người dùng; cần record Default</td><td>Nội dung theo quốc gia, giấy phép</td></tr>
+<tr><td>Geoproximity</td><td>Theo khoảng cách địa lý, có bias kéo / đẩy traffic</td><td>Dịch chuyển tải giữa Region; dùng Traffic Flow</td></tr>
+<tr><td>Multivalue answer</td><td>Trả tới 8 bản ghi khoẻ ngẫu nhiên</td><td>Cân tải đơn giản phía client</td></tr>
+<tr><td>IP-based</td><td>Theo dải CIDR của resolver / client</td><td>Định tuyến theo nhà mạng</td></tr>
+</table>
+<p>Kết hợp nhiều policy thành cây quyết định bằng <b>Traffic Flow</b> (traffic policy), ví dụ latency giữa 2 Region, trong mỗi Region là failover.</p>
+
+<h2 id="health-check"><a href="#health-check" class="anchor" aria-hidden="true">#</a>Health check</h2>
+<table>
+<tr><th>Loại</th><th>Cách hoạt động</th></tr>
+<tr><td>Endpoint</td><td>Health checker ở khắp thế giới gọi IP / tên miền (HTTP, HTTPS, TCP) mỗi 30 giây (hoặc 10 giây, tính phí). Healthy khi trên 18% checker báo khoẻ. Tuỳ chọn tìm chuỗi trong 5.120 byte đầu của response</td></tr>
+<tr><td><b>Calculated</b></td><td>Kết hợp nhiều health check con (AND / OR / ít nhất N khoẻ)</td></tr>
+<tr><td><b>CloudWatch alarm</b></td><td>Theo trạng thái một alarm: dùng cho tài nguyên <b>private</b> (health checker không gọi được vào VPC) hoặc theo metric bất kỳ</td></tr>
+</table>
+<ul>
+<li>Firewall / SG phải cho phép dải IP của Route 53 health checker.</li>
+<li>Health check có metric trong CloudWatch (<code>HealthCheckStatus</code>) ở <b>us-east-1</b>, đặt alarm để báo khi endpoint chết.</li>
+<li>Alias tới ELB với <b>Evaluate target health = Yes</b>: không cần health check riêng, Route 53 dựa vào sức khoẻ target của ELB.</li>
+</ul>
+<aside class="prod"><p>"Failover cho tài nguyên trong private subnet" → health check theo <b>CloudWatch alarm</b>, vì health checker của Route 53 ở Internet không gọi được vào.</p></aside>
+
+<h2 id="route-53-application-recovery-controller-arc"><a href="#route-53-application-recovery-controller-arc" class="anchor" aria-hidden="true">#</a>Route 53 Application Recovery Controller (ARC)</h2>
+<ul>
+<li><b>Zonal shift</b>: chuyển traffic của ALB / NLB khỏi một AZ đang có vấn đề trong vài phút, bằng tay hoặc <b>zonal autoshift</b> (AWS tự chuyển khi phát hiện sự cố AZ).</li>
+<li><b>Routing control</b>: công tắc bật / tắt traffic tới từng Region (dựa trên cluster có độ sẵn sàng cao), có safety rules.</li>
+<li><b>Readiness check</b>: kiểm tra Region dự phòng có đủ capacity / cấu hình giống Region chính.</li>
+<li><b>Region switch</b>: kế hoạch chuyển Region được điều phối (plan, nhiều bước).</li>
+</ul>
+
+<h2 id="thiet-ke-song-sot-khi-mat-az-region"><a href="#thiet-ke-song-sot-khi-mat-az-region" class="anchor" aria-hidden="true">#</a>Thiết kế sống sót khi mất AZ / Region</h2>
+<table>
+<tr><th>Lớp</th><th>Multi-AZ</th><th>Multi-Region</th></tr>
+<tr><td>Compute</td><td>ASG trải 3 AZ, dư năng lực (static stability)</td><td>Hạ tầng dựng bằng IaC ở Region phụ (pilot light / warm standby)</td></tr>
+<tr><td>Load balancing</td><td>ALB / NLB nhiều AZ, zonal shift</td><td>Route 53 failover / latency, Global Accelerator</td></tr>
+<tr><td>Database</td><td>RDS Multi-AZ, Aurora replica ở AZ khác</td><td>Aurora Global Database, cross-Region read replica, DynamoDB Global Tables</td></tr>
+<tr><td>Storage</td><td>S3, EFS Regional mặc định nhiều AZ</td><td>S3 CRR, EFS replication, AWS Backup copy</td></tr>
+<tr><td>Mạng</td><td>NAT Gateway mỗi AZ</td><td>TGW inter-Region peering</td></tr>
+<tr><td>Cache</td><td>ElastiCache Multi-AZ</td><td>ElastiCache Global Datastore</td></tr>
+</table>
+<ul>
+<li><b>Static stability</b>: hệ thống không cần tạo thêm tài nguyên mới khi một AZ hỏng (vì lúc sự cố, control plane có thể chậm). Ví dụ: 3 AZ, mỗi AZ đủ 50% tải → mất một AZ vẫn còn 100%.</li>
+<li>Kiểm tra bằng <b>AWS Fault Injection Service</b> (FIS): gây lỗi có kiểm soát (dừng instance, ngắt AZ, tăng độ trễ) để thử khả năng chịu lỗi. <b>AWS Resilience Hub</b>: đánh giá ứng dụng theo RPO / RTO mục tiêu, gợi ý cải thiện.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Ứng dụng có endpoint nội bộ trong private subnet, cần Route 53 failover sang Region khác khi endpoint lỗi. Health check thế nào?</p><div class="qo"><button type="button" class="opt">Endpoint health check tới IP private</button><button type="button" class="opt" data-ok>Health check dựa trên CloudWatch alarm theo dõi sức khoẻ endpoint</button><button type="button" class="opt">Không cần health check</button><button type="button" class="opt">Calculated health check không có con</button></div><p class="why" hidden>Health checker của Route 53 không vào được VPC; dùng alarm làm tín hiệu sức khoẻ.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Một AZ đang gặp sự cố mạng làm tăng lỗi cho ALB. Cách nhanh nhất để ngừng gửi traffic vào AZ đó?</p><div class="qo"><button type="button" class="opt" data-ok>Route 53 ARC zonal shift cho ALB</button><button type="button" class="opt">Xoá subnet của AZ đó khỏi ALB và ASG</button><button type="button" class="opt">Đổi routing policy sang geolocation</button><button type="button" class="opt">Tắt cross-zone</button></div><p class="why" hidden>Zonal shift chuyển traffic khỏi AZ tạm thời, dễ đảo ngược.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Website dùng example.com (zone apex) cần trỏ tới ALB. Loại record?</p><div class="qo"><button type="button" class="opt">CNAME</button><button type="button" class="opt" data-ok>Alias A record tới ALB</button><button type="button" class="opt">A record với IP của ALB</button><button type="button" class="opt">NS record</button></div><p class="why" hidden>CNAME không dùng được ở apex, IP của ALB thay đổi. Alias giải quyết cả hai.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-route53">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-elb-asg.html"><small>Bài trước</small>Load balancer và Auto Scaling</a><a class="next" href="soa-backup-dr.html"><small>Bài tiếp theo</small>Backup và khôi phục thảm hoạ</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#thanh-phan">Thành phần</a><a href="#routing-policy">Routing policy</a><a href="#health-check">Health check</a><a href="#route-53-application-recovery-controller-arc">Route 53 Application Recovery Controller (ARC)</a><a href="#thiet-ke-song-sot-khi-mat-az-region">Thiết kế sống sót khi mất AZ / Region</a></nav>
+</div>
+</body>
+</html>

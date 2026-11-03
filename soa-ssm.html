@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Systems Manager toàn tập · Ôn thi AWS</title>
+<meta name="description" content="Managed node, Run Command, Automation runbook, Patch Manager, State Manager, Maintenance Windows, Session Manager, Parameter Store, Inventory, OpsCenter, Incident Manager, Distributor, Change Manager, hybrid activation.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm" aria-current="page"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-ssm">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</span><span>Bài 04</span><span>80 phút</span></div>
+    <h1>Systems Manager toàn tập</h1>
+    <p class="lead">Managed node, Run Command, Automation runbook, Patch Manager, State Manager, Maintenance Windows, Session Manager, Parameter Store, Inventory, OpsCenter, Incident Manager, Distributor, Change Manager, hybrid activation.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn đúng tính năng SSM cho từng việc</li><li>Vá lỗi máy chủ hàng loạt an toàn</li><li>Viết và chạy runbook tự khắc phục</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="systems-manager-la-gi"><a href="#systems-manager-la-gi" class="anchor" aria-hidden="true">#</a>Systems Manager là gì</h2>
+<p>AWS Systems Manager (SSM) là bộ công cụ để <b>quản lý máy chủ và vận hành ở quy mô lớn</b>: chạy lệnh, vá lỗi, giữ cấu hình, vào shell, lưu cấu hình, tự động hoá quy trình. Đây là dịch vụ được hỏi nhiều nhất trong SOA sau CloudWatch.</p>
+<figure class="dg"><svg viewBox="0 0 1215.52 288" style="min-width:600px;max-width:1215.52px" role="img" aria-label="Các nhóm tính năng của Systems Manager"><g class="nd go"><rect x="10" y="10" width="216.4" height="52" rx="10"/><text x="118.2" y="41" class="tt" text-anchor="middle">Node tools</text></g><text x="246.4" y="41" class="tl" text-anchor="start">Fleet Manager, Run Command, Session Manager, Patch Manager, State Manager, Inventory, Distributor, Compliance, Hybrid Activations</text><line x1="118.2" y1="62" x2="118.2" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="82" width="216.4" height="52" rx="10"/><text x="118.2" y="113" class="tt" text-anchor="middle">Change management</text></g><text x="246.4" y="113" class="tl" text-anchor="start">Automation, Maintenance Windows, Change Manager, Change Calendar, Quick Setup</text><line x1="118.2" y1="134" x2="118.2" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="154" width="216.4" height="52" rx="10"/><text x="118.2" y="185" class="tt" text-anchor="middle">Operations management</text></g><text x="246.4" y="185" class="tl" text-anchor="start">OpsCenter, Incident Manager, Explorer</text><line x1="118.2" y1="206" x2="118.2" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="10" y="226" width="216.4" height="52" rx="10"/><text x="118.2" y="257" class="tt" text-anchor="middle">Application tools</text></g><text x="246.4" y="257" class="tl" text-anchor="start">Parameter Store, AppConfig</text></svg><figcaption>Các nhóm tính năng của Systems Manager</figcaption></figure>
+
+<h2 id="managed-node-dieu-kien-bat-buoc"><a href="#managed-node-dieu-kien-bat-buoc" class="anchor" aria-hidden="true">#</a>Managed node: điều kiện bắt buộc</h2>
+<table>
+<tr><th>Điều kiện</th><th>Chi tiết</th></tr>
+<tr><td><b>SSM Agent</b></td><td>Có sẵn trên Amazon Linux 2 / 2023, Ubuntu, Windows Server AMI của AWS. AMI khác phải tự cài</td></tr>
+<tr><td><b>Quyền IAM</b></td><td>Instance profile có <code>AmazonSSMManagedInstanceCore</code>. Hoặc bật <b>Default Host Management Configuration</b> (DHMC): SSM tự cấp quyền cho mọi EC2 trong account / Region mà không cần gắn role</td></tr>
+<tr><td><b>Mạng</b></td><td>Gọi ra HTTPS 443 tới <code>ssm</code>, <code>ssmmessages</code>, <code>ec2messages</code>: qua Internet / NAT, hoặc <b>VPC interface endpoint</b> cho 3 dịch vụ đó (thêm <code>s3</code> gateway endpoint để tải patch / log, <code>kms</code> nếu mã hoá phiên, <code>logs</code> nếu ghi log)</td></tr>
+<tr><td>Máy on-premises / cloud khác</td><td><b>Hybrid activation</b>: tạo activation code + ID, cài agent, đăng ký. Máy có ID dạng <code>mi-xxxxxxxx</code>. Tier Advanced cần cho Session Manager trên máy hybrid với nhiều máy</td></tr>
+</table>
+<aside class="prod"><p>Máy không hiện trong Fleet Manager: kiểm tra đúng 3 điều trên theo thứ tự <b>agent → quyền → mạng</b>. Đáp án "mở cổng 22" hay "gắn Elastic IP" luôn sai: SSM không cần cổng vào nào.</p></aside>
+
+<h2 id="document-kich-ban-cua-ssm"><a href="#document-kich-ban-cua-ssm" class="anchor" aria-hidden="true">#</a>Document: "kịch bản" của SSM</h2>
+<ul>
+<li>Viết bằng JSON / YAML. Loại: <b>Command</b> (Run Command, State Manager), <b>Automation</b> (runbook), <b>Session</b>, <b>Package</b> (Distributor), <b>Policy</b>.</li>
+<li>Có sẵn hàng trăm document của AWS (tên bắt đầu <code>AWS-</code>, <code>AWSSupport-</code>, <code>AWSConfigRemediation-</code>, <code>AmazonCloudWatch-</code>). Tự viết document riêng và <b>chia sẻ</b> cho account khác hoặc công khai.</li>
+<li>Document hay gặp: <code>AWS-RunShellScript</code>, <code>AWS-RunPowerShellScript</code>, <code>AWS-RunPatchBaseline</code>, <code>AWS-ConfigureAWSPackage</code>, <code>AWS-UpdateSSMAgent</code>, <code>AWS-ApplyAnsiblePlaybooks</code>, <code>AWS-RestartEC2Instance</code>, <code>AWS-StopEC2Instance</code>, <code>AWS-CreateImage</code>, <code>AWS-UpdateLinuxAmi</code>, <code>AWSSupport-ResetAccess</code>, <code>AWSSupport-TroubleshootSSH</code>, <code>AWS-DisableIncomingSSHOnPort22</code>, <code>AWSConfigRemediation-EnableS3BucketEncryption</code>.</li>
+</ul>
+
+<h2 id="run-command"><a href="#run-command" class="anchor" aria-hidden="true">#</a>Run Command</h2>
+<ul>
+<li>Chạy một document Command trên nhiều máy <b>ngay bây giờ</b>, không cần SSH / RDP.</li>
+<li>Chọn máy: theo <b>tag</b>, theo resource group, chọn tay, hoặc tất cả.</li>
+<li><b>Rate control</b>: <b>concurrency</b> (số máy / % chạy cùng lúc) và <b>error threshold</b> (dừng khi số máy lỗi vượt ngưỡng).</li>
+<li>Output: xem trên console (giới hạn 2.500 ký tự), đầy đủ thì ghi về <b>S3</b> hoặc <b>CloudWatch Logs</b>.</li>
+<li>Thông báo khi xong / lỗi qua <b>SNS</b>, hoặc event trong EventBridge.</li>
+<li>Toàn bộ lệnh được ghi lại trong CloudTrail: ai chạy gì trên máy nào.</li>
+</ul>
+
+<h2 id="automation-runbook"><a href="#automation-runbook" class="anchor" aria-hidden="true">#</a>Automation (runbook)</h2>
+<ul>
+<li>Quy trình nhiều bước, chạy ở phía AWS (không cần agent cho các bước gọi API). Mỗi bước là một <b>action</b>: <code>aws:executeAwsApi</code>, <code>aws:runCommand</code>, <code>aws:executeScript</code> (Python / PowerShell), <code>aws:invokeLambdaFunction</code>, <code>aws:createImage</code>, <code>aws:waitForAwsResourceProperty</code>, <code>aws:branch</code>, <code>aws:approve</code> (chờ người duyệt), <code>aws:sleep</code>...</li>
+<li>Chạy bằng <b>role</b> (<code>AutomationAssumeRole</code>), không dùng quyền của người bấm: người vận hành chỉ cần quyền chạy runbook, không cần quyền trực tiếp lên tài nguyên.</li>
+<li>Cách kích hoạt: tay, theo lịch (State Manager / Maintenance Window), <b>EventBridge</b>, <b>CloudWatch alarm</b>, <b>Config remediation</b>, Change Manager.</li>
+<li>Chạy trên nhiều tài nguyên (rate control theo tag) và <b>nhiều account / Region</b> từ một account trung tâm (cần role <code>AWS-SystemsManager-AutomationExecutionRole</code> ở account đích).</li>
+<li>Ví dụ thực tế: <code>AWS-UpdateLinuxAmi</code> tạo AMI đã vá; runbook "khi đĩa đầy thì mở rộng EBS"; runbook của AWS Support chẩn đoán lỗi kết nối.</li>
+</ul>
+<div class="code"><div class="code-h"><span>Runbook rút gọn: snapshot volume rồi gắn tag</span><button class="copy" type="button">Sao chép</button></div><pre><code>schemaVersion: <span class="s">'0.3'</span>
+assumeRole: <span class="s">'{{ AutomationAssumeRole }}'</span>
+parameters:
+  VolumeId: { type: String }
+  AutomationAssumeRole: { type: String }
+mainSteps:
+  - name: createSnapshot
+    action: aws:executeAwsApi
+    inputs: { Service: ec2, Api: CreateSnapshot, VolumeId: <span class="s">'{{ VolumeId }}'</span> }
+    outputs:
+      - { Name: SnapshotId, Selector: $.SnapshotId, Type: String }
+  - name: waitDone
+    action: aws:waitForAwsResourceProperty
+    inputs:
+      Service: ec2
+      Api: DescribeSnapshots
+      SnapshotIds: [<span class="s">'{{ createSnapshot.SnapshotId }}'</span>]
+      PropertySelector: $.Snapshots[<span class="n">0</span>].State
+      DesiredValues: [completed]</code></pre></div>
+
+<h2 id="patch-manager"><a href="#patch-manager" class="anchor" aria-hidden="true">#</a>Patch Manager</h2>
+<table>
+<tr><th>Khái niệm</th><th>Giải thích</th></tr>
+<tr><td><b>Patch baseline</b></td><td>Quy tắc vá: hệ điều hành nào, phân loại (Security, Bugfix...), mức độ (Critical, Important), <b>auto-approve sau N ngày</b>, danh sách patch được duyệt / bị chặn tường minh, có vá cả ứng dụng không (Windows). Mỗi OS có baseline mặc định của AWS, có thể tạo baseline riêng và đặt làm mặc định</td></tr>
+<tr><td><b>Patch group</b></td><td>Gắn máy với baseline bằng tag key <code>Patch Group</code> (hoặc <code>PatchGroup</code>). Một máy chỉ thuộc một patch group, một patch group chỉ gắn một baseline cho mỗi OS</td></tr>
+<tr><td><b>Operation</b></td><td><code>Scan</code> (chỉ kiểm tra, báo cáo thiếu bản vá) hoặc <code>Install</code> (cài và có thể reboot). Tuỳ chọn <code>RebootOption</code>: RebootIfNeeded / NoReboot</td></tr>
+<tr><td><b>Patch policy</b> (Quick Setup)</td><td>Cách mới: một chính sách vá cho nhiều account / Region trong Organization, lịch scan và install riêng</td></tr>
+<tr><td><b>Compliance</b></td><td>Báo cáo máy nào thiếu bản vá gì, xuất ra S3 / xem ở Explorer, Security Hub</td></tr>
+</table>
+<p>Quy trình chuẩn: <b>Maintenance Window</b> (lịch, ví dụ Chủ nhật 2 giờ sáng, dài 3 giờ, dừng nhận việc mới trước khi hết 1 giờ) → target là patch group → task chạy <code>AWS-RunPatchBaseline</code> với Install → rate control 20% máy mỗi lần → output về S3.</p>
+<aside class="tip"><p>Muốn vá trên môi trường dev trước rồi mới tới prod với <b>đúng tập bản vá đã thử</b>: dùng baseline có <b>approval theo số ngày</b> giống nhau và chạy dev sớm hơn, hoặc chụp danh sách patch đã duyệt (approved patches) để prod dùng đúng danh sách đó.</p></aside>
+
+<h2 id="state-manager"><a href="#state-manager" class="anchor" aria-hidden="true">#</a>State Manager</h2>
+<ul>
+<li><b>Association</b>: "máy khớp điều kiện X phải luôn được áp document Y theo lịch Z". Máy mới khớp tag sẽ tự được áp.</li>
+<li>Ví dụ: luôn cài CloudWatch agent, luôn cập nhật SSM Agent, luôn chạy Ansible playbook, luôn bật firewall Windows, thu Inventory mỗi 30 phút.</li>
+<li>Khác Run Command: Run Command là chạy một lần, State Manager là <b>duy trì liên tục</b> (chống drift cấu hình).</li>
+</ul>
+
+<h2 id="maintenance-windows"><a href="#maintenance-windows" class="anchor" aria-hidden="true">#</a>Maintenance Windows</h2>
+<ul>
+<li>Định nghĩa khung giờ được phép làm việc gây gián đoạn: schedule (cron / rate), duration, cutoff (dừng bắt đầu task mới trước khi hết giờ), time zone.</li>
+<li><b>Target</b>: máy theo tag, resource group. <b>Task</b>: Run Command, Automation, Lambda, Step Functions, có priority và rate control.</li>
+<li>Dùng cho: vá lỗi, chụp AMI, chạy script bảo trì, khởi động lại dịch vụ.</li>
+</ul>
+
+<h2 id="session-manager"><a href="#session-manager" class="anchor" aria-hidden="true">#</a>Session Manager</h2>
+<ul>
+<li>Vào shell (Linux) / PowerShell (Windows) qua console hoặc CLI (<code>aws ssm start-session</code>), <b>không mở cổng vào, không bastion, không key SSH</b>.</li>
+<li>Kiểm soát bằng IAM: ai được mở phiên tới máy nào (theo tag), được chạy document phiên nào.</li>
+<li>Ghi log toàn bộ phiên về <b>S3</b> và / hoặc <b>CloudWatch Logs</b>, mã hoá phiên bằng <b>KMS</b>. CloudTrail ghi <code>StartSession</code>.</li>
+<li><b>Port forwarding</b>: chuyển tiếp cổng tới máy, hoặc tới host khác qua máy đó (ví dụ vào RDS trong private subnet từ laptop). Dùng được với <code>ssh</code> / <code>scp</code> qua ProxyCommand.</li>
+<li>Chạy với user <code>ssm-user</code> mặc định, cấu hình <b>Run As</b> để chạy bằng user OS khác (theo tag của IAM principal).</li>
+<li>Giới hạn thời gian phiên rảnh (idle timeout), tối đa thời gian phiên.</li>
+</ul>
+
+<h2 id="parameter-store"><a href="#parameter-store" class="anchor" aria-hidden="true">#</a>Parameter Store</h2>
+<table>
+<tr><th></th><th>Standard</th><th>Advanced</th></tr>
+<tr><td>Số parameter</td><td>10.000</td><td>100.000</td></tr>
+<tr><td>Kích thước</td><td>4 KB</td><td>8 KB</td></tr>
+<tr><td>Parameter policies (Expiration, ExpirationNotification, NoChangeNotification)</td><td>Không</td><td>Có</td></tr>
+<tr><td>Chia sẻ cross-account (RAM)</td><td>Không</td><td>Có</td></tr>
+<tr><td>Phí</td><td>Miễn phí lưu</td><td>Tính phí</td></tr>
+</table>
+<ul>
+<li>Kiểu: <code>String</code>, <code>StringList</code>, <code>SecureString</code> (mã hoá KMS, dùng key mặc định <code>aws/ssm</code> hoặc customer managed key).</li>
+<li>Cấu trúc phân cấp: <code>/myapp/prod/db/url</code>. Lấy cả nhánh bằng <code>GetParametersByPath</code>. Phân quyền IAM theo đường dẫn.</li>
+<li>Có lịch sử phiên bản, nhãn (label), có event trong EventBridge khi đổi.</li>
+<li><b>Public parameters</b> của AWS: ID AMI mới nhất (<code>/aws/service/ami-amazon-linux-latest/...</code>), danh sách Region, dịch vụ. Dùng trong CloudFormation để luôn lấy AMI mới.</li>
+<li>Đọc secret của Secrets Manager qua Parameter Store: <code>/aws/reference/secretsmanager/&lt;tên&gt;</code>.</li>
+<li>Throughput mặc định thấp, bật <b>higher throughput</b> (tính phí) nếu ứng dụng đọc nhiều; tốt hơn là cache trong ứng dụng.</li>
+</ul>
+
+<h2 id="cac-tinh-nang-con-lai"><a href="#cac-tinh-nang-con-lai" class="anchor" aria-hidden="true">#</a>Các tính năng còn lại</h2>
+<table>
+<tr><th>Tính năng</th><th>Dùng khi</th></tr>
+<tr><td><b>Inventory</b></td><td>Thu danh sách phần mềm, bản vá, file, cấu hình mạng, dịch vụ Windows, registry. <b>Resource Data Sync</b> gom inventory nhiều account / Region về S3, truy vấn bằng Athena, xem bằng QuickSight</td></tr>
+<tr><td><b>Fleet Manager</b></td><td>Giao diện quản lý máy: xem file, process, log, user, ổ đĩa, kết nối RDP từ console</td></tr>
+<tr><td><b>Distributor</b></td><td>Đóng gói phần mềm (agent bảo mật bên thứ ba) để cài / cập nhật hàng loạt</td></tr>
+<tr><td><b>OpsCenter</b></td><td>Gom sự cố vận hành thành <b>OpsItem</b> (từ CloudWatch alarm, EventBridge, Config, Security Hub), xem tài nguyên liên quan và chạy runbook khắc phục ngay trong OpsItem</td></tr>
+<tr><td><b>Incident Manager</b></td><td>Quy trình trực sự cố: response plan, gọi người trực (on-call schedule, escalation), kênh chat, runbook, post-incident analysis</td></tr>
+<tr><td><b>Explorer</b></td><td>Dashboard tổng hợp OpsItem, compliance bản vá, Trusted Advisor...</td></tr>
+<tr><td><b>Change Manager</b></td><td>Quy trình phê duyệt thay đổi (change request, template, approver), chạy runbook khi được duyệt</td></tr>
+<tr><td><b>Change Calendar</b></td><td>Chặn các automation chạy trong giai đoạn đóng băng (Tết, Black Friday)</td></tr>
+<tr><td><b>AppConfig</b></td><td>Đẩy cấu hình / feature flag cho ứng dụng từ từ, có validator và tự rollback theo alarm</td></tr>
+<tr><td><b>Quick Setup</b></td><td>Bật nhanh cấu hình khuyến nghị (DHMC, patch policy, Inventory, CloudWatch agent) cho cả Organization</td></tr>
+<tr><td><b>Compliance</b></td><td>Trạng thái tuân thủ bản vá và association</td></tr>
+</table>
+
+<h2 id="tu-dong-khac-phuc-cac-mau-hay-gap"><a href="#tu-dong-khac-phuc-cac-mau-hay-gap" class="anchor" aria-hidden="true">#</a>Tự động khắc phục: các mẫu hay gặp</h2>
+<table>
+<tr><th>Tình huống</th><th>Giải pháp</th></tr>
+<tr><td>Dịch vụ trong máy chết</td><td>Agent procstat → alarm pid_count = 0 → EventBridge → Run Command restart service</td></tr>
+<tr><td>Ổ đĩa sắp đầy</td><td>Alarm disk_used_percent → Automation: ModifyVolume tăng dung lượng, chờ optimizing, Run Command mở rộng file system</td></tr>
+<tr><td>Security group mở 22 ra Internet</td><td>Config rule <code>restricted-ssh</code> → remediation <code>AWS-DisableIncomingSSHOnPort22</code></td></tr>
+<tr><td>Bucket S3 không mã hoá</td><td>Config rule → <code>AWSConfigRemediation-EnableS3BucketEncryption</code></td></tr>
+<tr><td>Instance lên lịch retire</td><td>Health event → Automation stop / start trong maintenance window</td></tr>
+<tr><td>Máy mới cần cài phần mềm chuẩn</td><td>State Manager association theo tag</td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội muốn vá OS cho 500 máy ở 12 account, mỗi tuần, có báo cáo tập trung, ít công sức nhất. Giải pháp?</p><div class="qo"><button type="button" class="opt">Maintenance Window trong từng account</button><button type="button" class="opt" data-ok>Patch policy bằng Systems Manager Quick Setup cho Organization</button><button type="button" class="opt">Cron job trong từng máy</button><button type="button" class="opt">Inspector tự vá</button></div><p class="why" hidden>Patch policy của Quick Setup áp lịch vá cho nhiều account / Region từ một nơi, có báo cáo compliance tập trung.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Người vận hành cần chạy runbook khởi động lại EC2 production nhưng không được có quyền ec2:RebootInstances trực tiếp. Cách thiết kế?</p><div class="qo"><button type="button" class="opt" data-ok>Runbook dùng AutomationAssumeRole có quyền reboot, người vận hành chỉ được ssm:StartAutomationExecution cho runbook đó</button><button type="button" class="opt">Cấp quyền ec2:* có MFA</button><button type="button" class="opt">Dùng Session Manager để reboot</button><button type="button" class="opt">Dùng root account</button></div><p class="why" hidden>Automation chạy bằng role riêng, tách quyền của người kích hoạt khỏi quyền thực hiện.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Developer cần kết nối từ laptop tới RDS trong private subnet để gỡ lỗi, không có VPN, không bastion mở cổng. Cách làm?</p><div class="qo"><button type="button" class="opt">Mở RDS ra public</button><button type="button" class="opt" data-ok>Session Manager port forwarding tới host RDS thông qua một EC2 managed node trong VPC</button><button type="button" class="opt">Dùng VPC peering</button><button type="button" class="opt">Dùng EC2 Instance Connect với cổng 22 mở ra Internet</button></div><p class="why" hidden>Session Manager hỗ trợ port forwarding tới host từ xa (AWS-StartPortForwardingSessionToRemoteHost) mà không mở cổng vào.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Máy chủ on-premises cần được quản lý bằng Run Command và Patch Manager như EC2. Bước cần làm?</p><div class="qo"><button type="button" class="opt" data-ok>Tạo hybrid activation, cài SSM Agent trên máy và đăng ký bằng activation code / ID, gán IAM service role cho activation</button><button type="button" class="opt">Cài CloudWatch agent</button><button type="button" class="opt">Tạo VPN rồi gắn instance profile</button><button type="button" class="opt">Dùng Direct Connect</button></div><p class="why" hidden>Hybrid activation biến máy ngoài AWS thành managed node (ID mi-...).</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-ssm">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-eventbridge.html"><small>Bài trước</small>EventBridge: tự động hoá theo sự kiện</a><a class="next" href="soa-perf-compute.html"><small>Bài tiếp theo</small>EC2: chẩn đoán và tối ưu</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#systems-manager-la-gi">Systems Manager là gì</a><a href="#managed-node-dieu-kien-bat-buoc">Managed node: điều kiện bắt buộc</a><a href="#document-kich-ban-cua-ssm">Document: &quot;kịch bản&quot; của SSM</a><a href="#run-command">Run Command</a><a href="#automation-runbook">Automation (runbook)</a><a href="#patch-manager">Patch Manager</a><a href="#state-manager">State Manager</a><a href="#maintenance-windows">Maintenance Windows</a><a href="#session-manager">Session Manager</a><a href="#parameter-store">Parameter Store</a><a href="#cac-tinh-nang-con-lai">Các tính năng còn lại</a><a href="#tu-dong-khac-phuc-cac-mau-hay-gap">Tự động khắc phục: các mẫu hay gặp</a></nav>
+</div>
+</body>
+</html>

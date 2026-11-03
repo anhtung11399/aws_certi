@@ -1,0 +1,123 @@
+<h2>Cấu trúc CloudWatch Logs</h2>
+<table>
+<tr><th>Thành phần</th><th>Giải thích</th></tr>
+<tr><td><b>Log event</b></td><td>Một dòng log: timestamp + nội dung (tối đa 1 MB)</td></tr>
+<tr><td><b>Log stream</b></td><td>Chuỗi event từ một nguồn: một instance, một container, một lần chạy Lambda</td></tr>
+<tr><td><b>Log group</b></td><td>Nhóm stream cùng loại, nơi đặt <b>retention</b>, <b>KMS key</b>, <b>metric filter</b>, <b>subscription filter</b>, quyền truy cập</td></tr>
+<tr><td><b>Log class</b></td><td><b>Standard</b> (đầy đủ tính năng) hoặc <b>Infrequent Access</b> (rẻ hơn khoảng 50% khi ingest, không có metric filter / Live Tail / subscription đầy đủ, vẫn query bằng Logs Insights)</td></tr>
+</table>
+<ul>
+<li>Retention mặc định <b>Never expire</b>: tốn tiền dần. Đặt retention (1 ngày tới 10 năm) cho mọi log group. Kiểm tra bằng Config rule <code>cw-loggroup-retention-period-check</code>.</li>
+<li>Mã hoá: luôn được mã hoá bởi AWS. Muốn tự kiểm soát key: gắn KMS key, key policy cho <code>logs.&lt;region&gt;.amazonaws.com</code> với điều kiện <code>kms:EncryptionContext:aws:logs:arn</code>.</li>
+<li><b>Data protection policy</b>: tự phát hiện và che (mask) dữ liệu nhạy cảm trong log (email, số thẻ, khoá AWS). Người có quyền <code>logs:Unmask</code> mới xem được bản gốc.</li>
+</ul>
+
+<h2>Nguồn log hay gặp</h2>
+<table>
+<tr><th>Nguồn</th><th>Cách đưa vào CloudWatch Logs</th></tr>
+<tr><td>File log trên EC2 / on-premises</td><td>CloudWatch agent (mục <code>logs</code> trong cấu hình)</td></tr>
+<tr><td>Lambda</td><td>Tự động (cần quyền logs trong execution role). Có thể chọn JSON log format và log level</td></tr>
+<tr><td>ECS / Fargate</td><td>Log driver <code>awslogs</code> hoặc <b>FireLens</b> (Fluent Bit) để lọc / đẩy nhiều đích</td></tr>
+<tr><td>EKS</td><td>Control plane logging (api, audit, authenticator...) bật ở cluster; log container qua Fluent Bit / Container Insights</td></tr>
+<tr><td>VPC Flow Logs, Route 53 Resolver query logs, CloudTrail</td><td>Chọn đích là CloudWatch Logs (hoặc S3, Firehose)</td></tr>
+<tr><td>API Gateway</td><td>Execution logs và access logs (cần role ở cấp account)</td></tr>
+<tr><td>RDS</td><td>Bật "log exports" (error, slow query, general, audit, postgresql)</td></tr>
+<tr><td>Session Manager</td><td>Session logging tới CloudWatch Logs / S3</td></tr>
+</table>
+
+<h2>Metric filter</h2>
+<ul>
+<li>Biến log thành metric: đếm số dòng khớp, hoặc trích một giá trị số trong log (ví dụ thời gian xử lý).</li>
+<li>Cú pháp mẫu: chuỗi đơn giản <code>"ERROR"</code>, nhiều từ <code>"ERROR" "payment"</code> (AND), <code>?ERROR ?WARN</code> (OR), JSON <code>{ $.status = 500 }</code>, khoảng trắng <code>[ip, user, ..., status=5*, size]</code>.</li>
+<li>Đặt <b>default value</b> (ví dụ 0) để metric có điểm dữ liệu cả khi không có dòng khớp, tránh alarm ở INSUFFICIENT_DATA.</li>
+<li>Chỉ xử lý log <b>mới</b> sau khi tạo filter. Muốn phân tích dữ liệu cũ dùng Logs Insights.</li>
+<li>Mẫu kinh điển (CIS): CloudTrail → CloudWatch Logs → metric filter cho <code>ConsoleLogin</code> thất bại, đổi security group, dùng root → alarm → SNS.</li>
+</ul>
+
+<h2>Logs Insights</h2>
+<pre lang="text" file="Ví dụ truy vấn">
+# Top 20 request chậm nhất trong log JSON của API
+fields @timestamp, path, duration
+| filter duration > 1000
+| sort duration desc
+| limit 20
+
+# Số lỗi theo từng phút
+filter @message like /ERROR/
+| stats count(*) as errors by bin(1m)
+
+# Lambda: thời gian chạy và bộ nhớ dùng
+filter @type = "REPORT"
+| stats avg(@duration), max(@maxMemoryUsed / 1000 / 1000) as maxMB by bin(5m)
+
+# Tách trường từ log văn bản
+parse @message "user=* action=*" as user, action
+| stats count(*) by action
+</pre>
+<ul>
+<li>Truy vấn được nhiều log group cùng lúc (tới 50), kể cả từ nhiều account qua cross-account observability.</li>
+<li>Hỗ trợ cả cú pháp <b>OpenSearch PPL / SQL</b>. Có trợ lý viết truy vấn bằng ngôn ngữ tự nhiên.</li>
+<li>Lưu truy vấn, đưa kết quả lên dashboard. Tính tiền theo lượng dữ liệu quét: thu hẹp khoảng thời gian.</li>
+<li><b>Contributor Insights</b>: tìm "ai đóng góp nhiều nhất" (top IP, top URL lỗi) liên tục, có metric và alarm. <b>Pattern analysis</b>: tự gom log thành mẫu để thấy lỗi lạ.</li>
+<li><b>Live Tail</b>: xem log trực tiếp khi gỡ lỗi.</li>
+</ul>
+
+<h2>Đưa log đi nơi khác</h2>
+<table>
+<tr><th>Cách</th><th>Độ trễ</th><th>Dùng khi</th></tr>
+<tr><td><b>Subscription filter</b> → Kinesis Data Streams / Firehose / Lambda / OpenSearch</td><td>Gần thời gian thực</td><td>Phân tích liên tục, SIEM, gom nhiều account về account trung tâm (destination + resource policy). Mỗi log group tối đa 2 subscription filter</td></tr>
+<tr><td><b>Account-level subscription</b></td><td>Gần thời gian thực</td><td>Một cấu hình cho mọi log group của account</td></tr>
+<tr><td><b>Export to S3</b> (CreateExportTask)</td><td>Tới 12 giờ</td><td>Lưu trữ lô, không cần thời gian thực. Bucket không được mã hoá SSE-KMS kiểu cũ trong một số trường hợp, cần bucket policy cho logs</td></tr>
+<tr><td>Firehose → S3 → lifecycle Glacier</td><td>Vài phút</td><td>Lưu lâu năm rẻ nhất</td></tr>
+</table>
+<aside class="prod"><p>"Gom log của nhiều account về một account log trung tâm <b>gần thời gian thực</b>" → subscription filter + cross-account destination (Kinesis / Firehose). "Lưu log 7 năm chi phí thấp" → đưa sang S3 + lifecycle Glacier, đặt retention ngắn cho log group.</p></aside>
+
+<h2>Tracing và giám sát ứng dụng</h2>
+<table>
+<tr><th>Công cụ</th><th>Trả lời câu hỏi</th></tr>
+<tr><td><b>AWS X-Ray</b></td><td>Một request đi qua API Gateway, Lambda, DynamoDB, dịch vụ ngoài... chậm ở đâu, lỗi ở đâu. Service map, trace, segment / subsegment, sampling rule. Cần SDK / OpenTelemetry trong ứng dụng, X-Ray daemon / agent trên EC2 / ECS, bật active tracing cho Lambda và API Gateway</td></tr>
+<tr><td><b>CloudWatch Application Signals</b></td><td>APM tự động (dựa trên OpenTelemetry): latency, lỗi, SLO cho từng dịch vụ và từng API mà ít phải sửa code</td></tr>
+<tr><td><b>CloudWatch Synthetics</b></td><td>Canary (script Node.js / Python, Puppeteer / Selenium) chạy theo lịch, mô phỏng người dùng: kiểm tra trang còn sống, luồng đăng nhập, API, liên kết hỏng, so sánh ảnh chụp</td></tr>
+<tr><td><b>CloudWatch RUM</b></td><td>Đo trải nghiệm người dùng thật trên trình duyệt: thời gian tải trang, lỗi JavaScript</td></tr>
+<tr><td><b>Container Insights</b></td><td>Metric CPU / RAM / mạng theo cluster, service, task, pod (ECS, EKS, Kubernetes trên EC2)</td></tr>
+<tr><td><b>Lambda Insights</b></td><td>Metric chi tiết của Lambda (CPU, RAM, cold start) qua Lambda extension</td></tr>
+<tr><td><b>Internet Monitor</b> / <b>Network Monitor</b></td><td>Chất lượng Internet tới người dùng ở các vùng / chất lượng kết nối hybrid</td></tr>
+<tr><td><b>Amazon Managed Service for Prometheus</b></td><td>Prometheus được quản lý cho EKS / Kubernetes, truy vấn PromQL</td></tr>
+<tr><td><b>Amazon Managed Grafana</b></td><td>Grafana được quản lý, đăng nhập bằng Identity Center, nguồn dữ liệu CloudWatch, Prometheus, X-Ray, OpenSearch...</td></tr>
+<tr><td><b>CloudWatch Investigations</b> / Amazon Q</td><td>Trợ lý AI gợi ý nguyên nhân khi có sự cố dựa trên metric, log, trace, thay đổi gần đây</td></tr>
+</table>
+<aside class="tip"><p>Phân biệt nhanh: <b>Synthetics</b> = người dùng giả chạy theo lịch (biết lỗi trước khi khách gặp). <b>RUM</b> = người dùng thật. <b>X-Ray / Application Signals</b> = bên trong hệ thống chậm ở đâu.</p></aside>
+
+<h2>CloudTrail cho đội vận hành</h2>
+<ul>
+<li><b>Event history</b>: 90 ngày management events, miễn phí, mọi Region, tra theo user, tên sự kiện, tài nguyên.</li>
+<li><b>Trail</b>: lưu lâu dài về S3 (và CloudWatch Logs). Trail multi-Region, organization trail.</li>
+<li>Management events (mặc định), <b>data events</b> (S3 object, Lambda invoke, DynamoDB item: phải bật, tính phí), <b>Insights events</b> (phát hiện số API call / lỗi bất thường, ví dụ ai đó gọi TerminateInstances hàng loạt).</li>
+<li><b>CloudTrail Lake</b>: kho event truy vấn bằng SQL, giữ tới 10 năm.</li>
+<li>Trả lời câu "ai đã làm X lúc nào": tìm trong Event history hoặc dùng Athena / CloudTrail Lake trên trail.</li>
+<li>Trường hữu ích: <code>userIdentity</code>, <code>eventName</code>, <code>sourceIPAddress</code>, <code>userAgent</code>, <code>errorCode</code> (AccessDenied), <code>requestParameters</code>.</li>
+<li>Kết hợp <b>Config</b>: Config cho biết cấu hình <b>trước và sau</b>, CloudTrail cho biết <b>ai</b> đổi.</li>
+</ul>
+
+<quiz q="Cần đếm số giao dịch thất bại từ log JSON có trường status và tạo alarm, kể cả các phút không có giao dịch nào. Chọn 2 cấu hình.">
++ Metric filter với pattern { $.status = "FAILED" }
++ Default value của metric filter là 0
+- Subscription filter tới Lambda
+- Export to S3
+- Contributor Insights
+? Metric filter biến log thành metric, default value 0 giúp có điểm dữ liệu khi không có lỗi.
+</quiz>
+<quiz q="Website bán hàng muốn biết luồng thanh toán bị lỗi trước khi khách hàng phàn nàn, kể cả lúc nửa đêm không có khách. Dùng gì?">
+- CloudWatch RUM
++ CloudWatch Synthetics canary chạy luồng thanh toán mỗi 5 phút
+- X-Ray
+- ALB access logs
+? Canary là người dùng giả chạy theo lịch, phát hiện lỗi cả khi không có lưu lượng thật.
+</quiz>
+<quiz q="Đội muốn che số thẻ tín dụng xuất hiện nhầm trong log ứng dụng để người đọc log không thấy. Tính năng?">
++ CloudWatch Logs data protection policy
+- Metric filter
+- KMS encryption cho log group
+- Log class Infrequent Access
+? Data protection policy tự phát hiện và mask dữ liệu nhạy cảm, chỉ người có logs:Unmask xem được.
+</quiz>

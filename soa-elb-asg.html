@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Load balancer và Auto Scaling · Ôn thi AWS</title>
+<meta name="description" content="ALB / NLB / GWLB, target group, health check, mã lỗi, access log, stickiness, cross-zone, TLS; ASG: policy, lifecycle hook, warm pool, instance refresh, health check, xử lý sự cố.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg" aria-current="page"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-elb-asg">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</span><span>Bài 08</span><span>70 phút</span></div>
+    <h1>Load balancer và Auto Scaling</h1>
+    <p class="lead">ALB / NLB / GWLB, target group, health check, mã lỗi, access log, stickiness, cross-zone, TLS; ASG: policy, lifecycle hook, warm pool, instance refresh, health check, xử lý sự cố.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đọc mã lỗi ELB và tìm nguyên nhân</li><li>Cấu hình scaling đúng cho từng kiểu tải</li><li>Sửa ASG launch / terminate lỗi</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="ba-loai-load-balancer"><a href="#ba-loai-load-balancer" class="anchor" aria-hidden="true">#</a>Ba loại load balancer</h2>
+<table>
+<tr><th></th><th>ALB</th><th>NLB</th><th>GWLB</th></tr>
+<tr><td>Tầng</td><td>7 (HTTP / HTTPS / gRPC / WebSocket)</td><td>4 (TCP / UDP / TLS)</td><td>3 (IP, GENEVE 6081)</td></tr>
+<tr><td>Định tuyến</td><td>Theo path, host, header, method, query, IP nguồn; redirect, fixed response; xác thực Cognito / OIDC</td><td>Theo cổng</td><td>Chuyển toàn bộ traffic qua thiết bị bảo mật</td></tr>
+<tr><td>IP</td><td>Thay đổi, dùng DNS name</td><td><b>IP tĩnh mỗi AZ</b>, gắn được Elastic IP</td><td></td></tr>
+<tr><td>IP client</td><td>Header <code>X-Forwarded-For</code></td><td>Giữ nguyên IP nguồn (client IP preservation), hoặc Proxy Protocol v2</td><td>Giữ nguyên</td></tr>
+<tr><td>Target</td><td>Instance, IP, Lambda</td><td>Instance, IP, ALB</td><td>Instance, IP (appliance)</td></tr>
+<tr><td>Security group</td><td>Có</td><td>Có (tuỳ chọn, phải bật lúc tạo)</td><td>Không</td></tr>
+<tr><td>Cross-zone</td><td>Luôn bật (có thể tắt ở mức target group), không phí</td><td>Mặc định tắt, bật thì tính phí dữ liệu giữa AZ</td><td>Mặc định tắt</td></tr>
+</table>
+
+<h2 id="target-group-va-health-check"><a href="#target-group-va-health-check" class="anchor" aria-hidden="true">#</a>Target group và health check</h2>
+<table>
+<tr><th>Tham số</th><th>Mặc định ALB</th><th>Ghi nhớ</th></tr>
+<tr><td>Protocol / port / path</td><td>HTTP, cổng traffic, <code>/</code></td><td>Nên dùng path riêng <code>/health</code> kiểm tra cả phụ thuộc quan trọng (nhưng đừng để database chập chờn làm cả đội máy bị đánh dấu hỏng)</td></tr>
+<tr><td>Healthy threshold</td><td>5</td><td>Số lần thành công liên tiếp để coi là khoẻ</td></tr>
+<tr><td>Unhealthy threshold</td><td>2</td><td></td></tr>
+<tr><td>Interval / timeout</td><td>30 / 5 giây</td><td></td></tr>
+<tr><td>Success codes</td><td>200</td><td>Có thể đặt 200-399. Trang chủ redirect 301 / 302 sẽ bị coi là lỗi nếu chỉ chấp nhận 200</td></tr>
+</table>
+<ul>
+<li>Trạng thái target: <code>initial</code>, <code>healthy</code>, <code>unhealthy</code>, <code>unused</code> (target ở AZ chưa bật trên LB), <code>draining</code>, <code>unavailable</code>. Mã lý do: <code>Target.Timeout</code>, <code>Target.ResponseCodeMismatch</code>, <code>Target.FailedHealthChecks</code>, <code>Elb.InitialHealthChecking</code>.</li>
+<li><b>Deregistration delay</b> (mặc định 300 giây): chờ request đang chạy xong trước khi rút target. Request ngắn thì giảm để deploy / scale-in nhanh hơn.</li>
+<li><b>Slow start</b>: target mới nhận tải tăng dần (30-900 giây), hợp ứng dụng cần làm nóng cache / JIT.</li>
+<li>Thuật toán: round robin, <b>least outstanding requests</b>, <b>weighted random</b> (kèm <b>anomaly mitigation</b>: tự giảm tải cho target bất thường).</li>
+<li><b>Stickiness</b>: duration-based cookie (<code>AWSALB</code>) hoặc application cookie. Làm tải lệch giữa các target.</li>
+<li>Khi tất cả target unhealthy, ALB vẫn gửi tới tất cả (fail open). Có thể cấu hình <b>target group health</b> (DNS failover khi số target khoẻ dưới ngưỡng).</li>
+</ul>
+
+<h2 id="ma-loi-alb-va-cach-xu-ly"><a href="#ma-loi-alb-va-cach-xu-ly" class="anchor" aria-hidden="true">#</a>Mã lỗi ALB và cách xử lý</h2>
+<table>
+<tr><th>Mã</th><th>Ai sinh</th><th>Nguyên nhân thường gặp</th></tr>
+<tr><td>400</td><td>ALB</td><td>Request sai định dạng, header quá lớn</td></tr>
+<tr><td>401</td><td>ALB</td><td>Xác thực Cognito / OIDC thất bại</td></tr>
+<tr><td>403</td><td>ALB</td><td>WAF chặn, rule trả fixed-response 403</td></tr>
+<tr><td>460</td><td>ALB</td><td>Client đóng kết nối trước khi idle timeout hết</td></tr>
+<tr><td>463</td><td>ALB</td><td>X-Forwarded-For có quá 30 IP</td></tr>
+<tr><td><b>502</b></td><td>ALB</td><td>Target đóng / reset kết nối, response sai định dạng, target keep-alive ngắn hơn idle timeout, Lambda trả JSON sai cấu trúc hoặc lỗi, TLS tới target lỗi</td></tr>
+<tr><td><b>503</b></td><td>ALB</td><td>Không có target đăng ký / không có target khoẻ ở AZ được bật</td></tr>
+<tr><td><b>504</b></td><td>ALB</td><td>Target không trả lời trong idle timeout (mặc định 60 giây), không mở được kết nối tới target (SG / NACL), Lambda chạy quá lâu</td></tr>
+<tr><td>561</td><td>ALB</td><td>IdP từ chối khi xác thực</td></tr>
+<tr><td>5xx từ target</td><td>Ứng dụng</td><td>Xem <code>HTTPCode_Target_5XX_Count</code> và log ứng dụng</td></tr>
+</table>
+<ul>
+<li><b>Access logs</b>: bật trên ALB, ghi về S3 (bucket policy cho tài khoản dịch vụ ELB của Region), mỗi dòng có thời gian xử lý request / target / response, mã của ELB và của target, target nào, TLS cipher. Phân tích bằng Athena. <b>Connection logs</b> cho mTLS.</li>
+<li>Muốn biết lỗi do LB hay ứng dụng: so <code>HTTPCode_ELB_5XX_Count</code> với <code>HTTPCode_Target_5XX_Count</code>.</li>
+<li><b>Idle timeout</b> ALB 1-4000 giây. Upload lâu / long polling cần tăng. Keep-alive của web server phía sau phải lớn hơn idle timeout.</li>
+</ul>
+
+<h2 id="tls-tren-load-balancer"><a href="#tls-tren-load-balancer" class="anchor" aria-hidden="true">#</a>TLS trên load balancer</h2>
+<ul>
+<li>Chứng chỉ từ ACM (hoặc IAM). Nhiều chứng chỉ trên một listener nhờ <b>SNI</b>.</li>
+<li><b>Security policy</b> chọn phiên bản TLS và cipher (ví dụ chỉ TLS 1.2 / 1.3, có post-quantum).</li>
+<li>TLS termination ở LB, hoặc mã hoá lại tới target (HTTPS target group), hoặc NLB TCP passthrough để target tự giải mã.</li>
+<li><b>mTLS</b> trên ALB: verify chứng chỉ client với trust store (CA bundle trong S3), hoặc passthrough header.</li>
+<li>Redirect HTTP → HTTPS bằng rule của listener 80.</li>
+</ul>
+
+<h2 id="auto-scaling"><a href="#auto-scaling" class="anchor" aria-hidden="true">#</a>Auto Scaling</h2>
+<h3>Thành phần</h3>
+<ul>
+<li><b>Launch template</b> (khuyên dùng, có version; launch configuration là cách cũ): AMI, instance type, key, SG, user data, IAM instance profile, IMDSv2, tag.</li>
+<li><b>Min / max / desired</b>. Nhiều AZ (subnet). <b>Mixed instances policy</b>: nhiều loại máy, kết hợp On-Demand + Spot (on-demand base, %, allocation strategy).</li>
+<li>Gắn vào target group: ASG tự đăng ký / huỷ đăng ký instance.</li>
+</ul>
+<h3>Scaling policy</h3>
+<table>
+<tr><th>Policy</th><th>Cách hoạt động</th><th>Ghi nhớ</th></tr>
+<tr><td><b>Target tracking</b></td><td>Giữ metric quanh giá trị đích</td><td>Metric gợi ý: ASGAverageCPUUtilization, ALBRequestCountPerTarget, ASGAverageNetworkIn/Out, hoặc custom (backlog SQS mỗi instance). Tự tạo alarm, đừng sửa alarm đó. Scale-in thận trọng hơn scale-out</td></tr>
+<tr><td>Step scaling</td><td>Thêm / bớt theo từng khoảng vượt ngưỡng của alarm</td><td>Có warm-up thay cho cooldown</td></tr>
+<tr><td>Simple scaling</td><td>Một hành động, chờ cooldown (mặc định 300 giây)</td><td>Kiểu cũ</td></tr>
+<tr><td><b>Scheduled</b></td><td>Đặt min / max / desired theo lịch</td><td>Tải biết trước</td></tr>
+<tr><td><b>Predictive</b></td><td>Dự báo tải từ 14 ngày lịch sử, chuẩn bị máy trước</td><td>Có chế độ forecast only để xem trước</td></tr>
+</table>
+<p>Scale theo hàng đợi SQS: metric tuỳ chỉnh <b>backlog per instance</b> = ApproximateNumberOfMessagesVisible / số instance, target = thời gian xử lý chấp nhận được / thời gian xử lý một message.</p>
+<h3>Vòng đời instance</h3>
+<figure class="dg"><svg viewBox="0 0 1169.68 86" style="min-width:600px;max-width:1169.68px" role="img" aria-label="Lifecycle hook giữ instance ở trạng thái Wait để làm việc thêm"><g class="nd go"><rect x="10" y="10" width="116" height="66" rx="10"/><text x="68" y="40" class="tt" text-anchor="middle">Pending</text><text x="68" y="58" class="ts" text-anchor="middle">launch</text></g><line x1="128" y1="43" x2="192" y2="43" class="ln" marker-end="url(#ar)"/><text x="161" y="34" class="tl" text-anchor="middle">hook</text><g class="nd cache"><rect x="196" y="10" width="200.72000000000003" height="66" rx="10"/><text x="296.36" y="40" class="tt" text-anchor="middle">Pending:Wait</text><text x="296.36" y="58" class="ts" text-anchor="middle">cài đặt, đăng ký, kiểm tra</text></g><line x1="398.72" y1="43" x2="584.1600000000001" y2="43" class="ln" marker-end="url(#ar)"/><text x="492.44000000000005" y="34" class="tl" text-anchor="middle">CompleteLifecycleAction</text><g class="nd ok"><rect x="588.1600000000001" y="10" width="116" height="66" rx="10"/><text x="646.1600000000001" y="40" class="tt" text-anchor="middle">InService</text><text x="646.1600000000001" y="58" class="ts" text-anchor="middle">nhận tải</text></g><line x1="706.1600000000001" y1="43" x2="782.4000000000001" y2="43" class="ln" marker-end="url(#ar)"/><text x="745.2800000000001" y="34" class="tl" text-anchor="middle">scale-in</text><g class="nd warn"><rect x="786.4000000000001" y="10" width="187.28000000000003" height="66" rx="10"/><text x="880.0400000000001" y="40" class="tt" text-anchor="middle">Terminating:Wait</text><text x="880.0400000000001" y="58" class="ts" text-anchor="middle">xả log, rút khỏi cluster</text></g><line x1="975.6800000000001" y1="43" x2="1039.68" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd ext"><rect x="1043.68" y="10" width="116" height="66" rx="10"/><text x="1101.68" y="48" class="tt" text-anchor="middle">Terminated</text></g></svg><figcaption>Lifecycle hook giữ instance ở trạng thái Wait để làm việc thêm</figcaption></figure>
+<ul>
+<li>Lifecycle hook có timeout (mặc định 3600 giây) và default result (CONTINUE / ABANDON). Thông báo qua EventBridge / SNS / SQS → Lambda / SSM làm việc rồi gọi <code>CompleteLifecycleAction</code> (hoặc gia hạn bằng heartbeat).</li>
+<li><b>Warm pool</b>: giữ instance đã khởi tạo sẵn ở trạng thái Stopped / Hibernated / Running để scale-out nhanh; có thể trả instance về pool khi scale-in.</li>
+<li><b>Instance refresh</b>: thay dần instance theo launch template mới, <b>minimum healthy percentage</b>, checkpoint, tự rollback theo alarm, bỏ qua instance đã khớp.</li>
+<li><b>Termination policy</b> mặc định: chọn AZ có nhiều instance nhất, rồi instance có launch template / configuration cũ nhất, rồi gần giờ thanh toán kế tiếp. Có thể tuỳ chỉnh (OldestInstance, NewestInstance...) hoặc dùng Lambda.</li>
+<li><b>Scale-in protection</b> cho instance đang xử lý việc dài. <b>Standby</b>: rút tạm khỏi phục vụ để sửa / điều tra, vẫn thuộc ASG.</li>
+<li><b>Suspend processes</b>: Launch, Terminate, HealthCheck, ReplaceUnhealthy, AZRebalance, AlarmNotification, ScheduledActions, AddToLoadBalancer. Ví dụ tạm dừng ReplaceUnhealthy để điều tra máy hỏng.</li>
+<li><b>Capacity Rebalancing</b>: với Spot, chủ động thay instance có nguy cơ bị thu hồi.</li>
+<li><b>Maximum instance lifetime</b>: tự thay instance sau N ngày (vá định kỳ).</li>
+</ul>
+<h3>Health check</h3>
+<ul>
+<li>Mặc định chỉ EC2 status check. Bật <b>ELB health check</b> để thay máy khi ứng dụng chết. Có thêm EBS health check và VPC Lattice health check.</li>
+<li><b>Health check grace period</b>: thời gian chờ sau launch trước khi đánh giá (đặt lớn hơn thời gian khởi động). Ngắn quá → vòng lặp launch / terminate.</li>
+<li>Đánh dấu tay: <code>set-instance-health --health-status Unhealthy</code>.</li>
+</ul>
+<h3>ASG lỗi thường gặp</h3>
+<table>
+<tr><th>Hiện tượng</th><th>Nguyên nhân</th></tr>
+<tr><td>Không launch được, Activity history báo lỗi</td><td>AMI bị xoá / không chia sẻ, key pair không tồn tại, SG khác VPC, hết quota vCPU, thiếu capacity, subnet hết IP, IAM role không cho <code>iam:PassRole</code>, KMS key của EBS mã hoá không cấp quyền cho service-linked role của Auto Scaling</td></tr>
+<tr><td>Launch rồi terminate liên tục</td><td>Grace period quá ngắn, health check path sai, ứng dụng crash khi khởi động, user data lỗi</td></tr>
+<tr><td>Không scale khi tải cao</td><td>Đã chạm max, alarm sai metric / dimension, đang trong cooldown / warm-up, process bị suspend</td></tr>
+<tr><td>Phân bố AZ lệch</td><td>Một AZ thiếu capacity; AZRebalance sẽ cân lại khi có thể</td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ALB trả 504 cho các request upload file lớn mất khoảng 90 giây. Ứng dụng xử lý được bình thường. Cách sửa?</p><div class="qo"><button type="button" class="opt" data-ok>Tăng idle timeout của ALB lên lớn hơn thời gian xử lý (ví dụ 120 giây) và đảm bảo keep-alive của backend lớn hơn</button><button type="button" class="opt">Bật stickiness</button><button type="button" class="opt">Bật cross-zone</button><button type="button" class="opt">Giảm deregistration delay</button></div><p class="why" hidden>Request vượt idle timeout mặc định 60 giây nên ALB trả 504.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Worker đọc SQS chạy trong ASG. Cần scale theo khối lượng việc tồn đọng sao cho mỗi message được xử lý trong vòng 5 phút. Cách đúng?</p><div class="qo"><button type="button" class="opt">Target tracking theo CPU 50%</button><button type="button" class="opt" data-ok>Target tracking theo metric tuỳ chỉnh backlog per instance (ApproximateNumberOfMessagesVisible chia số instance)</button><button type="button" class="opt">Scheduled scaling</button><button type="button" class="opt">Step scaling theo NumberOfMessagesSent</button></div><p class="why" hidden>Backlog per instance phản ánh đúng khối lượng việc của mỗi máy.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ASG không launch được instance mới, Activity history báo lỗi liên quan KMS. EBS trong launch template được mã hoá bằng customer managed key. Sửa gì?</p><div class="qo"><button type="button" class="opt" data-ok>Key policy (hoặc grant) cho phép service-linked role AWSServiceRoleForAutoScaling dùng key</button><button type="button" class="opt">Đổi sang AWS managed key aws/ebs</button><button type="button" class="opt">Tắt mã hoá EBS</button><button type="button" class="opt">Tăng quota vCPU</button></div><p class="why" hidden>Auto Scaling launch bằng service-linked role, role này phải dùng được key để tạo volume mã hoá.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội muốn thay toàn bộ instance của ASG sang AMI mới đã vá, luôn giữ ít nhất 90% năng lực, tự quay lại nếu alarm lỗi kêu. Dùng gì?</p><div class="qo"><button type="button" class="opt">Xoá ASG và tạo lại</button><button type="button" class="opt" data-ok>Instance refresh với minimum healthy percentage 90% và auto rollback theo CloudWatch alarm</button><button type="button" class="opt">Tăng max lên gấp đôi</button><button type="button" class="opt">Suspend process Terminate</button></div><p class="why" hidden>Instance refresh là cách chuẩn để thay dần instance theo launch template mới.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-elb-asg">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-perf-database.html"><small>Bài trước</small>Database: RDS, Aurora, DynamoDB, ElastiCache</a><a class="next" href="soa-route53.html"><small>Bài tiếp theo</small>Route 53 và tính sẵn sàng nhiều Region</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#ba-loai-load-balancer">Ba loại load balancer</a><a href="#target-group-va-health-check">Target group và health check</a><a href="#ma-loi-alb-va-cach-xu-ly">Mã lỗi ALB và cách xử lý</a><a href="#tls-tren-load-balancer">TLS trên load balancer</a><a href="#auto-scaling">Auto Scaling</a></nav>
+</div>
+</body>
+</html>

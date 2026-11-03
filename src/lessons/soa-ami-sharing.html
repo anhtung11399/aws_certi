@@ -1,0 +1,86 @@
+<h2>AMI: vòng đời</h2>
+<ul>
+<li>AMI gồm: snapshot EBS của các volume, launch permission, block device mapping. AMI là tài nguyên <b>theo Region</b>: dùng ở Region khác phải <b>copy</b>.</li>
+<li>Tạo AMI từ instance: mặc định instance bị <b>reboot</b> để file system nhất quán (có tuỳ chọn no-reboot nhưng có thể không nhất quán).</li>
+<li><b>Chia sẻ AMI</b>: thêm account ID / Organization / OU vào launch permission. AMI có snapshot mã hoá: phải dùng customer managed key và cấp quyền key cho account nhận (<code>kms:CreateGrant</code>, <code>Decrypt</code>, <code>DescribeKey</code>, <code>ReEncrypt</code>, <code>GenerateDataKey</code>). AMI mã hoá bằng <code>aws/ebs</code> không chia sẻ được: copy lại với customer managed key.</li>
+<li><b>Block public access for AMIs</b> bật mặc định cho account mới: chặn chia sẻ công khai.</li>
+<li><b>Deprecate</b> AMI (ẩn khỏi danh sách nhưng vẫn launch được bằng ID), <b>disable</b> AMI, <b>deregister</b> (không launch được, snapshot vẫn còn và vẫn tính phí cho tới khi xoá). <b>Recycle Bin</b> giữ AMI bị deregister nhầm.</li>
+<li><b>Allowed AMIs</b> (cấu hình account / declarative policy): chỉ cho launch AMI từ nhà cung cấp / account được phép.</li>
+<li>AMI Marketplace / có product code: không copy sang account khác được theo cách thông thường.</li>
+<li>Lấy AMI mới nhất của AWS qua Parameter Store public parameter thay vì ghi cứng ID (ID khác nhau theo Region).</li>
+</ul>
+
+<h2>EC2 Image Builder</h2>
+<fig type="flow" caption="Pipeline dựng image tự động">
+[ext] Image recipe / AMI gốc + component (cài phần mềm, hardening)
+-> build instance
+[go] Build / chạy component
+-> test instance
+[q] Test / component kiểm tra, quét Inspector
+-> 
+[ok] Distribution / copy sang Region, chia sẻ account, launch template, AMI tags
+</fig>
+<ul>
+<li><b>Component</b>: tài liệu YAML gồm các bước build / validate / test. Có sẵn component của AWS (cập nhật Linux, CIS hardening STIG, cài CloudWatch agent...).</li>
+<li><b>Infrastructure configuration</b>: instance type, subnet, SG, IAM instance profile (cần <code>EC2InstanceProfileForImageBuilder</code> và SSM), nơi ghi log (S3).</li>
+<li><b>Distribution settings</b>: Region đích, account đích, cập nhật launch template (ASG dùng AMI mới), KMS key.</li>
+<li><b>Schedule</b>: theo cron hoặc <b>khi có bản cập nhật của image gốc / component</b>.</li>
+<li><b>Lifecycle policy</b>: tự deprecate / xoá AMI cũ.</li>
+<li>Dựng được cả <b>container image</b> đẩy lên ECR.</li>
+<li>Pipeline lỗi: xem log trong S3 / CloudWatch, build instance không kết nối được SSM (thiếu role / mạng), component lỗi.</li>
+</ul>
+<aside class="prod"><p>"Tạo golden AMI đã vá, kiểm thử, phân phối sang nhiều Region / account một cách tự động, ít công sức" → <b>EC2 Image Builder</b>. Đáp án tự viết Lambda + SSM Automation hay Packer trên EC2 thường nhiều công sức hơn.</p></aside>
+
+<h2>Container image: Amazon ECR</h2>
+<ul>
+<li>Repository private / public. <b>Lifecycle policy</b> xoá image cũ (giữ N image gần nhất, xoá image untagged sau N ngày).</li>
+<li><b>Image scanning</b>: basic (quét lúc push / thủ công, CVE hệ điều hành) hoặc <b>enhanced</b> (Inspector, quét liên tục cả thư viện ngôn ngữ).</li>
+<li><b>Tag immutability</b>: không ghi đè tag (tránh <code>latest</code> bị thay âm thầm).</li>
+<li><b>Replication</b> cross-Region / cross-account. <b>Pull through cache</b> từ Docker Hub, Quay, GitHub... Repository policy để cho account khác pull.</li>
+<li>Pull lỗi trên ECS / EKS: execution role thiếu <code>ecr:GetAuthorizationToken</code>, <code>BatchGetImage</code>; private subnet thiếu endpoint <code>ecr.api</code>, <code>ecr.dkr</code> và gateway endpoint <code>s3</code> (layer nằm ở S3).</li>
+</ul>
+
+<h2>Chia sẻ tài nguyên giữa account: AWS RAM</h2>
+<table>
+<tr><th>Chia sẻ được (ví dụ)</th><th>Ứng dụng</th></tr>
+<tr><td><b>Subnet</b> (VPC sharing)</td><td>Account mạng sở hữu VPC, account ứng dụng tạo tài nguyên trong subnet được chia sẻ. Account tham gia không sửa được VPC, route table, NACL; tự quản lý SG và tài nguyên của mình</td></tr>
+<tr><td>Transit Gateway</td><td>Mọi account gắn VPC vào TGW trung tâm</td></tr>
+<tr><td>Route 53 Resolver rules, DNS Firewall rule groups</td><td>Phân giải DNS on-premises thống nhất</td></tr>
+<tr><td>Prefix list, IPAM pool</td><td>Dải IP dùng chung</td></tr>
+<tr><td>License Manager configurations, Capacity Reservations, Dedicated Hosts</td><td>Dùng chung giấy phép / capacity</td></tr>
+<tr><td>Aurora DB cluster (clone), Glue catalog, Outposts, Network Firewall policy, Private CA...</td><td></td></tr>
+</table>
+<ul>
+<li>Trong Organization: bật "sharing with AWS Organizations" để chia sẻ không cần lời mời chấp nhận; ngoài Organization phải accept invitation.</li>
+<li>Có thể giới hạn chỉ chia sẻ trong Organization bằng SCP / RAM settings.</li>
+</ul>
+
+<h2>Service Catalog và Service Quotas</h2>
+<ul>
+<li><b>Service Catalog</b>: danh mục sản phẩm (template CloudFormation / Terraform) đã được phê duyệt. Người dùng launch qua catalog mà không cần quyền tạo tài nguyên trực tiếp, nhờ <b>launch constraint</b> (role của Service Catalog). Có <b>TagOptions</b> bắt buộc tag, chia sẻ portfolio cho Organization.</li>
+<li><b>Service Quotas</b>: xem và xin tăng giới hạn (vCPU, EIP, VPC...), dùng <b>quota request template</b> để account mới tự xin tăng; tạo <b>CloudWatch alarm</b> trên usage của quota.</li>
+<li>Trusted Advisor có check "Service Limits" và gửi event khi gần chạm.</li>
+</ul>
+
+<quiz q="Account B không launch được AMI mà account A đã chia sẻ. AMI có snapshot mã hoá bằng customer managed key của A. Thiếu gì?">
++ Key policy của A cho phép account B dùng key (CreateGrant, Decrypt, DescribeKey...) và B có quyền IAM tương ứng
+- B phải copy AMI trước bằng aws/ebs
+- Bật block public access
+- B phải ở cùng Region với IAM
+? Snapshot mã hoá cần cả quyền launch AMI lẫn quyền dùng KMS key.
+</quiz>
+<quiz q="Mỗi tháng đội phải dựng AMI mới với bản vá OS và agent bảo mật, chạy kiểm thử, rồi cập nhật launch template của ASG ở 3 Region. Giải pháp ít công sức nhất?">
++ EC2 Image Builder pipeline theo lịch, distribution cập nhật launch template ở 3 Region
+- Packer chạy trên EC2 theo cron
+- Tạo AMI thủ công từ instance mẫu
+- AWS Backup
+? Image Builder bao trọn build, test, distribution và cập nhật launch template.
+</quiz>
+<quiz q="ECS Fargate task trong private subnet (không NAT) không kéo được image từ ECR. Chọn 2 thứ cần có.">
++ Interface endpoint ecr.api và ecr.dkr
++ Gateway endpoint cho S3
+- Internet Gateway
+- Elastic IP cho task
+- VPC peering với ECR
+? ECR cần API và registry endpoint; các layer image được lưu trên S3 nên cần cả endpoint S3.
+</quiz>

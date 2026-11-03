@@ -1,0 +1,91 @@
+<h2>Kết nối nhiều VPC</h2>
+<table>
+<tr><th></th><th>VPC peering</th><th>Transit Gateway</th><th>PrivateLink</th><th>VPC Lattice / Cloud WAN</th></tr>
+<tr><td>Mô hình</td><td>1-1</td><td>Hub-and-spoke, hàng nghìn VPC</td><td>Một dịch vụ cho nhiều VPC tiêu dùng</td><td>Lattice: kết nối dịch vụ-dịch vụ (L7); Cloud WAN: mạng toàn cầu theo chính sách</td></tr>
+<tr><td>Bắc cầu</td><td>Không</td><td>Có (theo route table của TGW)</td><td>Không cần</td><td></td></tr>
+<tr><td>CIDR trùng</td><td>Không được</td><td>Không được (trong cùng route domain)</td><td>Được</td><td>Lattice: được</td></tr>
+<tr><td>Cross-Region / account</td><td>Có</td><td>Có (TGW peering, chia sẻ qua RAM)</td><td>Có</td><td></td></tr>
+<tr><td>Chi phí</td><td>Chỉ phí dữ liệu</td><td>Theo attachment + GB</td><td>Theo endpoint + GB</td><td></td></tr>
+</table>
+<h3>Transit Gateway chi tiết</h3>
+<ul>
+<li><b>Attachment</b>: VPC (chọn một subnet mỗi AZ), VPN, Direct Connect Gateway, TGW peering, Connect (SD-WAN).</li>
+<li><b>TGW route table</b>: <b>association</b> (attachment dùng route table nào để tra) và <b>propagation</b> (attachment tự học route vào route table nào). Dùng nhiều route table để <b>cô lập</b> (dev không tới prod nhưng cả hai tới shared services).</li>
+<li>Ở VPC vẫn phải thêm route trỏ dải đích → TGW.</li>
+<li><b>Appliance mode</b>: bật cho VPC chứa firewall để traffic hai chiều đi cùng một AZ (tránh định tuyến bất đối xứng).</li>
+<li>TGW Flow Logs, TGW Network Manager để quan sát; tối đa 50 Gbps mỗi attachment VPC.</li>
+<li>Lỗi hay gặp: thiếu route ở route table của VPC, sai association / propagation, SG / NACL, quên subnet attachment ở AZ của instance.</li>
+</ul>
+
+<h2>Kết nối với on-premises</h2>
+<table>
+<tr><th></th><th>Site-to-Site VPN</th><th>Direct Connect</th></tr>
+<tr><td>Đường truyền</td><td>Qua Internet, mã hoá IPsec</td><td>Kết nối vật lý riêng tại DX location</td></tr>
+<tr><td>Thời gian có</td><td>Vài phút</td><td>Vài tuần</td></tr>
+<tr><td>Băng thông</td><td>Tới 1,25 Gbps mỗi tunnel (ECMP qua TGW để cộng gộp; large bandwidth tunnel tới 5 Gbps)</td><td>1, 10, 100, 400 Gbps (dedicated) hoặc 50 Mbps - 25 Gbps (hosted)</td></tr>
+<tr><td>Ổn định</td><td>Phụ thuộc Internet</td><td>Ổn định, độ trễ đều</td></tr>
+<tr><td>Mã hoá</td><td>Có</td><td><b>Không mặc định</b>: dùng VPN trên DX hoặc MACsec</td></tr>
+</table>
+<h3>Site-to-Site VPN</h3>
+<ul>
+<li>Thành phần: <b>customer gateway</b> (thiết bị phía bạn), <b>virtual private gateway</b> (gắn một VPC) hoặc <b>Transit Gateway</b>. Mỗi kết nối có <b>2 tunnel</b> ở 2 thiết bị AWS khác nhau để dự phòng.</li>
+<li>Định tuyến tĩnh hoặc <b>BGP</b> (dynamic). Bật <b>route propagation</b> trên route table của VPC để tự học route từ VGW.</li>
+<li>Tunnel down: kiểm tra cấu hình IKE / IPsec phía khách hàng, dead peer detection, NAT-T, IP public của customer gateway, giới hạn băng thông. Metric <code>TunnelState</code>; nhật ký VPN gửi CloudWatch Logs.</li>
+<li><b>Accelerated VPN</b> (chỉ với TGW) đi qua Global Accelerator.</li>
+<li><b>VPN CloudHub</b>: nhiều văn phòng nối với nhau qua một VGW.</li>
+</ul>
+<h3>Direct Connect</h3>
+<ul>
+<li><b>Virtual interface (VIF)</b>: <b>private VIF</b> (vào VPC qua VGW / DX Gateway), <b>public VIF</b> (tới dịch vụ AWS public như S3 bằng IP public), <b>transit VIF</b> (tới TGW qua DX Gateway).</li>
+<li><b>Direct Connect Gateway</b>: một kết nối DX tới VPC ở nhiều Region / account.</li>
+<li>Dự phòng: 2 kết nối DX ở 2 location khác nhau (maximum resiliency), hoặc DX + VPN backup (BGP ưu tiên DX qua AS path / local preference).</li>
+<li><b>LAG</b> gộp nhiều kết nối. <b>MACsec</b> mã hoá lớp 2 trên kết nối dedicated tốc độ cao. <b>SiteLink</b> nối các DX location với nhau.</li>
+<li>BGP down: kiểm tra VLAN, ASN, MD5 key, IP peering; metric <code>ConnectionState</code>, <code>ConnectionBpsEgress</code>.</li>
+</ul>
+<h3>Client VPN</h3>
+<p>Người dùng từ laptop (OpenVPN client) vào VPC; xác thực bằng chứng chỉ (mutual), Active Directory hoặc SAML; authorization rule theo nhóm; split tunnel để chỉ traffic tới AWS đi qua VPN.</p>
+
+<h2>Route 53 Resolver</h2>
+<fig type="flow" caption="Phân giải DNS hai chiều giữa VPC và data center">
+[fe] Máy on-premises / hỏi db.internal.aws
+-> qua VPN / DX
+[q] Inbound endpoint / IP trong VPC
+-> 
+[cache] Route 53 Resolver / private hosted zone
+-> rule forward corp.local
+[q] Outbound endpoint / IP trong VPC
+-> qua VPN / DX
+[ext] DNS on-premises / corp.local
+</fig>
+<ul>
+<li>Resolver mặc định ở <code>VPC CIDR + 2</code> (ví dụ 10.0.0.2) hoặc <code>169.254.169.253</code>.</li>
+<li><b>Inbound endpoint</b>: ENI (ít nhất 2 AZ) nhận truy vấn từ on-premises. DNS on-premises đặt conditional forwarder tới IP của endpoint.</li>
+<li><b>Outbound endpoint</b> + <b>forwarding rule</b> (tên miền → IP DNS on-premises). Rule <b>system</b> để loại trừ tên miền con. Chia sẻ rule cho account khác bằng <b>RAM</b>, mỗi VPC phải được associate với rule.</li>
+<li>SG của endpoint cho phép UDP / TCP 53.</li>
+<li><b>Resolver query logging</b>: ghi mọi truy vấn DNS từ VPC về CloudWatch Logs / S3 / Firehose.</li>
+<li><b>DNS Firewall</b>: rule group chặn / cảnh báo tên miền (danh sách tự tạo hoặc managed list của AWS: malware, botnet), <b>fail open / fail closed</b>.</li>
+<li>Private hosted zone trùng tên với public zone: trong VPC đã liên kết, private zone thắng (split-horizon DNS).</li>
+</ul>
+
+<quiz q="Công ty có 40 VPC ở 3 account cần nối với nhau và với data center qua một kết nối Direct Connect, dev không được nói chuyện với prod. Thiết kế?">
+- VPC peering full mesh
++ Transit Gateway chia sẻ qua RAM, DX Gateway với transit VIF, nhiều TGW route table tách dev và prod
+- Mỗi VPC một VPN
+- PrivateLink cho mọi VPC
+? TGW là hub cho nhiều VPC, route table của TGW cho phép cô lập theo môi trường.
+</quiz>
+<quiz q="Yêu cầu traffic qua Direct Connect phải được mã hoá. Lựa chọn nào? Chọn 2.">
++ Chạy Site-to-Site VPN trên public VIF / transit VIF của Direct Connect
++ Dùng MACsec trên kết nối dedicated hỗ trợ
+- Direct Connect mặc định đã mã hoá
+- Bật TLS cho VIF
+- Dùng private VIF là đủ
+? DX không tự mã hoá; IPsec VPN trên DX hoặc MACsec là các cách được hỗ trợ.
+</quiz>
+<quiz q="Sau khi tạo Site-to-Site VPN với VGW, máy on-premises không tới được EC2. Tunnel UP. Bước hay bị quên?">
++ Bật route propagation (hoặc thêm route tĩnh tới dải on-premises qua VGW) trong route table của subnet
+- Gắn Elastic IP cho EC2
+- Tạo Internet Gateway
+- Bật DNS hostnames
+? Tunnel lên nhưng VPC không có route trả về dải on-premises.
+</quiz>

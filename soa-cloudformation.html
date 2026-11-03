@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SOA-C03 · CloudFormation, CDK và StackSets · Ôn thi AWS</title>
-<meta name="description" content="Template, change set, drift, rollback, helper scripts, DeletionPolicy, lỗi hay gặp, StackSets, CDK, Image Builder, RAM.">
+<title>SOA-C03 · CloudFormation chuyên sâu · Ôn thi AWS</title>
+<meta name="description" content="Template, intrinsic function, pseudo parameter, dynamic reference, change set, drift, stack policy, rollback, helper scripts, nested stack, StackSets, lỗi và cách xử lý, CDK, Terraform.">
 <meta name="theme-color" content="#ff9900">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,16 +25,16 @@
 <div class="layout">
   <aside class="side" aria-label="Danh sách bài">
     <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
-    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation" aria-current="page"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch metrics và alarms</span></a></li><li><a href="soa-cloudwatch-logs.html" data-slug="soa-cloudwatch-logs"><i class="dot"></i><span class="no">02</span><span class="tx">CloudWatch Logs, tracing và observability</span></a></li><li><a href="soa-eventbridge.html" data-slug="soa-eventbridge"><i class="dot"></i><span class="no">03</span><span class="tx">EventBridge: tự động hoá theo sự kiện</span></a></li><li><a href="soa-ssm.html" data-slug="soa-ssm"><i class="dot"></i><span class="no">04</span><span class="tx">Systems Manager toàn tập</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">05</span><span class="tx">EC2: chẩn đoán và tối ưu</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">06</span><span class="tx">Storage: EBS, S3, EFS, FSx, DataSync</span></a></li><li><a href="soa-perf-database.html" data-slug="soa-perf-database"><i class="dot"></i><span class="no">07</span><span class="tx">Database: RDS, Aurora, DynamoDB, ElastiCache</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-elb-asg.html" data-slug="soa-elb-asg"><i class="dot"></i><span class="no">08</span><span class="tx">Load balancer và Auto Scaling</span></a></li><li><a href="soa-route53.html" data-slug="soa-route53"><i class="dot"></i><span class="no">09</span><span class="tx">Route 53 và tính sẵn sàng nhiều Region</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">10</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation" aria-current="page"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFormation chuyên sâu</span></a></li><li><a href="soa-ami-sharing.html" data-slug="soa-ami-sharing"><i class="dot"></i><span class="no">12</span><span class="tx">AMI, container image và chia sẻ tài nguyên</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">13</span><span class="tx">Deploy và vận hành ứng dụng</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">14</span><span class="tx">IAM và bảo mật trong vận hành</span></a></li><li><a href="soa-compliance.html" data-slug="soa-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Tuân thủ: Config, Security Hub, GuardDuty, Inspector</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">16</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-hybrid-dns.html" data-slug="soa-hybrid-dns"><i class="dot"></i><span class="no">17</span><span class="tx">Kết nối lai và DNS</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">18</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">19</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
   </aside>
   <div class="scrim"></div>
   <main id="main"><article class="lesson" data-slug="soa-cloudformation">
   <header class="l-head">
-    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</span><span>Bài 07</span><span>60 phút</span></div>
-    <h1>CloudFormation, CDK và StackSets</h1>
-    <p class="lead">Template, change set, drift, rollback, helper scripts, DeletionPolicy, lỗi hay gặp, StackSets, CDK, Image Builder, RAM.</p>
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</span><span>Bài 11</span><span>80 phút</span></div>
+    <h1>CloudFormation chuyên sâu</h1>
+    <p class="lead">Template, intrinsic function, pseudo parameter, dynamic reference, change set, drift, stack policy, rollback, helper scripts, nested stack, StackSets, lỗi và cách xử lý, CDK, Terraform.</p>
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
-    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đọc và sửa lỗi CloudFormation</li><li>Triển khai nhiều account / Region bằng StackSets</li><li>Tạo AMI chuẩn bằng EC2 Image Builder</li></ul></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đọc và sửa lỗi CloudFormation</li><li>Triển khai nhiều account / Region</li><li>Bảo vệ tài nguyên khi update / xoá</li></ul></div>
   </header>
   <div class="prose"><h2 id="cloudformation-nhung-gi-can-nam-chac"><a href="#cloudformation-nhung-gi-can-nam-chac" class="anchor" aria-hidden="true">#</a>CloudFormation: những gì cần nắm chắc</h2>
 <h3>Cấu trúc template</h3>
@@ -63,6 +63,42 @@ Outputs:
 <li>Export đang được stack khác <code>ImportValue</code> thì <b>không sửa / xoá được</b> stack xuất. Phải gỡ import trước.</li>
 <li>Secret không ghi trong template: dùng <b>dynamic reference</b> <code>{{resolve:secretsmanager:...}}</code> hoặc <code>{{resolve:ssm-secure:...}}</code>, tham số dùng <code>NoEcho</code>.</li>
 </ul>
+
+<h3>Intrinsic function và pseudo parameter</h3>
+<table>
+<tr><th>Hàm</th><th>Dùng</th></tr>
+<tr><td><code>!Ref</code></td><td>Giá trị parameter, hoặc ID mặc định của tài nguyên (ví dụ instance ID, tên bucket)</td></tr>
+<tr><td><code>!GetAtt Res.Attr</code></td><td>Thuộc tính khác của tài nguyên (ARN, DNS name, endpoint)</td></tr>
+<tr><td><code>!Sub</code></td><td>Ghép chuỗi có biến: <code>!Sub "arn:aws:s3:::${BucketName}/*"</code></td></tr>
+<tr><td><code>!Join</code>, <code>!Split</code>, <code>!Select</code></td><td>Xử lý chuỗi / danh sách</td></tr>
+<tr><td><code>!FindInMap</code></td><td>Tra Mappings theo Region / môi trường</td></tr>
+<tr><td><code>!GetAZs</code>, <code>!Cidr</code></td><td>Danh sách AZ, chia dải CIDR</td></tr>
+<tr><td><code>!If</code>, <code>!Equals</code>, <code>!And</code>, <code>!Or</code>, <code>!Not</code></td><td>Điều kiện; <code>AWS::NoValue</code> để bỏ một thuộc tính</td></tr>
+<tr><td><code>!ImportValue</code></td><td>Lấy Output được export từ stack khác cùng Region</td></tr>
+<tr><td><code>Fn::Transform</code>, <code>Transform: AWS::Serverless-2016-10-31</code></td><td>Macro; SAM cho serverless; <code>AWS::Include</code> chèn đoạn template từ S3</td></tr>
+</table>
+<p>Pseudo parameter: <code>AWS::Region</code>, <code>AWS::AccountId</code>, <code>AWS::StackName</code>, <code>AWS::StackId</code>, <code>AWS::Partition</code>, <code>AWS::URLSuffix</code>, <code>AWS::NoValue</code>.</p>
+<h3>Parameter</h3>
+<ul>
+<li>Kiểu đặc biệt kiểm tra giá trị có thật: <code>AWS::EC2::KeyPair::KeyName</code>, <code>AWS::EC2::VPC::Id</code>, <code>List&lt;AWS::EC2::Subnet::Id&gt;</code>, <code>AWS::SSM::Parameter::Value&lt;...&gt;</code>.</li>
+<li>Ràng buộc: <code>AllowedValues</code>, <code>AllowedPattern</code>, <code>MinLength</code>, <code>ConstraintDescription</code>. <code>NoEcho: true</code> để không hiển thị giá trị.</li>
+<li><b>Dynamic reference</b>: <code>{{resolve:ssm:/app/ami}}</code>, <code>{{resolve:ssm-secure:/db/pass}}</code> (chỉ một số thuộc tính hỗ trợ), <code>{{resolve:secretsmanager:prod/db:SecretString:password}}</code>. Tốt hơn: <code>ManageMasterUserPassword: true</code> cho RDS để RDS tự quản lý secret.</li>
+</ul>
+<h3>Thứ tự tạo và phụ thuộc</h3>
+<ul>
+<li>CloudFormation tự suy phụ thuộc từ <code>!Ref</code> / <code>!GetAtt</code>. Phụ thuộc ngầm (ví dụ instance cần route tới Internet Gateway đã gắn xong) thì dùng <code>DependsOn</code>.</li>
+<li><b>Custom resource</b>: gọi Lambda (hoặc SNS) để làm việc CloudFormation không hỗ trợ sẵn (tra cứu, làm rỗng bucket trước khi xoá). Lambda phải gửi phản hồi về pre-signed URL, nếu không stack treo tới timeout (1 giờ).</li>
+<li><b>Nested stack</b> (<code>AWS::CloudFormation::Stack</code>): chia template lớn, dùng lại thành phần; cập nhật qua stack cha. Khác <b>cross-stack reference</b> (Export / ImportValue) giữa các stack độc lập.</li>
+<li>Giới hạn: template 1 MB (từ S3), 500 tài nguyên mỗi stack, 200 parameter, 200 output.</li>
+</ul>
+<h3>Update behavior của tài nguyên</h3>
+<table>
+<tr><th>Kiểu</th><th>Ví dụ</th></tr>
+<tr><td>Update with no interruption</td><td>Đổi tag, đổi một số thuộc tính của SG</td></tr>
+<tr><td>Update with some interruption</td><td>Đổi instance type của EC2 (stop / start)</td></tr>
+<tr><td><b>Replacement</b></td><td>Đổi tên bucket, đổi <code>DBInstanceIdentifier</code>, đổi AZ của subnet: tạo mới rồi xoá cũ (mất dữ liệu nếu không có UpdateReplacePolicy)</td></tr>
+</table>
+<p>Tài nguyên có <b>tên cố định</b> (custom name) không thể bị replace vì trùng tên: update thất bại. Để CloudFormation tự sinh tên nếu có thể.</p>
 
 <h3>Cập nhật an toàn</h3>
 <ul>
@@ -94,6 +130,15 @@ Outputs:
 <tr><td>Wait condition timeout</td><td>Máy không gọi được cfn-signal: không ra được Internet / thiếu endpoint, script lỗi</td></tr>
 </table>
 
+<h3>Đưa tài nguyên có sẵn vào và tách ra</h3>
+<ul>
+<li><b>Resource import</b>: đưa tài nguyên đã tạo tay vào stack (cần DeletionPolicy trong template). <b>IaC generator</b>: quét tài nguyên có sẵn và sinh template.</li>
+<li>Tách tài nguyên khỏi stack mà không xoá: đặt <code>DeletionPolicy: Retain</code>, update, rồi xoá khỏi template.</li>
+<li><b>CloudFormation Hooks</b>: kiểm tra tài nguyên trước khi tạo / sửa (ví dụ bắt buộc mã hoá), có thể dùng Guard rule hoặc Lambda.</li>
+<li><b>Git sync</b>: stack tự cập nhật khi template trong repo Git thay đổi.</li>
+<li><code>cfn-lint</code> kiểm tra cú pháp, <code>cfn-guard</code> kiểm tra chính sách, <code>aws cloudformation validate-template</code>.</li>
+</ul>
+
 <h2 id="stacksets-nhieu-account-nhieu-region"><a href="#stacksets-nhieu-account-nhieu-region" class="anchor" aria-hidden="true">#</a>StackSets: nhiều account, nhiều Region</h2>
 <ul>
 <li>Deploy cùng một template ra nhiều account và Region trong một thao tác.</li>
@@ -102,11 +147,20 @@ Outputs:
 </ul>
 <aside class="prod"><p>"Mọi account mới trong Organization phải tự động có CloudTrail / Config / IAM role chuẩn" → <b>StackSets service-managed với automatic deployment</b> gắn vào OU (hoặc Control Tower).</p></aside>
 
-<h2 id="aws-cdk-image-builder-ram"><a href="#aws-cdk-image-builder-ram" class="anchor" aria-hidden="true">#</a>AWS CDK, Image Builder, RAM</h2>
+<h3>StackSets chi tiết</h3>
+<ul>
+<li><b>Stack instance</b> = một stack trong một account + Region của StackSet.</li>
+<li>Thao tác: create, update, delete stack instances, <b>override parameter</b> cho từng account / Region.</li>
+<li>Lỗi hay gặp: execution role thiếu ở account đích hoặc trust policy sai account quản trị; account đích chưa bật Region (opt-in Region); vượt failure tolerance làm dừng cả thao tác; tài nguyên có tên trùng (bucket toàn cầu) khi deploy nhiều Region.</li>
+<li>Service-managed: dùng <b>delegated administrator</b> để không phải làm việc ở management account; <b>automatic deployment</b> khi account vào / rời OU (tuỳ chọn giữ hay xoá stack khi rời).</li>
+<li>Không deploy vào management account bằng service-managed permission.</li>
+</ul>
+
+<h2 id="aws-cdk-terraform"><a href="#aws-cdk-terraform" class="anchor" aria-hidden="true">#</a>AWS CDK, Terraform</h2>
 <ul>
 <li><b>CDK</b>: viết hạ tầng bằng TypeScript / Python..., <code>cdk synth</code> sinh template CloudFormation, <code>cdk deploy</code> triển khai. Lần đầu mỗi account / Region phải <code>cdk bootstrap</code> (tạo bucket, role cho CDK). Lỗi "không tìm thấy bucket staging" → chưa bootstrap.</li>
-<li><b>EC2 Image Builder</b>: pipeline tự động dựng AMI / container image: image recipe (AMI gốc + component cài phần mềm), test, phân phối sang Region / account khác, chạy theo lịch hoặc khi có bản vá. Thay cho tự viết Packer + script.</li>
-<li><b>AWS RAM</b>: chia sẻ tài nguyên cho account khác mà không copy: <b>subnet</b> (VPC sharing), Transit Gateway, Route 53 Resolver rules, License Manager, Aurora cluster (clone)...</li>
+<li>CDK có construct L1 (tương ứng 1-1 tài nguyên CloudFormation), L2 (mặc định hợp lý), L3 (pattern nhiều tài nguyên). <code>cdk diff</code> xem thay đổi trước khi deploy. <b>CDK Pipelines</b> để deploy nhiều môi trường.</li>
+<li><b>AWS SAM</b>: mở rộng CloudFormation cho serverless (<code>AWS::Serverless::Function</code>), <code>sam build</code>, <code>sam deploy</code>, deploy Lambda an toàn bằng CodeDeploy (canary / linear).</li>
 <li>Bên thứ ba: <b>Terraform</b> (state lưu ở S3 + khoá DynamoDB / S3 native locking), Git làm nguồn sự thật cho IaC.</li>
 </ul>
 
@@ -115,9 +169,9 @@ Outputs:
 <div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần đảm bảo database RDS không bị mất khi ai đó xoá stack. Chọn 2 đáp án.</p><div class="qo"><button type="button" class="opt" data-ok>Đặt DeletionPolicy: Snapshot hoặc Retain cho DBInstance</button><button type="button" class="opt" data-ok>Bật termination protection cho stack</button><button type="button" class="opt">Đặt DependsOn cho DBInstance</button><button type="button" class="opt">Dùng !ImportValue cho endpoint</button><button type="button" class="opt">Bật drift detection</button></div><p class="why" hidden>DeletionPolicy bảo vệ dữ liệu khi tài nguyên bị xoá, termination protection chặn việc xoá stack ngay từ đầu.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="soa-cloudformation">Đánh dấu đã học xong bài này</button></div>
-  <nav class="pn"><a class="prev" href="soa-backup-dr.html"><small>Bài trước</small>Backup và khôi phục thảm hoạ</a><a class="next" href="soa-deploy-automation.html"><small>Bài tiếp theo</small>Chiến lược deploy và tự động hoá</a></nav>
+  <nav class="pn"><a class="prev" href="soa-backup-dr.html"><small>Bài trước</small>Backup và khôi phục thảm hoạ</a><a class="next" href="soa-ami-sharing.html"><small>Bài tiếp theo</small>AMI, container image và chia sẻ tài nguyên</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cloudformation-nhung-gi-can-nam-chac">CloudFormation: những gì cần nắm chắc</a><a href="#stacksets-nhieu-account-nhieu-region">StackSets: nhiều account, nhiều Region</a><a href="#aws-cdk-image-builder-ram">AWS CDK, Image Builder, RAM</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cloudformation-nhung-gi-can-nam-chac">CloudFormation: những gì cần nắm chắc</a><a href="#stacksets-nhieu-account-nhieu-region">StackSets: nhiều account, nhiều Region</a><a href="#aws-cdk-terraform">AWS CDK, Terraform</a></nav>
 </div>
 </body>
 </html>
