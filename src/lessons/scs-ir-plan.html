@@ -1,0 +1,101 @@
+<h2>Vòng đời ứng phó sự cố</h2>
+<fig type="flow" caption="Vòng đời IR theo NIST SP 800-61 và AWS Security Incident Response Guide">
+[q] Chuẩn bị / con người, quy trình, công cụ
+-> 
+[cache] Phát hiện và phân tích / finding, log, phạm vi
+-> 
+[warn] Cô lập / chặn lan rộng, giữ bằng chứng
+-> 
+[go] Loại bỏ và khôi phục / dọn sạch, dựng lại
+-> 
+[ok] Sau sự cố / rút kinh nghiệm, cải tiến
+</fig>
+<p>Domain 2 có hai task: <b>thiết kế và kiểm thử kế hoạch</b> (bài này) và <b>phản ứng với sự kiện</b> (bài sau).</p>
+
+<h2>Thiết kế kế hoạch và runbook</h2>
+<ul>
+<li><b>IR plan</b>: vai trò (người chỉ huy sự cố, kỹ thuật, pháp lý, truyền thông), kênh liên lạc ngoài băng (không phụ thuộc hệ thống có thể bị chiếm), tiêu chí phân loại mức độ, quy trình báo cáo (cơ quan quản lý, khách hàng).</li>
+<li><b>Playbook / runbook</b> cho từng tình huống: credential bị lộ, EC2 bị chiếm, S3 bị công khai, ransomware, DDoS, container bị chiếm, Lambda bị sửa. AWS có bộ playbook mẫu (AWS Customer Playbook Framework).</li>
+<li>Dạng thực thi:
+  <ul>
+  <li><b>SSM Automation runbook</b>: các bước tự động (cô lập, snapshot, gắn tag), có bước <code>aws:approve</code> chờ người duyệt.</li>
+  <li><b>Systems Manager OpsCenter</b> / <b>Incident Manager</b>: tạo OpsItem / incident, gắn runbook, gọi người trực, kênh chat, timeline, post-incident analysis.</li>
+  <li><b>SageMaker AI notebook</b> (Jupyter): runbook dạng sổ tay vừa có hướng dẫn vừa có code truy vấn (Athena, boto3) cho điều tra.</li>
+  <li><b>Step Functions</b>: điều phối quy trình nhiều bước, rẽ nhánh, chờ, thử lại.</li>
+  </ul></li>
+</ul>
+
+<h2>Chuẩn bị môi trường trước khi có sự cố</h2>
+<table>
+<tr><th>Hạng mục</th><th>Chuẩn bị</th></tr>
+<tr><td><b>Quyền truy cập</b></td><td>Role điều tra (read-only + quyền forensics) trong mọi account, được assume từ account Security; <b>break-glass</b> có MFA phần cứng; quy trình cấp quyền tạm thời (just-in-time). Không đợi lúc sự cố mới xin quyền</td></tr>
+<tr><td><b>Account forensics</b></td><td>Account riêng, mạng cô lập, AMI công cụ điều tra dựng sẵn (Image Builder), bucket bằng chứng có Object Lock và KMS, quyền nhận snapshot chia sẻ</td></tr>
+<tr><td><b>Log sẵn sàng</b></td><td>CloudTrail mọi Region, Flow Logs, DNS logs, log ứng dụng, giữ đủ lâu; Security Lake / CloudTrail Lake để truy vấn nhanh</td></tr>
+<tr><td><b>Công cụ bảo mật</b></td><td>GuardDuty, Security Hub, Detective, Inspector bật sẵn ở mọi account / Region qua delegated admin</td></tr>
+<tr><td><b>Giảm blast radius</b></td><td>Nhiều account tách workload, SCP, least privilege, phân đoạn mạng, credential tạm thời, backup cô lập (vault ở account khác, Vault Lock)</td></tr>
+<tr><td><b>Shield Advanced</b></td><td>Đăng ký bảo vệ tài nguyên, health-based detection (gắn Route 53 health check), cho phép SRT truy cập (role), bật proactive engagement, danh sách liên hệ</td></tr>
+<tr><td><b>Liên hệ AWS</b></td><td>Gói support phù hợp, <b>AWS Security Incident Response</b> (dịch vụ hỗ trợ ứng phó 24/7, tự triage finding GuardDuty / Security Hub)</td></tr>
+</table>
+
+<h2>Kiểm thử kế hoạch</h2>
+<ul>
+<li><b>Tabletop exercise</b>: diễn tập trên giấy theo kịch bản.</li>
+<li><b>Game day</b> / mô phỏng thật trong môi trường thử: tạo finding mẫu (<code>CreateSampleFindings</code> của GuardDuty), chạy công cụ mô phỏng tấn công an toàn.</li>
+<li><b>AWS Fault Injection Service (FIS)</b>: gây lỗi có kiểm soát (dừng instance, ngắt mạng, tăng CPU, mất AZ) để kiểm tra runbook khôi phục và cảnh báo có hoạt động không. Có stop condition (alarm) để dừng thí nghiệm.</li>
+<li><b>AWS Resilience Hub</b>: đánh giá ứng dụng theo RPO / RTO mục tiêu, gợi ý cải thiện, tạo template FIS và SOP.</li>
+<li>Đo: thời gian phát hiện (MTTD), thời gian phản ứng / khôi phục (MTTR), runbook có chạy đúng không, quyền có đủ không.</li>
+</ul>
+
+<h2>Tự động khắc phục</h2>
+<arch w="800" h="350" caption="Mẫu tự động hoá ứng phó: finding đi qua EventBridge, Step Functions điều phối các bước cô lập và thu bằng chứng, chờ người duyệt trước bước phá huỷ">
+node gd 70 90 guardduty "GuardDuty" "finding High"
+node sh 70 230 securityhub "Security Hub" "custom action"
+node evb 220 160 eventbridge "Rule" "severity ≥ 7"
+node sfn 380 160 stepfunctions "Step Functions" "playbook"
+node l1 560 60 lambda "Cô lập" "SG cách ly, detach ASG"
+node l2 560 160 ssm "Thu bằng chứng" "snapshot, memory dump"
+node l3 560 260 ssm "Chờ duyệt" "aws:approve"
+node s3 720 160 s3 "Bucket bằng chứng" "Object Lock"
+node sns 720 260 sns "Thông báo" "on-call"
+path 96 90 150 90 150 150 194 150 "" c=go
+path 96 230 150 230 150 170 194 170 "" c=go
+edge evb sfn "" c=go
+edge sfn l1 "" route=vh
+edge sfn l2 ""
+edge sfn l3 "" route=vh
+edge l2 s3 "" c=ok
+edge l3 sns ""
+</arch>
+<table>
+<tr><th>Công cụ</th><th>Dùng khi</th></tr>
+<tr><td><b>SSM Automation</b></td><td>Runbook có sẵn (<code>AWSSupport-ContainEC2Instance</code>, <code>AWS-DisablePublicAccessForSecurityGroup</code>, <code>AWSConfigRemediation-*</code>), tự viết runbook, chạy nhiều account / Region</td></tr>
+<tr><td><b>Lambda</b></td><td>Hành động nhanh, đơn giản: vô hiệu hoá access key, gắn policy deny, sửa bucket policy</td></tr>
+<tr><td><b>Step Functions</b></td><td>Quy trình nhiều bước, rẽ nhánh theo loại finding, chờ phê duyệt, retry</td></tr>
+<tr><td><b>Automated Forensics Orchestrator for Amazon EC2</b></td><td>Giải pháp AWS dựng sẵn: khi có finding, tự cô lập instance, thu bộ nhớ và đĩa, phân tích trong account forensics</td></tr>
+<tr><td><b>Automated Security Response on AWS</b></td><td>Giải pháp dựng sẵn: playbook sửa các control của Security Hub (CIS, FSBP)</td></tr>
+<tr><td><b>Application Recovery Controller</b></td><td>Chuyển traffic khỏi AZ / Region bị ảnh hưởng (zonal shift, routing control)</td></tr>
+<tr><td><b>Config remediation</b></td><td>Sửa cấu hình sai (bucket public, SG mở)</td></tr>
+</table>
+<aside class="prod"><p>Cân nhắc tự động hoá hoàn toàn: các hành động <b>có thể đảo ngược</b> và ít rủi ro (cô lập mạng, gắn tag, snapshot, vô hiệu hoá key) nên tự động. Hành động <b>phá huỷ</b> (terminate, xoá dữ liệu) nên có bước người duyệt.</p></aside>
+
+<quiz q="Đội bảo mật muốn kiểm tra runbook khôi phục khi một AZ mất kết nối có thực sự hoạt động và cảnh báo có kêu không, trên môi trường staging. Dùng gì?">
+- GuardDuty sample findings
++ AWS Fault Injection Service với kịch bản gián đoạn AZ và stop condition
+- Inspector
+- CloudTrail Lake
+? FIS gây lỗi có kiểm soát để kiểm chứng khả năng phục hồi và quy trình ứng phó.
+</quiz>
+<quiz q="Khi sự cố xảy ra, đội điều tra mất 2 giờ chỉ để xin quyền vào account bị ảnh hưởng. Cải thiện đúng nhất?">
++ Chuẩn bị sẵn role điều tra trong mọi account (StackSets) assume được từ account Security, kèm quy trình break-glass
+- Cấp AdministratorAccess thường trực cho đội điều tra
+- Dùng root của từng account
+- Tạo IAM user cho mỗi người trong mỗi account
+? Chuẩn bị quyền là một phần của giai đoạn Preparation, vẫn theo least privilege.
+</quiz>
+<quiz q="Muốn quy trình phản ứng tự cô lập EC2 ngay nhưng chỉ terminate sau khi người phụ trách đồng ý. Thiết kế?">
+- Lambda terminate ngay
++ Step Functions (hoặc SSM Automation) cô lập tự động, bước terminate đặt sau một bước chờ phê duyệt
+- Chỉ gửi email, không tự động
+- Config remediation tự terminate
+? Tự động phần đảo ngược được, phần phá huỷ cần người duyệt.
+</quiz>

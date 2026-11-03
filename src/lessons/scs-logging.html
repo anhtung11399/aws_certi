@@ -1,15 +1,42 @@
 <h2>Account log tập trung</h2>
-<fig type="flow" caption="Mẫu landing zone: mọi account đẩy log về Log Archive, đội bảo mật làm việc ở Security / Audit account">
-[go] Các account workload / CloudTrail, Config, VPC Flow Logs
--> 
-[db] Log Archive account / S3 bucket mã hoá KMS, Object Lock, chặn xoá
--> đọc
-[warn] Security Tooling account / GuardDuty, Security Hub delegated admin, Athena
-</fig>
+<arch w="800" h="330" caption="Mẫu landing zone cho log: organization trail và Config ghi về bucket ở Log Archive (Object Lock, KMS, chặn xoá); log ứng dụng đẩy về qua subscription; đội bảo mật đọc từ account Security Tooling">
+group 10 10 250 310 ou "Account workload"
+node ct 80 80 cloudtrail "Org trail" "management + data events"
+node fl 200 80 vpc "Flow Logs"
+node cw 80 220 logs "CloudWatch Logs" "ứng dụng"
+node cfg 200 220 config "Config"
+group 290 10 260 310 account "Log Archive"
+node b 420 110 s3 "Bucket log" "Object Lock · SSE-KMS"
+node lake 420 240 securitylake "Security Lake"
+group 580 10 210 310 account "Security Tooling"
+node ath 685 110 athena "Athena / CloudTrail Lake"
+node os 685 240 opensearch "OpenSearch / SIEM"
+path 106 80 150 80 150 40 420 40 420 84 "" c=ok
+path 226 80 260 80 260 100 394 100 "" c=ok
+path 226 220 260 220 260 120 394 120 "" c=ok
+edge cw lake "subscription" c=go route=hv
+edge b ath "đọc (cross-account)" dash
+edge lake os "subscriber" dash
+</arch>
 <ul>
 <li>Bucket log: bucket policy chỉ cho dịch vụ ghi (<code>cloudtrail.amazonaws.com</code> với điều kiện <code>aws:SourceOrgID</code> / <code>aws:SourceArn</code>), chặn xoá, bật versioning + <b>Object Lock</b>, mã hoá SSE-KMS, lifecycle chuyển Glacier.</li>
 <li>SCP cấm các account con tắt CloudTrail / Config / GuardDuty (<code>cloudtrail:StopLogging</code>, <code>DeleteTrail</code>...).</li>
 </ul>
+
+<h2>Chọn nguồn log theo mối đe doạ</h2>
+<table>
+<tr><th>Mối đe doạ / thiết kế</th><th>Bật log</th></tr>
+<tr><td>Đánh cắp dữ liệu S3</td><td>CloudTrail S3 data events (GetObject), S3 server access logs, GuardDuty S3 Protection, Macie</td></tr>
+<tr><td>Rò dữ liệu qua DNS, máy bị điều khiển</td><td>Route 53 Resolver query logs, DNS Firewall logs</td></tr>
+<tr><td>Quét cổng, kết nối lạ giữa các VPC</td><td>VPC Flow Logs (custom format có <code>pkt-srcaddr</code>, <code>tcp-flags</code>, <code>flow-direction</code>), <b>Transit Gateway Flow Logs</b> cho traffic giữa VPC / on-premises</td></tr>
+<tr><td>Tấn công web</td><td>WAF logs (full / filtered), ALB access logs, CloudFront standard / real-time logs, API Gateway access logs</td></tr>
+<tr><td>Lạm dụng quyền / credential</td><td>CloudTrail management events mọi Region, IAM Identity Center logs (trong CloudTrail), CloudTrail Insights</td></tr>
+<tr><td>Kubernetes</td><td>EKS control plane audit logs, GuardDuty EKS</td></tr>
+<tr><td>Database</td><td>RDS / Aurora audit log, Database Activity Streams</td></tr>
+<tr><td>Thao tác quản trị trên máy</td><td>Session Manager session logs, CloudWatch agent thu /var/log/secure, Windows Security event log</td></tr>
+<tr><td>Firewall</td><td>Network Firewall flow / alert / TLS logs</td></tr>
+</table>
+<p>Lưu ý chi phí: data events và Flow Logs rất nhiều. Dùng <b>advanced event selectors</b> chỉ ghi bucket / hàm quan trọng, Flow Logs ở mức subnet / ENI quan trọng, lưu S3 Parquet thay vì CloudWatch Logs.</p>
 
 <h2>CloudTrail</h2>
 <table>
@@ -28,6 +55,17 @@
 <li>Log tới S3 chậm khoảng 5 đến 15 phút, không phải thời gian thực.</li>
 </ul>
 
+<h3>CloudTrail chi tiết thêm</h3>
+<ul>
+<li><b>Advanced event selectors</b>: lọc theo <code>eventCategory</code>, <code>resources.type</code>, <code>resources.ARN</code>, <code>eventName</code>, <code>readOnly</code>... để chỉ ghi data event cần thiết.</li>
+<li>Mã hoá log bằng <b>SSE-KMS</b>: key policy cho <code>cloudtrail.amazonaws.com</code> với điều kiện <code>aws:SourceArn</code> của trail và encryption context; người đọc log cần <code>kms:Decrypt</code>.</li>
+<li><b>SNS notification</b> khi có file log mới (cho hệ thống bên ngoài kéo về).</li>
+<li>Organization trail: tạo ở management account hoặc <b>delegated administrator</b> của CloudTrail; thành viên thấy trail nhưng không sửa / xoá được.</li>
+<li><b>CloudTrail Lake</b>: event data store (giữ tới 10 năm hoặc theo gói), truy vấn SQL, <b>federation</b> sang Athena, nạp event từ ngoài AWS (integration), <b>dashboard</b>; có thể lưu cả Config configuration items.</li>
+<li><b>Network activity events</b>: API call đi qua VPC endpoint, phát hiện ai dùng endpoint để truy cập tài nguyên ngoài tổ chức.</li>
+<li>Kiểm tra toàn vẹn: digest file mỗi giờ ký bằng private key của CloudTrail, tham chiếu digest trước đó (chuỗi). <code>aws cloudtrail validate-logs --trail-arn ... --start-time ...</code> báo file bị sửa / xoá.</li>
+</ul>
+
 <h2>Log nào trả lời câu hỏi nào</h2>
 <table>
 <tr><th>Câu hỏi</th><th>Log</th></tr>
@@ -42,12 +80,41 @@
 <tr><td>Lệnh gõ trong phiên quản trị</td><td>SSM Session Manager session logs</td></tr>
 </table>
 
+<h3>Account CloudWatch Logs tập trung</h3>
+<ul>
+<li>Cách 1: <b>cross-account observability</b> (OAM): log nằm ở account nguồn, account giám sát truy vấn được bằng Logs Insights.</li>
+<li>Cách 2: <b>subscription filter</b> từng log group (hoặc account-level subscription filter) gửi tới <b>destination</b> (Kinesis / Firehose) ở account log trung tâm; destination policy cho phép các account nguồn (hoặc cả Organization).</li>
+<li>Cách 3: <b>log centralization</b> của CloudWatch (sao chép log group về account / Region trung tâm theo rule của Organization).</li>
+<li>Bảo vệ log: retention, KMS, data protection policy (che dữ liệu nhạy cảm), resource policy hạn chế ai xoá log group.</li>
+</ul>
+
 <h2>Phân tích log</h2>
 <ul>
 <li><b>Athena</b>: truy vấn SQL trực tiếp trên log trong S3 (CloudTrail, Flow Logs, ALB, WAF). Dùng partition projection để rẻ và nhanh.</li>
 <li><b>CloudWatch Logs Insights</b>: truy vấn log trong CloudWatch Logs.</li>
 <li><b>OpenSearch Service</b>: tìm kiếm, tương quan, dashboard cho log lớn, SIEM tự dựng. Đẩy log qua subscription filter → Firehose / Lambda.</li>
 <li><b>Lambda</b>: parse, chuẩn hoá, làm giàu log. <b>Managed Grafana</b>: dashboard.</li>
+</ul>
+
+<pre lang="sql" file="Athena trên CloudTrail: ai gọi API bị AccessDenied nhiều nhất 24 giờ qua">
+SELECT useridentity.arn, eventsource, eventname, count(*) AS n
+FROM cloudtrail_logs
+WHERE errorcode IN ('AccessDenied', 'Client.UnauthorizedOperation')
+  AND eventtime > to_iso8601(current_timestamp - interval '1' day)
+GROUP BY 1, 2, 3
+ORDER BY n DESC
+LIMIT 20;
+</pre>
+<pre lang="text" file="Logs Insights trên VPC Flow Logs: IP bị từ chối nhiều nhất">
+filter action = "REJECT"
+| stats count(*) as rejects by srcAddr, dstPort
+| sort rejects desc
+| limit 20
+</pre>
+<ul>
+<li>Tương quan nhiều nguồn: dùng chung khoá như IP, instance ID, access key ID, request ID, trace ID; Security Lake (OCSF) giúp các nguồn có cùng lược đồ để JOIN.</li>
+<li><b>OpenSearch Service</b>: SIEM tự dựng, <b>Security Analytics</b> (rule Sigma có sẵn, phát hiện mối đe doạ trên log), alerting, dashboard; nạp qua Firehose / OpenSearch Ingestion.</li>
+<li><b>Managed Grafana</b>: dashboard từ CloudWatch, OpenSearch, Athena.</li>
 </ul>
 
 <h2>Sửa lỗi "log không về"</h2>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Phản ứng sự cố: điều tra, cô lập, khôi phục · Ôn thi AWS</title>
+<meta name="description" content="Thu thập bằng chứng, tương quan log, đánh giá phạm vi, cô lập và loại bỏ mối đe doạ (EC2, credential, S3, container, Lambda), khôi phục, root cause analysis với Detective.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Giám sát và cảnh báo bảo mật</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung, phân tích và xử lý sự cố log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-ir-plan.html" data-slug="scs-ir-plan"><i class="dot"></i><span class="no">03</span><span class="tx">Kế hoạch ứng phó sự cố và tự động hoá</span></a></li><li><a href="scs-ir-respond.html" data-slug="scs-ir-respond" aria-current="page"><i class="dot"></i><span class="no">04</span><span class="tx">Phản ứng sự cố: điều tra, cô lập, khôi phục</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-edge.html" data-slug="scs-infra-edge"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật biên: CloudFront, WAF, Shield</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">06</span><span class="tx">Bảo mật compute, container, pipeline và GenAI</span></a></li><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">07</span><span class="tx">Bảo mật mạng: phân đoạn, firewall, kết nối lai</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">08</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">09</span><span class="tx">Phân quyền: policy evaluation, ABAC và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-transit.html" data-slug="scs-transit"><i class="dot"></i><span class="no">10</span><span class="tx">Bảo vệ dữ liệu khi truyền</span></a></li><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">11</span><span class="tx">KMS, CloudHSM, key material và Private CA</span></a></li><li><a href="scs-data-at-rest.html" data-slug="scs-data-at-rest"><i class="dot"></i><span class="no">12</span><span class="tx">Dữ liệu at rest: mã hoá, toàn vẹn, vòng đời, backup</span></a></li><li><a href="scs-secrets.html" data-slug="scs-secrets"><i class="dot"></i><span class="no">13</span><span class="tx">Secrets, che dữ liệu nhạy cảm và chứng chỉ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">14</span><span class="tx">Quản trị nhiều account</span></a></li><li><a href="scs-compliance.html" data-slug="scs-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Triển khai nhất quán và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">16</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-ir-respond">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</span><span>Bài 04</span><span>60 phút</span></div>
+    <h1>Phản ứng sự cố: điều tra, cô lập, khôi phục</h1>
+    <p class="lead">Thu thập bằng chứng, tương quan log, đánh giá phạm vi, cô lập và loại bỏ mối đe doạ (EC2, credential, S3, container, Lambda), khôi phục, root cause analysis với Detective.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Biết đúng thứ tự xử lý từng loại sự cố</li><li>Giữ bằng chứng đúng cách</li><li>Tìm nguyên nhân gốc</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="thu-thap-bang-chung-forensic-artifacts"><a href="#thu-thap-bang-chung-forensic-artifacts" class="anchor" aria-hidden="true">#</a>Thu thập bằng chứng (forensic artifacts)</h2>
+<table>
+<tr><th>Bằng chứng</th><th>Cách thu</th><th>Lưu ý</th></tr>
+<tr><td>Bộ nhớ (RAM)</td><td>Công cụ (LiME, AVML, WinPmem) chạy qua SSM Run Command, ghi ra S3</td><td>Thu <b>trước</b> khi tắt máy, dễ mất nhất</td></tr>
+<tr><td>Đĩa</td><td>Snapshot EBS mọi volume (có thể copy sang account forensics, mã hoá bằng key của forensics)</td><td>Không gắn volume gốc vào máy khác khi chưa có bản sao</td></tr>
+<tr><td>Metadata instance</td><td>DescribeInstances, tag, SG, IAM role, ENI, user data</td><td>Ghi lại trước khi đổi gì</td></tr>
+<tr><td>Log</td><td>CloudTrail, Flow Logs, DNS logs, log OS / ứng dụng, ELB / WAF logs</td><td>Xuất ra bucket bằng chứng có Object Lock, ghi hash để chứng minh không bị sửa</td></tr>
+<tr><td>Container</td><td>Snapshot node, <code>docker export</code> / checkpoint, log của pod, EKS audit</td><td></td></tr>
+<tr><td>Lambda</td><td>Lấy bản code và cấu hình của version đang chạy (GetFunction), log CloudWatch</td><td></td></tr>
+</table>
+<p>Giữ <b>chain of custody</b>: ai thu, lúc nào, hash SHA-256, lưu ở đâu, ai truy cập. Bucket bằng chứng: versioning + Object Lock compliance + SSE-KMS + bucket policy chỉ cho role forensics.</p>
+
+<h2 id="tim-kiem-tuong-quan-va-danh-gia-pham-vi"><a href="#tim-kiem-tuong-quan-va-danh-gia-pham-vi" class="anchor" aria-hidden="true">#</a>Tìm kiếm, tương quan và đánh giá phạm vi</h2>
+<ul>
+<li>Xác thực finding: là thật hay báo động giả (máy quét nội bộ, pentest đã báo trước)? Dùng Detective xem bối cảnh, CloudTrail xem API cụ thể.</li>
+<li>Đánh giá phạm vi: principal bị ảnh hưởng đã làm gì (CloudTrail Lake / Athena theo access key ID hoặc session), đã tạo thêm tài nguyên / credential nào, đã truy cập dữ liệu nào (S3 data events), lan sang account nào (AssumeRole cross-account), Region nào.</li>
+<li>Tương quan: IP của kẻ tấn công trong Flow Logs, WAF logs, CloudTrail <code>sourceIPAddress</code>; user agent; khung thời gian.</li>
+<li>Security Lake + Athena (OCSF) hoặc OpenSearch Security Analytics khi cần tương quan nhiều nguồn.</li>
+</ul>
+
+<h2 id="ec2-bi-chiem-quyen-thu-tu-xu-ly"><a href="#ec2-bi-chiem-quyen-thu-tu-xu-ly" class="anchor" aria-hidden="true">#</a>EC2 bị chiếm quyền: thứ tự xử lý</h2>
+<p>Đây là dạng câu <b>ordering</b> rất hay gặp. Nguyên tắc: <b>giữ bằng chứng, cô lập, không tắt máy vội</b> (tắt máy là mất dữ liệu trong RAM).</p>
+<ol>
+<li><b>Bật termination protection</b>, gắn tag đánh dấu (ví dụ <code>Quarantine=true</code>), ghi lại metadata của instance.</li>
+<li><b>Tách khỏi ASG</b> (detach hoặc đặt standby) và <b>deregister khỏi target group</b>, để ASG không terminate mất bằng chứng và người dùng không còn bị phục vụ bởi máy này.</li>
+<li><b>Cô lập mạng</b>: đổi sang <b>security group cách ly</b> không có rule nào (hoặc chỉ cho máy điều tra). Lưu ý: kết nối đang mở (tracked connection) có thể vẫn còn với SG; dùng NACL để cắt ngay nếu cần.</li>
+<li><b>Thu bằng chứng</b>: snapshot các EBS volume, chụp bộ nhớ (memory dump bằng công cụ qua SSM), lưu log.</li>
+<li><b>Điều tra</b> trong account forensics: tạo volume từ snapshot, gắn vào máy điều tra (đã cô lập).</li>
+<li><b>Loại bỏ và khôi phục</b>: thay bằng instance mới từ AMI sạch, vá lỗ hổng, xoay vòng credential liên quan.</li>
+</ol>
+<aside class="prod"><p>Đáp án "terminate instance ngay" hoặc "stop instance để chụp snapshot" thường là bẫy: mất bằng chứng trong RAM, và tắt máy trước khi điều tra không cần thiết. Tuy nhiên nếu đề ưu tiên "ngăn thiệt hại ngay lập tức" hơn điều tra thì cô lập mạng luôn là bước đầu.</p></aside>
+
+<h2 id="credential-bi-lo"><a href="#credential-bi-lo" class="anchor" aria-hidden="true">#</a>Credential bị lộ</h2>
+<h3>IAM user access key lộ (ví dụ đẩy lên GitHub)</h3>
+<ol>
+<li><b>Vô hiệu hoá</b> (deactivate) access key ngay. AWS có thể đã tự gắn policy <code>AWSCompromisedKeyQuarantine</code> và gửi thông báo qua Health.</li>
+<li>Tra <b>CloudTrail</b> mọi hành động của key đó: tạo user mới, key mới, role, instance... rồi dọn hết.</li>
+<li>Xoay vòng: tạo key mới cho ứng dụng (tốt hơn: chuyển sang role), xoá key cũ.</li>
+<li>Kiểm tra hoá đơn và mọi Region (máy đào coin).</li>
+</ol>
+<h3>Credential tạm thời của role bị lộ</h3>
+<ul>
+<li>Không "xoá" được credential tạm thời đã cấp. Dùng <b>Revoke active sessions</b> trên role: IAM gắn policy Deny mọi request có <code>aws:TokenIssueTime</code> trước thời điểm thu hồi.</li>
+<li>Bật <b>IMDSv2</b> để giảm nguy cơ SSRF lấy credential.</li>
+</ul>
+<h3>Root bị lộ</h3>
+<ul><li>Đổi mật khẩu, bật / thay MFA, xoá access key của root (root không nên có access key), kiểm tra CloudTrail, liên hệ AWS Support.</li></ul>
+
+<figure class="dg arch"><svg viewBox="0 0 800 330" style="min-width:640px;max-width:800px" role="img" aria-label="Cô lập EC2 bị chiếm: tách khỏi ASG và target group, đổi sang security group cách ly, thu bằng chứng sang account forensics"><g class="ag ag-account"><rect x="10" y="10" width="480" height="310" rx="8"/><text x="20" y="28" class="ag-t">Account bị ảnh hưởng</text></g><g class="ag ag-plain"><rect x="25" y="45" width="210" height="260" rx="8"/><text x="35" y="63" class="ag-t">Trước</text></g><g class="ag ag-bad"><rect x="260" y="45" width="215" height="260" rx="8"/><text x="270" y="63" class="ag-t">Sau khi cô lập</text></g><g class="ag ag-account"><rect x="520" y="10" width="270" height="310" rx="8"/><text x="530" y="28" class="ag-t">Account forensics</text></g><path d="M80.0 144.0 L80.0 230.0 L104.0 230.0" class="ae" marker-end="url(#ar)"/><path d="M180.0 144.0 L180.0 230.0 L156.0 230.0" class="ae ds" marker-end="url(#ar)"/><path d="M365.0 219.0 L365.0 178.0" class="ae" marker-end="url(#ar)"/><path d="M391.0 120.0 L440.0 120.0 L440.0 80.0 L600.0 80.0 L600.0 94.0" class="ae ae-go" marker-end="url(#ar)"/><path d="M600.0 178.0 L600.0 250.0 L634.0 250.0" class="ae" marker-end="url(#ar)"/><path d="M626.0 120.0 L694.0 120.0" class="ae ds" marker-end="url(#ar)"/><g class="an an-nw"><rect x="58" y="78" width="44" height="44" rx="9"/><text x="80" y="104.5" text-anchor="middle" class="an-i" style="font-size:13px">ALB</text><text x="80" y="138" text-anchor="middle" class="an-l">ALB</text></g><g class="an an-cp"><rect x="158" y="78" width="44" height="44" rx="9"/><text x="180" y="104.5" text-anchor="middle" class="an-i" style="font-size:13px">ASG</text><text x="180" y="138" text-anchor="middle" class="an-l">ASG</text></g><g class="an an-cp"><rect x="108" y="208" width="44" height="44" rx="9"/><text x="130" y="234.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="130" y="268" text-anchor="middle" class="an-l">EC2 nghi ngờ</text><text x="130" y="282" text-anchor="middle" class="an-s">SG web</text></g><g class="an an-cp"><rect x="343" y="98" width="44" height="44" rx="9"/><text x="365" y="124.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="365" y="158" text-anchor="middle" class="an-l">EC2 (giữ chạy)</text><text x="365" y="172" text-anchor="middle" class="an-s">tag Quarantine, termination protection</text></g><g class="an an-sec"><rect x="343" y="223" width="44" height="44" rx="9"/><text x="365" y="249.5" text-anchor="middle" class="an-i" style="font-size:13px">SG</text><text x="365" y="283" text-anchor="middle" class="an-l">SG cách ly</text><text x="365" y="297" text-anchor="middle" class="an-s">không inbound / outbound</text></g><g class="an an-st"><rect x="578" y="98" width="44" height="44" rx="9"/><text x="600" y="124.5" text-anchor="middle" class="an-i" style="font-size:11px">SNAP</text><text x="600" y="158" text-anchor="middle" class="an-l">Snapshot EBS</text><text x="600" y="172" text-anchor="middle" class="an-s">copy, KMS forensics</text></g><g class="an an-st"><rect x="698" y="98" width="44" height="44" rx="9"/><text x="720" y="124.5" text-anchor="middle" class="an-i" style="font-size:13px">S3</text><text x="720" y="158" text-anchor="middle" class="an-l">Bucket bằng chứng</text><text x="720" y="172" text-anchor="middle" class="an-s">Object Lock</text></g><g class="an an-cp"><rect x="638" y="228" width="44" height="44" rx="9"/><text x="660" y="254.5" text-anchor="middle" class="an-i" style="font-size:13px">EC2</text><text x="660" y="288" text-anchor="middle" class="an-l">Máy phân tích</text><text x="660" y="302" text-anchor="middle" class="an-s">mạng cô lập</text></g><g class="ae-lb"><rect x="467.0" y="71.0" width="106.0" height="17" rx="4"/><text x="520.0" y="83.5" text-anchor="middle">snapshot + copy</text></g><g class="ae-lb"><rect x="563.0" y="205.0" width="74.0" height="17" rx="4"/><text x="600.0" y="217.5" text-anchor="middle">gắn volume</text></g></svg><figcaption>Cô lập EC2 bị chiếm: tách khỏi ASG và target group, đổi sang security group cách ly, thu bằng chứng sang account forensics</figcaption></figure>
+
+<h2 id="credential-s3-container-lambda-bi-anh-huong"><a href="#credential-s3-container-lambda-bi-anh-huong" class="anchor" aria-hidden="true">#</a>Credential, S3, container, Lambda bị ảnh hưởng</h2>
+<table>
+<tr><th>Tình huống</th><th>Cô lập / loại bỏ</th></tr>
+<tr><td>Access key IAM user lộ</td><td>Deactivate key → tra CloudTrail theo key ID → xoá tài nguyên / user / key / role kẻ tấn công tạo → kiểm tra mọi Region → xoá key, chuyển ứng dụng sang role. AWS có thể gắn <code>AWSCompromisedKeyQuarantineV3</code></td></tr>
+<tr><td>Credential tạm thời của role bị lộ</td><td><b>Revoke active sessions</b> (policy Deny theo <code>aws:TokenIssueTime</code>), bật IMDSv2, xoay vòng nếu là role cho người</td></tr>
+<tr><td>IAM Identity Center user bị chiếm</td><td>Vô hiệu hoá user ở identity source, thu hồi phiên, gỡ permission set</td></tr>
+<tr><td>Bucket S3 bị công khai / dữ liệu bị tải</td><td>Bật Block Public Access, sửa bucket policy, xem S3 data events / access logs để biết object nào bị tải, Macie xác định độ nhạy</td></tr>
+<tr><td>Ransomware mã hoá / xoá dữ liệu</td><td>Cô lập principal, khôi phục từ AWS Backup (vault cô lập, Vault Lock), S3 versioning / Object Lock</td></tr>
+<tr><td>Container EKS bị chiếm</td><td>Network policy chặn pod, cordon node, gắn label, thu bằng chứng node, xoá pod và dựng lại từ image sạch, xoay vòng secret của pod</td></tr>
+<tr><td>Lambda bị sửa code</td><td>Đặt reserved concurrency = 0 (dừng hàm), lưu bản code nghi ngờ, deploy lại version sạch, kiểm tra execution role</td></tr>
+<tr><td>KMS key policy bị sửa để khoá bạn ra ngoài</td><td>Liên hệ AWS Support; phòng ngừa bằng SCP</td></tr>
+</table>
+<p>Khôi phục: dựng lại từ AMI / image sạch và IaC (không "dọn" máy bị chiếm), vá lỗ hổng gốc, khôi phục dữ liệu từ backup sạch, theo dõi tăng cường một thời gian.</p>
+
+<h2 id="dieu-tra-nguyen-nhan-goc"><a href="#dieu-tra-nguyen-nhan-goc" class="anchor" aria-hidden="true">#</a>Điều tra nguyên nhân gốc</h2>
+<ul>
+<li><b>Detective</b>: từ một finding, xem IP / role / instance liên quan, hành vi trước và sau, so với bình thường.</li>
+<li><b>CloudTrail Lake / Athena</b> truy vấn ai làm gì, từ IP nào, user agent nào.</li>
+<li>Kiểm tra lỗ hổng được khai thác bằng Inspector, đối chiếu WAF / ALB log.</li>
+<li>Root cause analysis xong: sửa nguyên nhân (vá, siết policy), thêm control phòng ngừa (SCP, Config rule), cập nhật runbook.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Sắp xếp đúng thứ tự khi phát hiện EC2 trong ASG bị chiếm: (1) snapshot EBS, (2) detach instance khỏi ASG, (3) đổi sang security group cách ly. Thứ tự nào hợp lý nhất?</p><div class="qo"><button type="button" class="opt">1 → 3 → 2</button><button type="button" class="opt" data-ok>2 → 3 → 1</button><button type="button" class="opt">3 → 1 → 2</button></div><p class="why" hidden>Detach trước để ASG không thay thế mất máy, cô lập mạng để chặn thiệt hại, rồi thu bằng chứng.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Credential tạm thời của một role trên EC2 bị đánh cắp và đang được dùng từ IP bên ngoài. Cách vô hiệu hoá nhanh nhất mà không xoá role?</p><div class="qo"><button type="button" class="opt">Xoá access key của role</button><button type="button" class="opt" data-ok>Dùng tính năng Revoke active sessions của role (Deny theo aws:TokenIssueTime)</button><button type="button" class="opt">Đổi trust policy của role</button></div><p class="why" hidden>Credential tạm thời không xoá được. Revoke active sessions chặn mọi token cấp trước thời điểm đó.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-ir-respond">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-ir-plan.html"><small>Bài trước</small>Kế hoạch ứng phó sự cố và tự động hoá</a><a class="next" href="scs-infra-edge.html"><small>Bài tiếp theo</small>Bảo mật biên: CloudFront, WAF, Shield</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#thu-thap-bang-chung-forensic-artifacts">Thu thập bằng chứng (forensic artifacts)</a><a href="#tim-kiem-tuong-quan-va-danh-gia-pham-vi">Tìm kiếm, tương quan và đánh giá phạm vi</a><a href="#ec2-bi-chiem-quyen-thu-tu-xu-ly">EC2 bị chiếm quyền: thứ tự xử lý</a><a href="#credential-bi-lo">Credential bị lộ</a><a href="#credential-s3-container-lambda-bi-anh-huong">Credential, S3, container, Lambda bị ảnh hưởng</a><a href="#dieu-tra-nguyen-nhan-goc">Điều tra nguyên nhân gốc</a></nav>
+</div>
+</body>
+</html>

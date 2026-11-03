@@ -1,0 +1,103 @@
+<h2>Thu thập bằng chứng (forensic artifacts)</h2>
+<table>
+<tr><th>Bằng chứng</th><th>Cách thu</th><th>Lưu ý</th></tr>
+<tr><td>Bộ nhớ (RAM)</td><td>Công cụ (LiME, AVML, WinPmem) chạy qua SSM Run Command, ghi ra S3</td><td>Thu <b>trước</b> khi tắt máy, dễ mất nhất</td></tr>
+<tr><td>Đĩa</td><td>Snapshot EBS mọi volume (có thể copy sang account forensics, mã hoá bằng key của forensics)</td><td>Không gắn volume gốc vào máy khác khi chưa có bản sao</td></tr>
+<tr><td>Metadata instance</td><td>DescribeInstances, tag, SG, IAM role, ENI, user data</td><td>Ghi lại trước khi đổi gì</td></tr>
+<tr><td>Log</td><td>CloudTrail, Flow Logs, DNS logs, log OS / ứng dụng, ELB / WAF logs</td><td>Xuất ra bucket bằng chứng có Object Lock, ghi hash để chứng minh không bị sửa</td></tr>
+<tr><td>Container</td><td>Snapshot node, <code>docker export</code> / checkpoint, log của pod, EKS audit</td><td></td></tr>
+<tr><td>Lambda</td><td>Lấy bản code và cấu hình của version đang chạy (GetFunction), log CloudWatch</td><td></td></tr>
+</table>
+<p>Giữ <b>chain of custody</b>: ai thu, lúc nào, hash SHA-256, lưu ở đâu, ai truy cập. Bucket bằng chứng: versioning + Object Lock compliance + SSE-KMS + bucket policy chỉ cho role forensics.</p>
+
+<h2>Tìm kiếm, tương quan và đánh giá phạm vi</h2>
+<ul>
+<li>Xác thực finding: là thật hay báo động giả (máy quét nội bộ, pentest đã báo trước)? Dùng Detective xem bối cảnh, CloudTrail xem API cụ thể.</li>
+<li>Đánh giá phạm vi: principal bị ảnh hưởng đã làm gì (CloudTrail Lake / Athena theo access key ID hoặc session), đã tạo thêm tài nguyên / credential nào, đã truy cập dữ liệu nào (S3 data events), lan sang account nào (AssumeRole cross-account), Region nào.</li>
+<li>Tương quan: IP của kẻ tấn công trong Flow Logs, WAF logs, CloudTrail <code>sourceIPAddress</code>; user agent; khung thời gian.</li>
+<li>Security Lake + Athena (OCSF) hoặc OpenSearch Security Analytics khi cần tương quan nhiều nguồn.</li>
+</ul>
+
+<h2>EC2 bị chiếm quyền: thứ tự xử lý</h2>
+<p>Đây là dạng câu <b>ordering</b> rất hay gặp. Nguyên tắc: <b>giữ bằng chứng, cô lập, không tắt máy vội</b> (tắt máy là mất dữ liệu trong RAM).</p>
+<ol>
+<li><b>Bật termination protection</b>, gắn tag đánh dấu (ví dụ <code>Quarantine=true</code>), ghi lại metadata của instance.</li>
+<li><b>Tách khỏi ASG</b> (detach hoặc đặt standby) và <b>deregister khỏi target group</b>, để ASG không terminate mất bằng chứng và người dùng không còn bị phục vụ bởi máy này.</li>
+<li><b>Cô lập mạng</b>: đổi sang <b>security group cách ly</b> không có rule nào (hoặc chỉ cho máy điều tra). Lưu ý: kết nối đang mở (tracked connection) có thể vẫn còn với SG; dùng NACL để cắt ngay nếu cần.</li>
+<li><b>Thu bằng chứng</b>: snapshot các EBS volume, chụp bộ nhớ (memory dump bằng công cụ qua SSM), lưu log.</li>
+<li><b>Điều tra</b> trong account forensics: tạo volume từ snapshot, gắn vào máy điều tra (đã cô lập).</li>
+<li><b>Loại bỏ và khôi phục</b>: thay bằng instance mới từ AMI sạch, vá lỗ hổng, xoay vòng credential liên quan.</li>
+</ol>
+<aside class="prod"><p>Đáp án "terminate instance ngay" hoặc "stop instance để chụp snapshot" thường là bẫy: mất bằng chứng trong RAM, và tắt máy trước khi điều tra không cần thiết. Tuy nhiên nếu đề ưu tiên "ngăn thiệt hại ngay lập tức" hơn điều tra thì cô lập mạng luôn là bước đầu.</p></aside>
+
+<h2>Credential bị lộ</h2>
+<h3>IAM user access key lộ (ví dụ đẩy lên GitHub)</h3>
+<ol>
+<li><b>Vô hiệu hoá</b> (deactivate) access key ngay. AWS có thể đã tự gắn policy <code>AWSCompromisedKeyQuarantine</code> và gửi thông báo qua Health.</li>
+<li>Tra <b>CloudTrail</b> mọi hành động của key đó: tạo user mới, key mới, role, instance... rồi dọn hết.</li>
+<li>Xoay vòng: tạo key mới cho ứng dụng (tốt hơn: chuyển sang role), xoá key cũ.</li>
+<li>Kiểm tra hoá đơn và mọi Region (máy đào coin).</li>
+</ol>
+<h3>Credential tạm thời của role bị lộ</h3>
+<ul>
+<li>Không "xoá" được credential tạm thời đã cấp. Dùng <b>Revoke active sessions</b> trên role: IAM gắn policy Deny mọi request có <code>aws:TokenIssueTime</code> trước thời điểm thu hồi.</li>
+<li>Bật <b>IMDSv2</b> để giảm nguy cơ SSRF lấy credential.</li>
+</ul>
+<h3>Root bị lộ</h3>
+<ul><li>Đổi mật khẩu, bật / thay MFA, xoá access key của root (root không nên có access key), kiểm tra CloudTrail, liên hệ AWS Support.</li></ul>
+
+<arch w="800" h="330" caption="Cô lập EC2 bị chiếm: tách khỏi ASG và target group, đổi sang security group cách ly, thu bằng chứng sang account forensics">
+group 10 10 480 310 account "Account bị ảnh hưởng"
+group 25 45 210 260 plain "Trước"
+node alb 80 100 alb "ALB"
+node asg 180 100 asg "ASG"
+node bad 130 230 ec2 "EC2 nghi ngờ" "SG web"
+edge alb bad "" route=vh
+edge asg bad "" dash route=vh
+group 260 45 215 260 bad "Sau khi cô lập"
+node iso 365 120 ec2 "EC2 (giữ chạy)" "tag Quarantine, termination protection"
+node sgi 365 245 sg "SG cách ly" "không inbound / outbound"
+edge sgi iso ""
+group 520 10 270 310 account "Account forensics"
+node snap 600 120 snapshot "Snapshot EBS" "copy, KMS forensics"
+node mem 720 120 s3 "Bucket bằng chứng" "Object Lock"
+node ws 660 250 ec2 "Máy phân tích" "mạng cô lập"
+path 391 120 440 120 440 80 600 80 600 94 "snapshot + copy" c=go
+edge snap ws "gắn volume" route=vh
+edge snap mem "" dash
+</arch>
+
+<h2>Credential, S3, container, Lambda bị ảnh hưởng</h2>
+<table>
+<tr><th>Tình huống</th><th>Cô lập / loại bỏ</th></tr>
+<tr><td>Access key IAM user lộ</td><td>Deactivate key → tra CloudTrail theo key ID → xoá tài nguyên / user / key / role kẻ tấn công tạo → kiểm tra mọi Region → xoá key, chuyển ứng dụng sang role. AWS có thể gắn <code>AWSCompromisedKeyQuarantineV3</code></td></tr>
+<tr><td>Credential tạm thời của role bị lộ</td><td><b>Revoke active sessions</b> (policy Deny theo <code>aws:TokenIssueTime</code>), bật IMDSv2, xoay vòng nếu là role cho người</td></tr>
+<tr><td>IAM Identity Center user bị chiếm</td><td>Vô hiệu hoá user ở identity source, thu hồi phiên, gỡ permission set</td></tr>
+<tr><td>Bucket S3 bị công khai / dữ liệu bị tải</td><td>Bật Block Public Access, sửa bucket policy, xem S3 data events / access logs để biết object nào bị tải, Macie xác định độ nhạy</td></tr>
+<tr><td>Ransomware mã hoá / xoá dữ liệu</td><td>Cô lập principal, khôi phục từ AWS Backup (vault cô lập, Vault Lock), S3 versioning / Object Lock</td></tr>
+<tr><td>Container EKS bị chiếm</td><td>Network policy chặn pod, cordon node, gắn label, thu bằng chứng node, xoá pod và dựng lại từ image sạch, xoay vòng secret của pod</td></tr>
+<tr><td>Lambda bị sửa code</td><td>Đặt reserved concurrency = 0 (dừng hàm), lưu bản code nghi ngờ, deploy lại version sạch, kiểm tra execution role</td></tr>
+<tr><td>KMS key policy bị sửa để khoá bạn ra ngoài</td><td>Liên hệ AWS Support; phòng ngừa bằng SCP</td></tr>
+</table>
+<p>Khôi phục: dựng lại từ AMI / image sạch và IaC (không "dọn" máy bị chiếm), vá lỗ hổng gốc, khôi phục dữ liệu từ backup sạch, theo dõi tăng cường một thời gian.</p>
+
+<h2>Điều tra nguyên nhân gốc</h2>
+<ul>
+<li><b>Detective</b>: từ một finding, xem IP / role / instance liên quan, hành vi trước và sau, so với bình thường.</li>
+<li><b>CloudTrail Lake / Athena</b> truy vấn ai làm gì, từ IP nào, user agent nào.</li>
+<li>Kiểm tra lỗ hổng được khai thác bằng Inspector, đối chiếu WAF / ALB log.</li>
+<li>Root cause analysis xong: sửa nguyên nhân (vá, siết policy), thêm control phòng ngừa (SCP, Config rule), cập nhật runbook.</li>
+</ul>
+
+<quiz q="Sắp xếp đúng thứ tự khi phát hiện EC2 trong ASG bị chiếm: (1) snapshot EBS, (2) detach instance khỏi ASG, (3) đổi sang security group cách ly. Thứ tự nào hợp lý nhất?">
+- 1 → 3 → 2
++ 2 → 3 → 1
+- 3 → 1 → 2
+? Detach trước để ASG không thay thế mất máy, cô lập mạng để chặn thiệt hại, rồi thu bằng chứng.
+</quiz>
+<quiz q="Credential tạm thời của một role trên EC2 bị đánh cắp và đang được dùng từ IP bên ngoài. Cách vô hiệu hoá nhanh nhất mà không xoá role?">
+- Xoá access key của role
++ Dùng tính năng Revoke active sessions của role (Deny theo aws:TokenIssueTime)
+- Đổi trust policy của role
+? Credential tạm thời không xoá được. Revoke active sessions chặn mọi token cấp trước thời điểm đó.
+</quiz>

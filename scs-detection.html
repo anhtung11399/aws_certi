@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SCS-C03 · Dịch vụ phát hiện mối đe doạ · Ôn thi AWS</title>
-<meta name="description" content="GuardDuty, Security Hub, Macie, Inspector, Detective, Security Lake, Config, cách tổng hợp nhiều account.">
+<title>SCS-C03 · Giám sát và cảnh báo bảo mật · Ôn thi AWS</title>
+<meta name="description" content="GuardDuty chi tiết, Security Hub, Macie, Inspector, Detective, Security Lake, Config conformance pack, metric / alarm / dashboard bảo mật, tập trung hoá cho Organization.">
 <meta name="theme-color" content="#ff9900">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,63 +25,139 @@
 <div class="layout">
   <aside class="side" aria-label="Danh sách bài">
     <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
-    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection" aria-current="page"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection" aria-current="page"><i class="dot"></i><span class="no">01</span><span class="tx">Giám sát và cảnh báo bảo mật</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung, phân tích và xử lý sự cố log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-ir-plan.html" data-slug="scs-ir-plan"><i class="dot"></i><span class="no">03</span><span class="tx">Kế hoạch ứng phó sự cố và tự động hoá</span></a></li><li><a href="scs-ir-respond.html" data-slug="scs-ir-respond"><i class="dot"></i><span class="no">04</span><span class="tx">Phản ứng sự cố: điều tra, cô lập, khôi phục</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-edge.html" data-slug="scs-infra-edge"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật biên: CloudFront, WAF, Shield</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">06</span><span class="tx">Bảo mật compute, container, pipeline và GenAI</span></a></li><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">07</span><span class="tx">Bảo mật mạng: phân đoạn, firewall, kết nối lai</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">08</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">09</span><span class="tx">Phân quyền: policy evaluation, ABAC và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-transit.html" data-slug="scs-transit"><i class="dot"></i><span class="no">10</span><span class="tx">Bảo vệ dữ liệu khi truyền</span></a></li><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">11</span><span class="tx">KMS, CloudHSM, key material và Private CA</span></a></li><li><a href="scs-data-at-rest.html" data-slug="scs-data-at-rest"><i class="dot"></i><span class="no">12</span><span class="tx">Dữ liệu at rest: mã hoá, toàn vẹn, vòng đời, backup</span></a></li><li><a href="scs-secrets.html" data-slug="scs-secrets"><i class="dot"></i><span class="no">13</span><span class="tx">Secrets, che dữ liệu nhạy cảm và chứng chỉ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">14</span><span class="tx">Quản trị nhiều account</span></a></li><li><a href="scs-compliance.html" data-slug="scs-compliance"><i class="dot"></i><span class="no">15</span><span class="tx">Triển khai nhất quán và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">16</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
   </aside>
   <div class="scrim"></div>
   <main id="main"><article class="lesson" data-slug="scs-detection">
   <header class="l-head">
-    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</span><span>Bài 01</span><span>60 phút</span></div>
-    <h1>Dịch vụ phát hiện mối đe doạ</h1>
-    <p class="lead">GuardDuty, Security Hub, Macie, Inspector, Detective, Security Lake, Config, cách tổng hợp nhiều account.</p>
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</span><span>Bài 01</span><span>80 phút</span></div>
+    <h1>Giám sát và cảnh báo bảo mật</h1>
+    <p class="lead">GuardDuty chi tiết, Security Hub, Macie, Inspector, Detective, Security Lake, Config conformance pack, metric / alarm / dashboard bảo mật, tập trung hoá cho Organization.</p>
     <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
-    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Phân biệt rõ 6 dịch vụ phát hiện</li><li>Bật tập trung cho cả Organization bằng delegated administrator</li></ul></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Phân biệt rõ các dịch vụ phát hiện</li><li>Bật tập trung cho cả Organization</li><li>Dựng cảnh báo và đánh giá tự động</li></ul></div>
   </header>
-  <div class="prose"><h2 id="sau-dich-vu-phat-hien-phan-biet-cho-ro"><a href="#sau-dich-vu-phat-hien-phan-biet-cho-ro" class="anchor" aria-hidden="true">#</a>Sáu dịch vụ phát hiện, phân biệt cho rõ</h2>
+  <div class="prose"><h2 id="ban-do-cac-dich-vu-phat-hien"><a href="#ban-do-cac-dich-vu-phat-hien" class="anchor" aria-hidden="true">#</a>Bản đồ các dịch vụ phát hiện</h2>
 <table>
-<tr><th>Dịch vụ</th><th>Phát hiện gì</th><th>Nguồn dữ liệu</th></tr>
-<tr><td><b>GuardDuty</b></td><td>Mối đe doạ, hành vi bất thường: đào coin, gọi IP độc hại, credential bị dùng từ nơi lạ, port scan, truy cập S3 bất thường, malware</td><td>CloudTrail management + S3 data events, VPC Flow Logs, DNS logs (tự đọc, không cần bạn bật các log đó), EKS audit logs, runtime monitoring (agent), RDS login, Lambda network, Malware Protection (EBS, S3)</td></tr>
-<tr><td><b>Inspector</b></td><td>Lỗ hổng phần mềm (CVE), network exposure</td><td>EC2 (qua SSM agent hoặc quét agentless bằng snapshot), image ECR, Lambda (code và thư viện)</td></tr>
-<tr><td><b>Macie</b></td><td>Dữ liệu nhạy cảm (PII, thẻ tín dụng, khoá bí mật) trong S3, bucket public / không mã hoá</td><td>Nội dung object S3 (managed data identifiers + custom data identifier bằng regex)</td></tr>
-<tr><td><b>Security Hub</b></td><td>Không tự phát hiện mối đe doạ. <b>Gom finding</b> (định dạng ASFF / OCSF) + kiểm tra <b>chuẩn</b> (AWS FSBP, CIS, PCI DSS, NIST)</td><td>GuardDuty, Inspector, Macie, Config, IAM Access Analyzer, Firewall Manager, sản phẩm bên thứ ba. Dựa trên Config cho phần kiểm tra chuẩn</td></tr>
-<tr><td><b>Detective</b></td><td>Điều tra: dựng đồ thị quan hệ giữa IP, user, role, tài nguyên để tìm nguyên nhân gốc</td><td>CloudTrail, VPC Flow Logs, GuardDuty findings, EKS audit</td></tr>
-<tr><td><b>Config</b></td><td>Cấu hình tài nguyên sai so với rule, lịch sử thay đổi</td><td>Config recorder</td></tr>
+<tr><th>Dịch vụ</th><th>Câu hỏi nó trả lời</th><th>Nguồn dữ liệu</th><th>Cần agent?</th></tr>
+<tr><td><b>GuardDuty</b></td><td>Có kẻ xấu / hành vi bất thường đang diễn ra không?</td><td>CloudTrail (management, S3 data events), VPC Flow Logs, DNS logs, EKS audit, RDS login, Lambda network, EBS / S3 malware scan, runtime</td><td>Không (trừ Runtime Monitoring)</td></tr>
+<tr><td><b>Inspector</b></td><td>Phần mềm có lỗ hổng (CVE) không? Có đường mạng mở ra Internet không?</td><td>EC2 (SSM agent hoặc agentless snapshot scan), ECR image, Lambda code / layer, CIS benchmark trên EC2</td><td>SSM agent (hoặc agentless)</td></tr>
+<tr><td><b>Macie</b></td><td>Dữ liệu nhạy cảm nằm ở bucket nào? Bucket có bị public / không mã hoá?</td><td>Object trong S3, cấu hình bucket</td><td>Không</td></tr>
+<tr><td><b>Security Hub</b> (CSPM)</td><td>Tổng hợp mọi finding, chấm điểm theo chuẩn</td><td>Finding từ các dịch vụ trên + Config rule + bên thứ ba (ASFF / OCSF)</td><td>Cần AWS Config</td></tr>
+<tr><td><b>Detective</b></td><td>Vì sao finding này xảy ra, liên quan tới ai, cái gì?</td><td>CloudTrail, Flow Logs, GuardDuty, EKS audit (tự thu thập, giữ 1 năm)</td><td>Không</td></tr>
+<tr><td><b>Config</b></td><td>Cấu hình có đúng chuẩn không, đã thay đổi thế nào?</td><td>Configuration recorder</td><td>Không</td></tr>
+<tr><td><b>Security Lake</b></td><td>Data lake bảo mật tập trung, chuẩn OCSF, cho SIEM / Athena</td><td>CloudTrail, Flow Logs, Route 53 Resolver, Security Hub, EKS audit, WAF, nguồn tuỳ chỉnh</td><td>Không</td></tr>
+<tr><td><b>IAM Access Analyzer</b></td><td>Tài nguyên nào chia sẻ ra ngoài, quyền nào không dùng?</td><td>Policy, CloudTrail</td><td>Không</td></tr>
 </table>
-<aside class="tip"><p>Nhớ nhanh: <b>GuardDuty</b> = "có kẻ xấu đang làm gì". <b>Inspector</b> = "phần mềm có lỗ hổng". <b>Macie</b> = "dữ liệu nhạy cảm ở đâu trong S3". <b>Security Hub</b> = "bảng tổng hợp + chấm điểm". <b>Detective</b> = "điều tra vì sao". <b>Config</b> = "cấu hình có đúng chuẩn không".</p></aside>
 
-<h2 id="guardduty-chi-tiet"><a href="#guardduty-chi-tiet" class="anchor" aria-hidden="true">#</a>GuardDuty chi tiết</h2>
+<figure class="dg arch"><svg viewBox="0 0 800 360" style="min-width:640px;max-width:800px" role="img" aria-label="Kiến trúc phát hiện tập trung cho Organization: các dịch vụ bật ở mọi account / Region qua delegated admin, finding đổ về Security Hub ở account Security Tooling, gom log về Security Lake, tự động hoá qua EventBridge"><g class="ag ag-ou"><rect x="10" y="10" width="280" height="340" rx="8"/><text x="20" y="28" class="ag-t">Mọi account thành viên · mọi Region</text></g><g class="ag ag-account"><rect x="320" y="10" width="470" height="340" rx="8"/><text x="330" y="28" class="ag-t">Security Tooling (delegated admin)</text></g><path d="M236.0 80.0 L300.0 80.0 L300.0 135.0 L424.0 135.0" class="ae ae-nw" marker-end="url(#ar)"/><path d="M236.0 200.0 L300.0 200.0 L300.0 155.0 L424.0 155.0" class="ae ae-nw" marker-end="url(#ar)"/><path d="M476.0 145.0 L594.0 145.0" class="ae" marker-end="url(#ar)"/><path d="M646.0 145.0 L730.0 145.0 L730.0 128.0" class="ae ae-go" marker-end="url(#ar)"/><path d="M450.0 203.0 L450.0 254.0" class="ae ds" marker-end="url(#ar)"/><path d="M666.0 280.0 L730.0 280.0 L730.0 278.0" class="ae ae-ok" marker-end="url(#ar)"/><g class="an an-sec"><rect x="58" y="58" width="44" height="44" rx="9"/><text x="80" y="84.5" text-anchor="middle" class="an-i" style="font-size:13px">GD</text><text x="80" y="118" text-anchor="middle" class="an-l">GuardDuty</text></g><g class="an an-sec"><rect x="188" y="58" width="44" height="44" rx="9"/><text x="210" y="84.5" text-anchor="middle" class="an-i" style="font-size:13px">INS</text><text x="210" y="118" text-anchor="middle" class="an-l">Inspector</text></g><g class="an an-sec"><rect x="58" y="178" width="44" height="44" rx="9"/><text x="80" y="204.5" text-anchor="middle" class="an-i" style="font-size:13px">MAC</text><text x="80" y="238" text-anchor="middle" class="an-l">Macie</text></g><g class="an an-mg"><rect x="188" y="178" width="44" height="44" rx="9"/><text x="210" y="204.5" text-anchor="middle" class="an-i" style="font-size:13px">CFG</text><text x="210" y="238" text-anchor="middle" class="an-l">Config</text></g><g class="an an-sec"><rect x="123" y="278" width="44" height="44" rx="9"/><text x="145" y="304.5" text-anchor="middle" class="an-i" style="font-size:13px">AA</text><text x="145" y="338" text-anchor="middle" class="an-l">Access Analyzer</text></g><g class="an an-sec"><rect x="428" y="123" width="44" height="44" rx="9"/><text x="450" y="149.5" text-anchor="middle" class="an-i" style="font-size:13px">SH</text><text x="450" y="183" text-anchor="middle" class="an-l">Security Hub</text><text x="450" y="197" text-anchor="middle" class="an-s">aggregation Region</text></g><g class="an an-sec"><rect x="428" y="258" width="44" height="44" rx="9"/><text x="450" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">DET</text><text x="450" y="318" text-anchor="middle" class="an-l">Detective</text></g><g class="an an-sec"><rect x="618" y="258" width="44" height="44" rx="9"/><text x="640" y="284.5" text-anchor="middle" class="an-i" style="font-size:13px">SL</text><text x="640" y="318" text-anchor="middle" class="an-l">Security Lake</text><text x="640" y="332" text-anchor="middle" class="an-s">OCSF trên S3</text></g><g class="an an-ai"><rect x="598" y="123" width="44" height="44" rx="9"/><text x="620" y="149.5" text-anchor="middle" class="an-i" style="font-size:13px">EVB</text><text x="620" y="183" text-anchor="middle" class="an-l">EventBridge</text></g><g class="an an-cp"><rect x="708" y="48" width="44" height="44" rx="9"/><text x="730" y="74.5" text-anchor="middle" class="an-i" style="font-size:13px">λ</text><text x="730" y="108" text-anchor="middle" class="an-l">Tự xử lý</text><text x="730" y="122" text-anchor="middle" class="an-s">Lambda / SSM</text></g><g class="an an-an"><rect x="708" y="198" width="44" height="44" rx="9"/><text x="730" y="224.5" text-anchor="middle" class="an-i" style="font-size:13px">OS</text><text x="730" y="258" text-anchor="middle" class="an-l">SIEM</text><text x="730" y="272" text-anchor="middle" class="an-s">subscriber</text></g></svg><figcaption>Kiến trúc phát hiện tập trung cho Organization: các dịch vụ bật ở mọi account / Region qua delegated admin, finding đổ về Security Hub ở account Security Tooling, gom log về Security Lake, tự động hoá qua EventBridge</figcaption></figure>
+
+<h2 id="guardduty-chuyen-sau"><a href="#guardduty-chuyen-sau" class="anchor" aria-hidden="true">#</a>GuardDuty chuyên sâu</h2>
+<h3>Bật và quản lý</h3>
 <ul>
-<li>Bật một cú cho cả Organization: chỉ định <b>delegated administrator</b> (thường là account Security / Audit), bật <b>auto-enable</b> cho account mới.</li>
-<li>GuardDuty là dịch vụ <b>Regional</b>: phải bật ở <b>mọi Region</b>, kể cả Region không dùng (kẻ tấn công hay chạy máy đào coin ở Region bạn không để ý).</li>
-<li>Finding có loại (ví dụ <code>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS</code>: credential của EC2 bị dùng từ ngoài AWS), mức độ (Low / Medium / High / Critical).</li>
-<li>Giảm nhiễu: <b>trusted IP list</b> (không cảnh báo IP của công ty), <b>suppression rule</b> (tự lưu trữ finding khớp điều kiện), <b>threat list</b> (IP xấu của riêng bạn).</li>
-<li>Mọi finding gửi tới <b>EventBridge</b> → tự động phản ứng (bài 04). Xuất finding ra S3 để lưu lâu (mã hoá KMS).</li>
-<li><b>Extended Threat Detection</b>: gom nhiều tín hiệu thành một chuỗi tấn công (attack sequence).</li>
+<li>Dịch vụ <b>Regional</b>: bật ở <b>mọi Region</b>, kể cả Region không dùng (hoặc chặn Region đó bằng SCP). Kẻ tấn công rất hay chạy máy đào coin ở Region ít ai để ý.</li>
+<li>Organization: management account chỉ định <b>delegated administrator</b> (account Security Tooling), bật <b>auto-enable</b> cho account mới và chọn auto-enable từng protection plan.</li>
+<li>GuardDuty tự đọc CloudTrail, VPC Flow Logs, DNS logs qua luồng nội bộ: <b>không cần</b> bạn bật trail / flow log, không tốn phí lưu log đó. DNS log chỉ có khi instance dùng Route 53 Resolver (DNS .2); dùng DNS riêng thì GuardDuty mất nguồn DNS.</li>
+<li>Tắt GuardDuty (suspend / disable) xoá hết finding: chặn bằng SCP.</li>
+</ul>
+<h3>Protection plans</h3>
+<table>
+<tr><th>Plan</th><th>Phát hiện</th></tr>
+<tr><td>Foundational</td><td>CloudTrail management events, VPC Flow Logs, DNS: credential bị dùng từ nơi lạ, port scan, gọi IP độc hại, đào coin</td></tr>
+<tr><td><b>S3 Protection</b></td><td>CloudTrail S3 data events: truy cập bucket bất thường, tắt Block Public Access, exfiltration</td></tr>
+<tr><td><b>EKS Protection</b></td><td>EKS audit logs: anonymous access, pod đặc quyền, container chạy công cụ tấn công</td></tr>
+<tr><td><b>Runtime Monitoring</b></td><td>Agent (eBPF) trên EC2, ECS (Fargate / EC2), EKS: tiến trình độc hại, reverse shell, leo thang đặc quyền</td></tr>
+<tr><td><b>Malware Protection for EC2</b></td><td>Khi có finding nghi ngờ, quét snapshot EBS tìm malware (agentless); có thể quét theo yêu cầu</td></tr>
+<tr><td><b>Malware Protection for S3</b></td><td>Quét object mới upload vào bucket, gắn tag kết quả (dùng tag để chặn truy cập file nhiễm)</td></tr>
+<tr><td><b>RDS Protection</b></td><td>Đăng nhập bất thường vào Aurora / RDS (brute force, đăng nhập từ nơi lạ)</td></tr>
+<tr><td><b>Lambda Protection</b></td><td>Hàm Lambda gọi ra IP độc hại / đào coin (qua network logs)</td></tr>
+<tr><td><b>Extended Threat Detection</b></td><td>Gom nhiều tín hiệu thành <b>attack sequence</b> nhiều bước (Critical)</td></tr>
+</table>
+<h3>Đọc finding</h3>
+<p>Định dạng: <code>ThreatPurpose:ResourceTypeAffected/ThreatFamilyName.DetectionMechanism!Artifact</code>.</p>
+<table>
+<tr><th>Ví dụ finding</th><th>Nghĩa</th></tr>
+<tr><td><code>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS</code></td><td>Credential tạm thời của role trên EC2 bị dùng từ ngoài AWS → bị đánh cắp (SSRF, malware)</td></tr>
+<tr><td><code>CryptoCurrency:EC2/BitcoinTool.B!DNS</code></td><td>EC2 phân giải tên miền đào coin</td></tr>
+<tr><td><code>Recon:EC2/PortProbeUnprotectedPort</code></td><td>Cổng mở ra Internet đang bị dò</td></tr>
+<tr><td><code>UnauthorizedAccess:EC2/SSHBruteForce</code></td><td>Bị dò mật khẩu SSH</td></tr>
+<tr><td><code>Backdoor:EC2/C&amp;CActivity.B</code></td><td>EC2 liên lạc với máy chủ điều khiển botnet</td></tr>
+<tr><td><code>Exfiltration:S3/AnomalousBehavior</code></td><td>Tải lượng lớn object bất thường</td></tr>
+<tr><td><code>Policy:IAMUser/RootCredentialUsage</code></td><td>Có người dùng root</td></tr>
+<tr><td><code>Stealth:IAMUser/CloudTrailLoggingDisabled</code></td><td>Có người tắt CloudTrail</td></tr>
+<tr><td><code>PenTest:IAMUser/KaliLinux</code></td><td>API gọi từ máy Kali Linux</td></tr>
+</table>
+<h3>Giảm nhiễu và mở rộng</h3>
+<ul>
+<li><b>Trusted IP list</b>: IP tin cậy (không sinh finding cho chúng). <b>Threat IP list</b>: IP xấu của riêng bạn. Danh sách đặt trong S3, chỉ admin account quản lý.</li>
+<li><b>Suppression rule</b>: tự lưu trữ (archive) finding khớp điều kiện, ví dụ finding của máy quét lỗ hổng nội bộ. Finding vẫn được tạo nhưng không làm phiền.</li>
+<li>Xuất finding ra <b>S3</b> (mã hoá KMS, bắt buộc) để lưu lâu (GuardDuty giữ 90 ngày).</li>
+<li>Finding gửi <b>EventBridge</b> (mỗi finding mới ngay, cập nhật lặp lại theo tần suất 15 phút / 1 giờ / 6 giờ) và Security Hub.</li>
 </ul>
 
-<h2 id="security-hub-va-security-lake"><a href="#security-hub-va-security-lake" class="anchor" aria-hidden="true">#</a>Security Hub và Security Lake</h2>
+<h2 id="security-hub"><a href="#security-hub" class="anchor" aria-hidden="true">#</a>Security Hub</h2>
 <ul>
-<li>Security Hub cần <b>AWS Config</b> bật để chạy các control kiểm tra chuẩn. Gom nhiều Region về một Region: <b>cross-Region aggregation</b>. Gom nhiều account: delegated admin, <b>central configuration</b> (áp chính sách bật / tắt control cho cả Organization).</li>
-<li><b>Automation rules</b>: tự sửa trường của finding (đổi severity, gán workflow status) khi khớp điều kiện. <b>Custom actions</b>: nút bấm gửi finding tới EventBridge.</li>
-<li><b>Amazon Security Lake</b>: data lake bảo mật tập trung trên S3, chuẩn hoá log về định dạng <b>OCSF</b>, gom CloudTrail, VPC Flow Logs, Route 53 Resolver logs, Security Hub findings, EKS audit, WAF logs... từ nhiều account / Region. Cho phép <b>subscriber</b> (SIEM bên thứ ba, Athena) truy vấn. Đề nói "data lake bảo mật, định dạng chuẩn, tích hợp công cụ bên thứ ba" → Security Lake.</li>
+<li><b>Security Hub CSPM</b>: chạy các <b>security control</b> theo tiêu chuẩn: AWS Foundational Security Best Practices (FSBP), CIS AWS Foundations Benchmark, PCI DSS, NIST SP 800-53, AWS Resource Tagging Standard. Mỗi control dựa trên một Config rule (service-linked), nên <b>phải bật Config</b> với các loại tài nguyên liên quan.</li>
+<li>Định dạng finding: <b>ASFF</b> (AWS Security Finding Format) và <b>OCSF</b> (trong Security Hub mới). Nhận finding từ hơn 70 sản phẩm bên thứ ba và gửi ra SIEM / ticketing (Jira, ServiceNow).</li>
+<li><b>Cross-Region aggregation</b>: chọn một Region tổng hợp. <b>Central configuration</b>: từ delegated admin tạo <b>configuration policy</b> (bật / tắt Security Hub, tiêu chuẩn, control) cho từng OU / account.</li>
+<li><b>Automation rules</b>: tự sửa trường của finding khi khớp điều kiện (đổi severity, thêm note, chuyển workflow status sang SUPPRESSED cho finding chấp nhận rủi ro).</li>
+<li><b>Custom actions</b>: nút bấm trên console gửi finding được chọn tới EventBridge (người phân tích chọn "cô lập" chẳng hạn).</li>
+<li><b>Insights</b>: nhóm finding (top tài nguyên có nhiều finding critical). Security score theo tiêu chuẩn.</li>
+<li>Security Hub (bản mới) còn tương quan tín hiệu từ GuardDuty, Inspector, CSPM thành <b>exposure finding</b> (tài nguyên vừa có lỗ hổng vừa mở ra Internet vừa có quyền cao).</li>
 </ul>
 
-<h2 id="giam-sat-va-canh-bao"><a href="#giam-sat-va-canh-bao" class="anchor" aria-hidden="true">#</a>Giám sát và cảnh báo</h2>
+<h2 id="inspector-macie-detective"><a href="#inspector-macie-detective" class="anchor" aria-hidden="true">#</a>Inspector, Macie, Detective</h2>
+<h3>Amazon Inspector</h3>
 <ul>
-<li>Cảnh báo theo hành động nhạy cảm: CloudTrail → CloudWatch Logs → <b>metric filter</b> (ví dụ đăng nhập root, đổi security group, tắt CloudTrail, console login thất bại) → alarm → SNS. Đây là các control CIS.</li>
-<li>Hoặc nhanh hơn: <b>EventBridge rule</b> khớp trực tiếp event CloudTrail.</li>
-<li>Health check của tài nguyên: Route 53 health check, ELB health check, CloudWatch Synthetics canary.</li>
-<li>Chạy đánh giá định kỳ: Config conformance pack, Security Hub, <b>SSM State Manager</b> association.</li>
-<li>Dashboard bảo mật: CloudWatch, <b>Amazon Managed Grafana</b>, OpenSearch Dashboards.</li>
+<li>Bật một lần, quét <b>liên tục</b> (khi có CVE mới, khi có thay đổi). EC2 cần là SSM managed node (hoặc dùng <b>agentless</b> scan qua snapshot EBS). ECR: enhanced scanning thay basic scanning. Lambda: standard (thư viện) và code scanning (lỗi bảo mật trong code).</li>
+<li><b>Inspector score</b>: điểm CVSS điều chỉnh theo bối cảnh (có network reachable không, có exploit công khai không).</li>
+<li><b>Network reachability</b> finding: cổng mở ra Internet qua IGW / ELB, không cần agent.</li>
+<li><b>CIS scan</b> trên EC2, <b>SBOM export</b>, <b>CI/CD integration</b> (quét image trong pipeline trước khi push).</li>
+<li>Suppression rule cho lỗ hổng đã chấp nhận rủi ro.</li>
+</ul>
+<h3>Amazon Macie</h3>
+<ul>
+<li><b>Automated sensitive data discovery</b>: lấy mẫu object liên tục trên mọi bucket, chi phí thấp, cho bản đồ độ nhạy của bucket.</li>
+<li><b>Sensitive data discovery job</b>: quét đầy đủ bucket chọn trước, theo lịch hoặc một lần.</li>
+<li><b>Managed data identifier</b> (thẻ tín dụng, hộ chiếu, khoá AWS...) và <b>custom data identifier</b> (regex + từ khoá xung quanh), <b>allow list</b> để bỏ qua giá trị mẫu.</li>
+<li>Finding hai loại: <b>policy finding</b> (bucket public, tắt mã hoá, chia sẻ ra ngoài) và <b>sensitive data finding</b>.</li>
+<li>Bucket mã hoá SSE-KMS bằng customer managed key: key policy phải cho service-linked role của Macie dùng key, nếu không Macie không đọc được object.</li>
+<li>Kết quả chi tiết (sensitive data discovery results) lưu ra S3 (bắt buộc KMS).</li>
+</ul>
+<h3>Amazon Detective</h3>
+<ul>
+<li>Tự thu thập và lập <b>behavior graph</b> từ CloudTrail, Flow Logs, GuardDuty, EKS audit, Security Hub; giữ tới 1 năm.</li>
+<li>Từ một finding GuardDuty → "Investigate in Detective": dòng thời gian, IP, user agent, các API đã gọi, so với hành vi bình thường (baseline), <b>finding groups</b> gom finding liên quan.</li>
+<li>Phải bật GuardDuty trước (ít nhất 48 giờ dữ liệu). Quản lý bằng delegated admin.</li>
 </ul>
 
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty muốn biết bucket S3 nào chứa số căn cước công dân và số thẻ tín dụng của khách hàng. Dịch vụ nào?</p><div class="qo"><button type="button" class="opt">GuardDuty S3 Protection</button><button type="button" class="opt" data-ok>Amazon Macie với managed và custom data identifiers</button><button type="button" class="opt">Inspector</button></div><p class="why" hidden>Macie quét nội dung object S3 để tìm dữ liệu nhạy cảm. GuardDuty tìm hành vi truy cập bất thường.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội bảo mật muốn một nơi duy nhất xem finding của GuardDuty, Inspector, Macie từ 40 account ở 4 Region và chấm điểm theo CIS. Thiết kế đúng?</p><div class="qo"><button type="button" class="opt" data-ok>Security Hub với delegated administrator trong Organizations, bật cross-Region aggregation và tiêu chuẩn CIS</button><button type="button" class="opt">Bật Detective ở mỗi account</button><button type="button" class="opt">Gửi email finding từ mỗi account về một hộp thư chung</button></div><p class="why" hidden>Security Hub gom và chuẩn hoá finding, delegated admin + aggregation cho cái nhìn tập trung.</p></div>
-<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Kẻ tấn công chạy EC2 đào coin ở eu-north-1, Region công ty không dùng. Vì sao GuardDuty không báo?</p><div class="qo"><button type="button" class="opt">GuardDuty không phát hiện được đào coin</button><button type="button" class="opt" data-ok>GuardDuty là dịch vụ Regional, chưa được bật ở eu-north-1</button><button type="button" class="opt">Cần bật VPC Flow Logs ở Region đó trước</button></div><p class="why" hidden>GuardDuty phải bật ở từng Region. Best practice là bật ở mọi Region, kể cả Region không dùng (hoặc chặn Region bằng SCP).</p></div>
+<h2 id="security-lake"><a href="#security-lake" class="anchor" aria-hidden="true">#</a>Security Lake</h2>
+<ul>
+<li>Tạo data lake trên S3 ở account của bạn (thường là Log Archive), dùng <b>Lake Formation</b> và <b>Glue</b> để quản lý quyền và catalog.</li>
+<li>Nguồn có sẵn (native): CloudTrail management / data events, VPC Flow Logs, Route 53 Resolver query logs, Security Hub findings, EKS audit logs, WAF logs. Nguồn tuỳ chỉnh: bất kỳ hệ thống nào ghi được dữ liệu dạng OCSF + Parquet.</li>
+<li>Chọn <b>rollup Region</b> để gom dữ liệu nhiều Region, đặt <b>retention</b> và lifecycle chuyển lớp lưu trữ.</li>
+<li><b>Subscriber</b>: <b>data access</b> (đọc trực tiếp từ S3, nhận thông báo SQS khi có dữ liệu mới) hoặc <b>query access</b> (truy vấn qua Athena / Lake Formation resource share). Dùng cho SIEM bên thứ ba (Splunk, Sentinel...), OpenSearch, QuickSight.</li>
+</ul>
+
+<h2 id="giam-sat-va-danh-gia-tu-dong"><a href="#giam-sat-va-danh-gia-tu-dong" class="anchor" aria-hidden="true">#</a>Giám sát và đánh giá tự động</h2>
+<table>
+<tr><th>Nhu cầu</th><th>Cách làm</th></tr>
+<tr><td>Cảnh báo hành động nhạy cảm (CIS): root login, đổi IAM policy, đổi SG / NACL / route table, tắt CloudTrail, console login thất bại, xoá / disable KMS key, đổi bucket policy</td><td>CloudTrail → CloudWatch Logs → metric filter → alarm → SNS; hoặc EventBridge rule trực tiếp (nhanh hơn, không cần log group)</td></tr>
+<tr><td>Theo dõi bất thường theo xu hướng</td><td>CloudTrail Insights, CloudWatch anomaly detection, GuardDuty</td></tr>
+<tr><td>Đánh giá định kỳ cấu hình</td><td>Config conformance pack (CIS, Operational Best Practices for...), Security Hub standards</td></tr>
+<tr><td>Đánh giá trạng thái máy định kỳ</td><td>SSM State Manager association (chạy script kiểm tra, Inventory), Inspector CIS scan</td></tr>
+<tr><td>Kiểm tra sức khoẻ workload</td><td>Route 53 health check, ELB health check, CloudWatch Synthetics</td></tr>
+<tr><td>Dashboard bảo mật</td><td>Security Hub summary, CloudWatch dashboard, Managed Grafana, OpenSearch Dashboards, QuickSight trên Security Lake</td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty muốn phát hiện tiến trình độc hại và reverse shell bên trong container ECS Fargate. Dịch vụ / tính năng nào?</p><div class="qo"><button type="button" class="opt">Inspector ECR enhanced scanning</button><button type="button" class="opt" data-ok>GuardDuty Runtime Monitoring cho ECS Fargate</button><button type="button" class="opt">VPC Flow Logs</button><button type="button" class="opt">Macie</button></div><p class="why" hidden>Runtime Monitoring dùng agent để thấy hành vi tiến trình trong lúc chạy. Inspector chỉ quét lỗ hổng tĩnh trong image.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Macie không báo kết quả cho một bucket mã hoá SSE-KMS bằng customer managed key, các bucket khác bình thường. Nguyên nhân?</p><div class="qo"><button type="button" class="opt" data-ok>Key policy chưa cho service-linked role của Macie dùng key để giải mã object</button><button type="button" class="opt">Bucket chưa bật versioning</button><button type="button" class="opt">Macie không hỗ trợ SSE-KMS</button><button type="button" class="opt">Thiếu CloudTrail data events</button></div><p class="why" hidden>Macie phải giải mã được object mới quét được nội dung.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Máy quét lỗ hổng nội bộ liên tục sinh finding Recon:EC2/Portscan trong GuardDuty. Cách giảm nhiễu đúng mà không mất khả năng phát hiện từ nguồn khác?</p><div class="qo"><button type="button" class="opt">Tắt GuardDuty ở VPC đó</button><button type="button" class="opt" data-ok>Suppression rule khớp finding type và IP của máy quét (hoặc thêm IP vào trusted IP list)</button><button type="button" class="opt">Xoá VPC Flow Logs</button><button type="button" class="opt">Giảm tần suất export finding</button></div><p class="why" hidden>Suppression rule tự lưu trữ finding khớp điều kiện cụ thể, các phát hiện khác vẫn hoạt động.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội bảo mật muốn mọi finding critical về EC2 vừa có lỗ hổng, vừa mở ra Internet được ưu tiên xử lý. Dữ liệu nào giúp xếp ưu tiên?</p><div class="qo"><button type="button" class="opt" data-ok>Inspector score kết hợp network reachability (và exposure finding của Security Hub)</button><button type="button" class="opt">Điểm CVSS gốc</button><button type="button" class="opt">Số lượng finding Macie</button><button type="button" class="opt">CloudTrail Insights</button></div><p class="why" hidden>Inspector điều chỉnh điểm theo bối cảnh thực tế như có đường mạng mở và exploit công khai.</p></div>
 </div>
   <div class="done-box"><button class="done-btn" type="button" data-slug="scs-detection">Đánh dấu đã học xong bài này</button></div>
-  <nav class="pn"><a class="prev" href="scs-tong-quan.html"><small>Bài trước</small>Đề SCS-C03 và tư duy bảo mật AWS</a><a class="next" href="scs-logging.html"><small>Bài tiếp theo</small>Logging tập trung và phân tích log</a></nav>
+  <nav class="pn"><a class="prev" href="scs-tong-quan.html"><small>Bài trước</small>Đề SCS-C03 và tư duy bảo mật AWS</a><a class="next" href="scs-logging.html"><small>Bài tiếp theo</small>Logging tập trung, phân tích và xử lý sự cố log</a></nav>
 </article></main>
-  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#sau-dich-vu-phat-hien-phan-biet-cho-ro">Sáu dịch vụ phát hiện, phân biệt cho rõ</a><a href="#guardduty-chi-tiet">GuardDuty chi tiết</a><a href="#security-hub-va-security-lake">Security Hub và Security Lake</a><a href="#giam-sat-va-canh-bao">Giám sát và cảnh báo</a></nav>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#ban-do-cac-dich-vu-phat-hien">Bản đồ các dịch vụ phát hiện</a><a href="#guardduty-chuyen-sau">GuardDuty chuyên sâu</a><a href="#security-hub">Security Hub</a><a href="#inspector-macie-detective">Inspector, Macie, Detective</a><a href="#security-lake">Security Lake</a><a href="#giam-sat-va-danh-gia-tu-dong">Giám sát và đánh giá tự động</a></nav>
 </div>
 </body>
 </html>
