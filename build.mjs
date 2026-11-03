@@ -484,8 +484,11 @@ function lessonPage(l) {
   const i = same.indexOf(l);
   const prev = same[i - 1];
   const next = same[i + 1];
+  const local = fs.existsSync(path.join(ROOT, 'videos', l.slug + '.mp4'));
   const video = l.video
     ? `<div class="video"><iframe src="${esc(l.video)}" title="Video bài giảng" allowfullscreen loading="lazy"></iframe></div>`
+    : local
+    ? `<div class="video"><video controls preload="metadata" src="videos/${l.slug}.mp4" title="Video bài giảng"></video></div>`
     : `<div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>`;
   const body = `<article class="lesson" data-slug="${l.slug}">
   <header class="l-head">
