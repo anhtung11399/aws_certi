@@ -1,0 +1,96 @@
+<h2>CloudFormation: những gì cần nắm chắc</h2>
+<h3>Cấu trúc template</h3>
+<pre lang="yaml" file="template.yaml (rút gọn)">
+Parameters:
+  Env: { Type: String, AllowedValues: [dev, prod] }
+  LatestAmi:                       # lấy AMI mới nhất từ Parameter Store, không ghi cứng ID
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+Mappings:                          # bảng tra cố định, ví dụ theo Region
+  Sizes: { dev: { Type: t3.micro }, prod: { Type: m7g.large } }
+Conditions:
+  IsProd: !Equals [!Ref Env, prod]
+Resources:
+  Db:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot       # xoá stack thì chụp snapshot thay vì mất dữ liệu
+    UpdateReplacePolicy: Snapshot  # bị thay thế khi update thì cũng chụp snapshot
+    Properties: { ... }
+Outputs:
+  DbEndpoint:
+    Value: !GetAtt Db.Endpoint.Address
+    Export: { Name: !Sub "${AWS::StackName}-DbEndpoint" }   # stack khác dùng !ImportValue
+</pre>
+<ul>
+<li>Hàm hay gặp: <code>!Ref</code>, <code>!GetAtt</code>, <code>!Sub</code>, <code>!Join</code>, <code>!FindInMap</code>, <code>!If</code>, <code>!ImportValue</code>.</li>
+<li><b>DeletionPolicy</b>: <code>Delete</code> (mặc định), <code>Retain</code> (giữ tài nguyên), <code>Snapshot</code> (EBS, RDS, ElastiCache, Redshift...).</li>
+<li>Export đang được stack khác <code>ImportValue</code> thì <b>không sửa / xoá được</b> stack xuất. Phải gỡ import trước.</li>
+<li>Secret không ghi trong template: dùng <b>dynamic reference</b> <code>{{resolve:secretsmanager:...}}</code> hoặc <code>{{resolve:ssm-secure:...}}</code>, tham số dùng <code>NoEcho</code>.</li>
+</ul>
+
+<h3>Cập nhật an toàn</h3>
+<ul>
+<li><b>Change set</b>: xem trước thay đổi, đặc biệt cột <b>Replacement</b> (tài nguyên sẽ bị xoá và tạo mới, ví dụ đổi tên RDS instance).</li>
+<li><b>Stack policy</b>: chặn update lên tài nguyên quan trọng (ví dụ cấm thay thế database).</li>
+<li><b>Termination protection</b>: chặn xoá cả stack.</li>
+<li><b>Drift detection</b>: phát hiện ai đó sửa tay tài nguyên ngoài CloudFormation.</li>
+<li><b>Rollback configuration</b>: gắn CloudWatch alarm, alarm kêu trong lúc update thì tự rollback.</li>
+<li>Bật <b>termination protection</b> và DeletionPolicy cho dữ liệu là câu trả lời cho "tránh mất dữ liệu khi xoá stack nhầm".</li>
+</ul>
+
+<h3>Bootstrap EC2: helper scripts</h3>
+<table>
+<tr><th>Script</th><th>Làm gì</th></tr>
+<tr><td><code>cfn-init</code></td><td>Đọc <code>AWS::CloudFormation::Init</code> trong metadata: cài gói, tạo file, chạy lệnh, bật service</td></tr>
+<tr><td><code>cfn-signal</code></td><td>Báo cho CloudFormation là máy đã cài xong. Kết hợp <b>CreationPolicy</b> / <b>WaitCondition</b>: không nhận đủ tín hiệu trong timeout thì tạo thất bại, rollback</td></tr>
+<tr><td><code>cfn-hup</code></td><td>Daemon theo dõi metadata thay đổi để áp lại cấu hình khi update stack</td></tr>
+</table>
+
+<h3>Lỗi hay gặp và cách xử lý</h3>
+<table>
+<tr><th>Hiện tượng</th><th>Xử lý</th></tr>
+<tr><td><code>CREATE_FAILED</code> rồi rollback, không biết lỗi gì</td><td>Xem tab Events, tìm sự kiện thất bại <b>đầu tiên</b>. Muốn giữ tài nguyên để điều tra: tạo stack với tuỳ chọn <b>preserve successfully provisioned resources</b> (tắt rollback)</td></tr>
+<tr><td><code>UPDATE_ROLLBACK_FAILED</code></td><td>Sửa nguyên nhân (thường do ai đó xoá tay tài nguyên) rồi <b>ContinueUpdateRollback</b>, có thể bỏ qua (skip) tài nguyên lỗi</td></tr>
+<tr><td><code>DELETE_FAILED</code></td><td>S3 bucket còn object, security group đang được dùng bởi tài nguyên ngoài stack. Dọn rồi xoá lại, hoặc retain tài nguyên đó</td></tr>
+<tr><td>Không đủ quyền</td><td>User / <b>service role</b> của stack thiếu quyền. Nên dùng service role để người deploy không cần quyền rộng</td></tr>
+<tr><td>Chạm quota (VPC, EIP...)</td><td>Xin tăng quota</td></tr>
+<tr><td>Subnet hết IP</td><td>Chọn subnet lớn hơn (lỗi hay gặp khi deploy ASG / EKS)</td></tr>
+<tr><td>Wait condition timeout</td><td>Máy không gọi được cfn-signal: không ra được Internet / thiếu endpoint, script lỗi</td></tr>
+</table>
+
+<h2>StackSets: nhiều account, nhiều Region</h2>
+<ul>
+<li>Deploy cùng một template ra nhiều account và Region trong một thao tác.</li>
+<li>Quyền: <b>self-managed</b> (tự tạo role <code>AWSCloudFormationStackSetAdministrationRole</code> ở account quản trị và <code>AWSCloudFormationStackSetExecutionRole</code> ở account đích) hoặc <b>service-managed</b> (dùng Organizations, có <b>automatic deployment</b> cho account mới vào OU).</li>
+<li>Tuỳ chọn: <b>maximum concurrent accounts</b>, <b>failure tolerance</b>, thứ tự Region.</li>
+</ul>
+<aside class="prod"><p>"Mọi account mới trong Organization phải tự động có CloudTrail / Config / IAM role chuẩn" → <b>StackSets service-managed với automatic deployment</b> gắn vào OU (hoặc Control Tower).</p></aside>
+
+<h2>AWS CDK, Image Builder, RAM</h2>
+<ul>
+<li><b>CDK</b>: viết hạ tầng bằng TypeScript / Python..., <code>cdk synth</code> sinh template CloudFormation, <code>cdk deploy</code> triển khai. Lần đầu mỗi account / Region phải <code>cdk bootstrap</code> (tạo bucket, role cho CDK). Lỗi "không tìm thấy bucket staging" → chưa bootstrap.</li>
+<li><b>EC2 Image Builder</b>: pipeline tự động dựng AMI / container image: image recipe (AMI gốc + component cài phần mềm), test, phân phối sang Region / account khác, chạy theo lịch hoặc khi có bản vá. Thay cho tự viết Packer + script.</li>
+<li><b>AWS RAM</b>: chia sẻ tài nguyên cho account khác mà không copy: <b>subnet</b> (VPC sharing), Transit Gateway, Route 53 Resolver rules, License Manager, Aurora cluster (clone)...</li>
+<li>Bên thứ ba: <b>Terraform</b> (state lưu ở S3 + khoá DynamoDB / S3 native locking), Git làm nguồn sự thật cho IaC.</li>
+</ul>
+
+<quiz q="Stack ở trạng thái UPDATE_ROLLBACK_FAILED vì một Lambda trong stack đã bị xoá thủ công. Làm gì?">
+- Xoá stack và tạo lại
++ ContinueUpdateRollback và bỏ qua (skip) tài nguyên bị lỗi
+- Tạo change set mới
+? ContinueUpdateRollback cho phép đưa stack về UPDATE_ROLLBACK_COMPLETE, bỏ qua tài nguyên không còn tồn tại.
+</quiz>
+<quiz q="Template tạo EC2 cài phần mềm bằng user data. Stack báo CREATE_COMPLETE dù script cài đặt lỗi. Cần gì để stack chỉ hoàn tất khi cài xong?">
++ CreationPolicy trên instance và gọi cfn-signal ở cuối script
+- DependsOn giữa các tài nguyên
+- DeletionPolicy Retain
+? CloudFormation coi instance xong khi API trả về. CreationPolicy + cfn-signal bắt nó chờ tín hiệu thành công từ trong máy.
+</quiz>
+<quiz q="Cần đảm bảo database RDS không bị mất khi ai đó xoá stack. Chọn 2 đáp án.">
++ Đặt DeletionPolicy: Snapshot hoặc Retain cho DBInstance
++ Bật termination protection cho stack
+- Đặt DependsOn cho DBInstance
+- Dùng !ImportValue cho endpoint
+- Bật drift detection
+? DeletionPolicy bảo vệ dữ liệu khi tài nguyên bị xoá, termination protection chặn việc xoá stack ngay từ đầu.
+</quiz>

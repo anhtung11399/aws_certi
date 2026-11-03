@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · CloudWatch: metrics, logs, alarms, dashboards · Ôn thi AWS</title>
+<meta name="description" content="Metric mặc định và custom, CloudWatch agent, Logs Insights, metric filter, alarm và composite alarm, dashboard nhiều account.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch" aria-current="page"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-cloudwatch">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</span><span>Bài 01</span><span>60 phút</span></div>
+    <h1>CloudWatch: metrics, logs, alarms, dashboards</h1>
+    <p class="lead">Metric mặc định và custom, CloudWatch agent, Logs Insights, metric filter, alarm và composite alarm, dashboard nhiều account.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Biết metric nào có sẵn, metric nào cần agent</li><li>Dựng alarm đúng và đọc được trạng thái INSUFFICIENT_DATA</li><li>Dùng Logs Insights và metric filter</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="metrics-cai-gi-co-san-cai-gi-phai-cai-agent"><a href="#metrics-cai-gi-co-san-cai-gi-phai-cai-agent" class="anchor" aria-hidden="true">#</a>Metrics: cái gì có sẵn, cái gì phải cài agent</h2>
+<p>CloudWatch thu metric của hầu hết dịch vụ một cách tự động. Với EC2, AWS chỉ nhìn được <b>từ bên ngoài máy ảo</b> (hypervisor), nên có những thứ không thấy được nếu không cài phần mềm bên trong.</p>
+<table>
+<tr><th>Có sẵn cho EC2 (không cần agent)</th><th>Phải có CloudWatch agent</th></tr>
+<tr><td>CPUUtilization, NetworkIn/Out, DiskReadOps (chỉ instance store), StatusCheckFailed (system / instance / attached EBS), CPUCreditBalance (T-family)</td><td><b>Memory</b> (RAM), <b>disk space</b> đã dùng, số process, swap, metric tuỳ chỉnh từ ứng dụng, log file trong máy</td></tr>
+</table>
+<ul>
+<li><b>Basic monitoring</b>: 5 phút một điểm, miễn phí. <b>Detailed monitoring</b>: 1 phút một điểm, trả phí. Auto Scaling phản ứng nhanh hơn khi bật detailed monitoring.</li>
+<li><b>High-resolution custom metric</b>: tới 1 giây một điểm (gửi bằng <code>PutMetricData</code> với <code>StorageResolution=1</code>). Alarm high-resolution có chu kỳ 10 hoặc 30 giây.</li>
+<li>Metric là duy nhất theo <b>namespace + tên + dimensions</b>. Metric không xoá được, tự hết hạn (dữ liệu 1 phút giữ 15 ngày, 5 phút giữ 63 ngày, 1 giờ giữ 15 tháng).</li>
+</ul>
+
+<h2 id="cloudwatch-agent"><a href="#cloudwatch-agent" class="anchor" aria-hidden="true">#</a>CloudWatch agent</h2>
+<figure class="dg"><svg viewBox="0 0 1302.96 86" style="min-width:600px;max-width:1302.96px" role="img" aria-label="Cài agent trên nhiều máy: dùng Systems Manager, cấu hình để ở Parameter Store"><g class="nd ext"><rect x="10" y="10" width="200.72000000000003" height="66" rx="10"/><text x="110.36000000000001" y="40" class="tt" text-anchor="middle">Parameter Store</text><text x="110.36000000000001" y="58" class="ts" text-anchor="middle">file cấu hình agent (JSON)</text></g><line x1="212.72000000000003" y1="43" x2="747.6" y2="43" class="ln" marker-end="url(#ar)"/><text x="481.16" y="34" class="tl" text-anchor="middle">SSM Run Command: AWS-ConfigureAWSPackage + AmazonCloudWatch-ManageAgent</text><g class="nd go"><rect x="751.6" y="10" width="200.72000000000003" height="66" rx="10"/><text x="851.96" y="40" class="tt" text-anchor="middle">EC2</text><text x="851.96" y="58" class="ts" text-anchor="middle">on-premises / có cài agent</text></g><line x1="954.32" y1="43" x2="1168.88" y2="43" class="ln" marker-end="url(#ar)"/><text x="1062.6000000000001" y="34" class="tl" text-anchor="middle">PutMetricData, PutLogEvents</text><g class="nd cache"><rect x="1172.88" y="10" width="120.08000000000001" height="66" rx="10"/><text x="1232.92" y="40" class="tt" text-anchor="middle">CloudWatch</text><text x="1232.92" y="58" class="ts" text-anchor="middle">metrics + Logs</text></g></svg><figcaption>Cài agent trên nhiều máy: dùng Systems Manager, cấu hình để ở Parameter Store</figcaption></figure>
+<ul>
+<li>Agent cần quyền: gắn IAM role có policy <code>CloudWatchAgentServerPolicy</code> vào instance (instance profile). Thiếu quyền là lý do số một khiến "agent chạy mà không thấy metric".</li>
+<li>Instance trong private subnet không có NAT: cần <b>VPC interface endpoint</b> cho <code>monitoring</code> (metrics) và <code>logs</code>.</li>
+<li>Cấu hình dùng chung cho cả đội: lưu file JSON trong <b>SSM Parameter Store</b>, các máy tải về khi khởi động agent.</li>
+<li>Agent chạy được trên máy on-premises (dùng access key hoặc SSM hybrid activation), và trên ECS / EKS dưới tên <b>Container Insights</b>.</li>
+<li>Agent cũng gửi được metric theo chuẩn <b>StatsD</b> và <b>collectd</b> từ ứng dụng.</li>
+</ul>
+<aside class="prod"><p>"Cần giám sát dung lượng ổ đĩa / RAM của EC2" → luôn là <b>CloudWatch agent</b>. Đáp án "bật detailed monitoring" là bẫy: detailed monitoring chỉ làm metric có sẵn dày hơn, không thêm metric RAM.</p></aside>
+
+<h2 id="alarm"><a href="#alarm" class="anchor" aria-hidden="true">#</a>Alarm</h2>
+<p>Alarm theo dõi <b>một metric</b> (hoặc một biểu thức toán học trên metric) và có 3 trạng thái:</p>
+<table>
+<tr><th>Trạng thái</th><th>Nghĩa</th></tr>
+<tr><td><code>OK</code></td><td>Metric trong ngưỡng</td></tr>
+<tr><td><code>ALARM</code></td><td>Vượt ngưỡng đủ số lần theo cấu hình</td></tr>
+<tr><td><code>INSUFFICIENT_DATA</code></td><td>Chưa đủ dữ liệu: alarm mới tạo, metric không có điểm dữ liệu nào (sai dimension, instance đã tắt, agent không gửi)</td></tr>
+</table>
+<ul>
+<li><b>Period</b> (độ dài một chu kỳ), <b>evaluation periods</b> (xét bao nhiêu chu kỳ gần nhất), <b>datapoints to alarm</b> (bao nhiêu chu kỳ trong đó vượt ngưỡng thì báo). Ví dụ "3 trong 5" giảm báo động giả do giật cục.</li>
+<li><b>Treat missing data</b>: <code>missing</code>, <code>notBreaching</code>, <code>breaching</code>, <code>ignore</code>. Metric chỉ có khi có lỗi (ví dụ số lỗi 5xx) thì đặt <code>notBreaching</code> để alarm không treo ở INSUFFICIENT_DATA.</li>
+<li>Hành động của alarm: gửi <b>SNS</b>, hành động EC2 (stop, terminate, reboot, <b>recover</b>), Auto Scaling policy, Systems Manager OpsItem / Incident. Mọi thay đổi trạng thái alarm cũng là một event trong <b>EventBridge</b>, từ đó gọi được Lambda, SSM Automation...</li>
+<li><b>Composite alarm</b>: kết hợp nhiều alarm bằng AND / OR / NOT. Dùng để giảm nhiễu: chỉ báo khi "CPU cao AND latency cao", hoặc tắt báo trong giờ bảo trì.</li>
+<li><b>Anomaly detection</b>: alarm theo dải giá trị bình thường mà CloudWatch tự học, hợp với metric có chu kỳ ngày / tuần.</li>
+</ul>
+<aside class="real"><p><b>EC2 auto recovery</b>: alarm trên <code>StatusCheckFailed_System</code> với action <code>recover</code> chuyển instance sang phần cứng khác, giữ nguyên instance ID, IP private, Elastic IP, EBS. Không dùng được nếu instance có instance store. Ngày nay nhiều loại instance có <b>simplified automatic recovery</b> bật sẵn. Lỗi <code>StatusCheckFailed_Instance</code> (lỗi bên trong OS) thì recover không giúp, phải reboot hoặc sửa OS.</p></aside>
+
+<h2 id="cloudwatch-logs"><a href="#cloudwatch-logs" class="anchor" aria-hidden="true">#</a>CloudWatch Logs</h2>
+<ul>
+<li>Cấu trúc: <b>log group</b> (thường một ứng dụng) chứa nhiều <b>log stream</b> (thường một máy / một container). Đặt <b>retention</b> ở log group (mặc định giữ mãi mãi, tốn tiền).</li>
+<li>Mã hoá log group bằng KMS key: key policy phải cho phép principal <code>logs.&lt;region&gt;.amazonaws.com</code>.</li>
+<li><b>Metric filter</b>: đếm số dòng log khớp mẫu (ví dụ chữ <code>ERROR</code>) thành một metric, rồi đặt alarm. Chỉ đếm log <b>đến sau</b> khi tạo filter.</li>
+<li><b>Logs Insights</b>: truy vấn log tương tác (<code>fields</code>, <code>filter</code>, <code>stats</code>, <code>sort</code>). Dùng để điều tra, không phải để cảnh báo liên tục.</li>
+<li><b>Subscription filter</b>: đẩy log gần thời gian thực sang Kinesis Data Streams, Firehose (rồi S3 / OpenSearch), hoặc Lambda. Gom log nhiều account về một account trung tâm bằng subscription + destination.</li>
+<li><b>Export to S3</b> (CreateExportTask): xuất theo lô, có thể mất tới 12 giờ, không phải thời gian thực.</li>
+<li><b>Live Tail</b>: xem log trực tiếp khi đang gỡ lỗi.</li>
+</ul>
+<div class="code"><div class="code-h"><span>Logs Insights: 10 IP gọi API nhiều lỗi 5xx nhất trong 1 giờ</span><button class="copy" type="button">Sao chép</button></div><pre><code>fields @timestamp, clientIp, status
+| filter status &gt;= 500
+| stats count(*) as errors by clientIp
+| sort errors desc
+| limit 10</code></pre></div>
+
+<h2 id="dashboards"><a href="#dashboards" class="anchor" aria-hidden="true">#</a>Dashboards</h2>
+<ul>
+<li>Dashboard là <b>global</b>: một dashboard hiển thị được metric của nhiều Region.</li>
+<li><b>Cross-account observability</b>: cấu hình một account làm <b>monitoring account</b>, các account khác là source account (liên kết bằng CloudWatch Observability Access Manager). Từ monitoring account xem metric, log, trace của mọi account.</li>
+<li>Chia sẻ dashboard cho người không có tài khoản AWS: chia sẻ công khai hoặc qua đăng nhập SSO / Cognito.</li>
+<li><b>Amazon Managed Service for Prometheus</b> + <b>Amazon Managed Grafana</b>: khi đội đã quen PromQL / Grafana, hay gặp với EKS.</li>
+</ul>
+
+<h2 id="cloudtrail-o-goc-nhin-van-hanh"><a href="#cloudtrail-o-goc-nhin-van-hanh" class="anchor" aria-hidden="true">#</a>CloudTrail ở góc nhìn vận hành</h2>
+<ul>
+<li>CloudTrail ghi lại <b>ai đã gọi API gì</b>. Câu hỏi "ai đã xoá security group / tắt instance" → tra <b>CloudTrail Event history</b> (90 ngày management events, miễn phí) hoặc trail lưu về S3.</li>
+<li>Muốn phản ứng ngay khi có API call cụ thể (ví dụ ai đó tắt CloudTrail) → <b>EventBridge rule</b> khớp event "AWS API Call via CloudTrail".</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội vận hành cần cảnh báo khi ổ đĩa gốc của 200 EC2 Linux đầy quá 90%. Cách nào đúng và ít công sức nhất?</p><div class="qo"><button type="button" class="opt">Bật detailed monitoring cho các instance và tạo alarm trên DiskSpaceUtilization</button><button type="button" class="opt" data-ok>Cài CloudWatch agent bằng Systems Manager (cấu hình lưu trong Parameter Store), gắn role có CloudWatchAgentServerPolicy, rồi tạo alarm trên metric disk_used_percent</button><button type="button" class="opt">Viết cron job trên mỗi máy gửi email khi đĩa đầy</button></div><p class="why" hidden>Dung lượng đĩa là metric bên trong OS, chỉ có khi cài CloudWatch agent. SSM giúp cài và cấu hình hàng loạt.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Alarm đếm lỗi 5xx của ứng dụng thường xuyên nằm ở INSUFFICIENT_DATA vào ban đêm khi không có lỗi. Cách sửa?</p><div class="qo"><button type="button" class="opt">Giảm period của alarm xuống 10 giây</button><button type="button" class="opt" data-ok>Đặt Treat missing data = notBreaching</button><button type="button" class="opt">Chuyển sang composite alarm</button></div><p class="why" hidden>Metric chỉ phát sinh khi có lỗi, ban đêm không có điểm dữ liệu nào. Coi dữ liệu thiếu là "không vượt ngưỡng" là đúng ngữ nghĩa.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần một alarm chỉ gửi trang (page) cho người trực khi CẢ CPU cao VÀ thời gian phản hồi cao, để giảm báo động giả. Dùng gì?</p><div class="qo"><button type="button" class="opt">Hai alarm riêng cùng gửi một SNS topic</button><button type="button" class="opt" data-ok>Composite alarm với điều kiện AND trên hai alarm con</button><button type="button" class="opt">Metric math tính trung bình hai metric</button></div><p class="why" hidden>Composite alarm kết hợp trạng thái nhiều alarm bằng AND / OR / NOT, đúng mục đích giảm nhiễu cảnh báo.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-cloudwatch">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-tong-quan.html"><small>Bài trước</small>Đề SOA-C03 và cách học</a><a class="next" href="soa-eventbridge-ssm.html"><small>Bài tiếp theo</small>EventBridge và Systems Manager: tự động khắc phục</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#metrics-cai-gi-co-san-cai-gi-phai-cai-agent">Metrics: cái gì có sẵn, cái gì phải cài agent</a><a href="#cloudwatch-agent">CloudWatch agent</a><a href="#alarm">Alarm</a><a href="#cloudwatch-logs">CloudWatch Logs</a><a href="#dashboards">Dashboards</a><a href="#cloudtrail-o-goc-nhin-van-hanh">CloudTrail ở góc nhìn vận hành</a></nav>
+</div>
+</body>
+</html>

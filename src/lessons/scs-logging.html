@@ -1,0 +1,77 @@
+<h2>Account log tập trung</h2>
+<fig type="flow" caption="Mẫu landing zone: mọi account đẩy log về Log Archive, đội bảo mật làm việc ở Security / Audit account">
+[go] Các account workload / CloudTrail, Config, VPC Flow Logs
+-> 
+[db] Log Archive account / S3 bucket mã hoá KMS, Object Lock, chặn xoá
+-> đọc
+[warn] Security Tooling account / GuardDuty, Security Hub delegated admin, Athena
+</fig>
+<ul>
+<li>Bucket log: bucket policy chỉ cho dịch vụ ghi (<code>cloudtrail.amazonaws.com</code> với điều kiện <code>aws:SourceOrgID</code> / <code>aws:SourceArn</code>), chặn xoá, bật versioning + <b>Object Lock</b>, mã hoá SSE-KMS, lifecycle chuyển Glacier.</li>
+<li>SCP cấm các account con tắt CloudTrail / Config / GuardDuty (<code>cloudtrail:StopLogging</code>, <code>DeleteTrail</code>...).</li>
+</ul>
+
+<h2>CloudTrail</h2>
+<table>
+<tr><th>Loại event</th><th>Ghi gì</th><th>Mặc định</th></tr>
+<tr><td>Management events</td><td>Thao tác lên tài nguyên: tạo / xoá / sửa, đăng nhập console</td><td>Bật trong Event history 90 ngày</td></tr>
+<tr><td><b>Data events</b></td><td>Thao tác lên dữ liệu: S3 GetObject / PutObject, Lambda Invoke, DynamoDB item... Rất nhiều, tính phí</td><td><b>Tắt</b>, phải bật trong trail (có advanced event selectors để lọc)</td></tr>
+<tr><td>Network activity events</td><td>API call đi qua VPC endpoint</td><td>Tắt</td></tr>
+<tr><td>Insights events</td><td>Lượng API call / lỗi bất thường</td><td>Tắt</td></tr>
+</table>
+<ul>
+<li><b>Organization trail</b>: tạo ở management account (hoặc delegated admin), tự áp cho mọi account, account con không sửa / xoá được.</li>
+<li>Trail <b>multi-Region</b> (mặc định khi tạo ở console) để không sót Region nào. Bật <b>global service events</b>.</li>
+<li><b>Log file integrity validation</b>: tạo file digest (SHA-256, ký số) mỗi giờ để chứng minh log không bị sửa / xoá. Kiểm bằng <code>aws cloudtrail validate-logs</code>.</li>
+<li>Gửi trail sang CloudWatch Logs để làm metric filter và alarm.</li>
+<li><b>CloudTrail Lake</b>: lưu event và truy vấn bằng SQL ngay trong CloudTrail (tới 10 năm), gom được event bên ngoài AWS. Thay cho tự dựng S3 + Athena.</li>
+<li>Log tới S3 chậm khoảng 5 đến 15 phút, không phải thời gian thực.</li>
+</ul>
+
+<h2>Log nào trả lời câu hỏi nào</h2>
+<table>
+<tr><th>Câu hỏi</th><th>Log</th></tr>
+<tr><td>Ai xoá bucket / tạo access key / đổi policy?</td><td>CloudTrail management events</td></tr>
+<tr><td>Ai đọc file nhạy cảm trong S3?</td><td>CloudTrail <b>data events</b> cho S3 (hoặc S3 server access logs)</td></tr>
+<tr><td>Máy nào kết nối tới IP lạ, bị từ chối ở đâu?</td><td><b>VPC Flow Logs</b> (thêm các trường như <code>pkt-srcaddr</code>, <code>tcp-flags</code> bằng custom format)</td></tr>
+<tr><td>Lưu lượng giữa các VPC qua TGW</td><td><b>Transit Gateway Flow Logs</b></td></tr>
+<tr><td>Máy nào phân giải tên miền độc hại?</td><td><b>Route 53 Resolver query logs</b></td></tr>
+<tr><td>Request HTTP nào bị chặn / tấn công web</td><td><b>WAF logs</b>, ALB access logs, CloudFront logs</td></tr>
+<tr><td>Ai gọi API Gateway, lỗi gì</td><td>API Gateway execution logs và access logs</td></tr>
+<tr><td>Đăng nhập database thất bại</td><td>RDS log (audit / error log) xuất ra CloudWatch Logs</td></tr>
+<tr><td>Lệnh gõ trong phiên quản trị</td><td>SSM Session Manager session logs</td></tr>
+</table>
+
+<h2>Phân tích log</h2>
+<ul>
+<li><b>Athena</b>: truy vấn SQL trực tiếp trên log trong S3 (CloudTrail, Flow Logs, ALB, WAF). Dùng partition projection để rẻ và nhanh.</li>
+<li><b>CloudWatch Logs Insights</b>: truy vấn log trong CloudWatch Logs.</li>
+<li><b>OpenSearch Service</b>: tìm kiếm, tương quan, dashboard cho log lớn, SIEM tự dựng. Đẩy log qua subscription filter → Firehose / Lambda.</li>
+<li><b>Lambda</b>: parse, chuẩn hoá, làm giàu log. <b>Managed Grafana</b>: dashboard.</li>
+</ul>
+
+<h2>Sửa lỗi "log không về"</h2>
+<table>
+<tr><th>Hiện tượng</th><th>Nguyên nhân thường gặp</th></tr>
+<tr><td>CloudTrail không ghi vào S3</td><td>Bucket policy thiếu quyền cho CloudTrail, sai prefix, bucket mã hoá KMS mà key policy không cho CloudTrail dùng key</td></tr>
+<tr><td>CloudWatch agent không đẩy log</td><td>Role của instance thiếu quyền <code>logs:PutLogEvents</code>, sai đường dẫn file trong cấu hình agent, không có đường tới endpoint logs</td></tr>
+<tr><td>Lambda không có log</td><td>Execution role thiếu <code>logs:CreateLogGroup</code> / <code>CreateLogStream</code> / <code>PutLogEvents</code></td></tr>
+<tr><td>API Gateway không có execution log</td><td>Chưa đặt <b>CloudWatch Logs role ARN</b> ở mức account của API Gateway, chưa bật logging ở stage</td></tr>
+<tr><td>VPC Flow Logs về CloudWatch rỗng</td><td>IAM role của flow log thiếu quyền, hoặc trust policy không cho <code>vpc-flow-logs.amazonaws.com</code></td></tr>
+<tr><td>Log group mã hoá KMS báo lỗi</td><td>Key policy chưa cho <code>logs.&lt;region&gt;.amazonaws.com</code></td></tr>
+</table>
+
+<quiz q="Kiểm toán yêu cầu chứng minh log CloudTrail trong 1 năm không bị sửa hay xoá. Chọn 2 biện pháp.">
++ Bật log file integrity validation
++ Lưu log trong bucket có S3 Object Lock (compliance mode) và versioning
+- Bật CloudTrail Insights
+- Chuyển log sang CloudWatch Logs
+- Bật data events
+? Integrity validation chứng minh log không bị sửa, Object Lock ngăn xoá trong thời hạn giữ.
+</quiz>
+<quiz q="Cần biết ai đã tải file báo-cáo-lương.xlsx từ S3 tuần trước. Trail hiện chỉ ghi management events. Kết luận?">
+- Tra CloudTrail Event history là ra
++ Không tra lại được qua CloudTrail vì data events chưa bật. Bật S3 data events (hoặc server access logs) từ nay về sau
+- Dùng VPC Flow Logs để biết
+? GetObject là data event, mặc định không được ghi. Phải bật trước thì mới có dữ liệu.
+</quiz>

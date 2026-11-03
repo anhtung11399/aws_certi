@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Bảo mật mạng và biên · Ôn thi AWS</title>
+<meta name="description" content="SG, NACL, VPC endpoint policy, PrivateLink, Network Firewall, WAF, Shield Advanced, CloudFront, Firewall Manager, Route 53 Resolver DNS Firewall.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network" aria-current="page"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-infra-network">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</span><span>Bài 04</span><span>60 phút</span></div>
+    <h1>Bảo mật mạng và biên</h1>
+    <p class="lead">SG, NACL, VPC endpoint policy, PrivateLink, Network Firewall, WAF, Shield Advanced, CloudFront, Firewall Manager, Route 53 Resolver DNS Firewall.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn đúng lớp bảo vệ cho layer 3 đến 7</li><li>Chặn dữ liệu đi ra ngoài trái phép</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="phong-thu-nhieu-lop-o-mang"><a href="#phong-thu-nhieu-lop-o-mang" class="anchor" aria-hidden="true">#</a>Phòng thủ nhiều lớp ở mạng</h2>
+<figure class="dg"><svg viewBox="0 0 781.52 432" style="min-width:600px;max-width:781.52px" role="img" aria-label="Từ ngoài vào trong: mỗi lớp chặn một loại tấn công"><g class="nd ext"><rect x="10" y="10" width="292" height="52" rx="10"/><text x="156" y="33" class="tt" text-anchor="middle">Shield (Standard</text><text x="156" y="51" class="ts" text-anchor="middle">Advanced)</text></g><text x="322" y="41" class="tl" text-anchor="start">DDoS layer 3/4 (và layer 7 với Advanced)</text><line x1="156" y1="62" x2="156" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="82" width="292" height="52" rx="10"/><text x="156" y="113" class="tt" text-anchor="middle">CloudFront + WAF</text></g><text x="322" y="113" class="tl" text-anchor="start">tấn công web layer 7: SQLi, XSS, bot, rate limit, geo block</text><line x1="156" y1="134" x2="156" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="154" width="292" height="52" rx="10"/><text x="156" y="177" class="tt" text-anchor="middle">ALB</text><text x="156" y="195" class="ts" text-anchor="middle">NLB</text></g><text x="322" y="185" class="tl" text-anchor="start">chỉ mở cổng cần thiết, TLS, chỉ nhận từ CloudFront</text><line x1="156" y1="206" x2="156" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="10" y="226" width="292" height="52" rx="10"/><text x="156" y="257" class="tt" text-anchor="middle">Network Firewall</text></g><text x="322" y="257" class="tl" text-anchor="start">lọc stateful, IPS, lọc tên miền ra ngoài, ở mức VPC</text><line x1="156" y1="278" x2="156" y2="296" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="10" y="298" width="292" height="52" rx="10"/><text x="156" y="329" class="tt" text-anchor="middle">Security group + NACL</text></g><text x="322" y="329" class="tl" text-anchor="start">mức instance / subnet</text><line x1="156" y1="350" x2="156" y2="368" class="ln" marker-end="url(#ar)"/><g class="nd db"><rect x="10" y="370" width="292" height="52" rx="10"/><text x="156" y="401" class="tt" text-anchor="middle">Route 53 Resolver DNS Firewall</text></g><text x="322" y="401" class="tl" text-anchor="start">chặn phân giải tên miền độc hại / rò dữ liệu qua DNS</text></svg><figcaption>Từ ngoài vào trong: mỗi lớp chặn một loại tấn công</figcaption></figure>
+
+<h2 id="security-group-va-nacl-o-muc-chuyen-sau"><a href="#security-group-va-nacl-o-muc-chuyen-sau" class="anchor" aria-hidden="true">#</a>Security group và NACL ở mức chuyên sâu</h2>
+<ul>
+<li>SG tham chiếu SG khác (ví dụ DB chỉ nhận từ SG của app) thay vì CIDR. Có thể tham chiếu SG ở VPC peer cùng Region.</li>
+<li>NACL dùng để <b>chặn một IP / dải IP</b> cụ thể (SG không có Deny).</li>
+<li><b>Managed prefix list</b>: gom dải IP dùng chung cho nhiều SG / route table, chia sẻ qua RAM.</li>
+<li>Firewall Manager áp <b>security group policy</b> chung, kiểm tra SG quá rộng trên cả Organization.</li>
+</ul>
+
+<h2 id="kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu"><a href="#kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu" class="anchor" aria-hidden="true">#</a>Kiểm soát traffic ra (egress) và rò rỉ dữ liệu</h2>
+<ul>
+<li><b>VPC endpoint</b> để truy cập dịch vụ AWS không qua Internet, kèm <b>endpoint policy</b> chỉ cho phép bucket / tài nguyên của tổ chức (điều kiện <code>aws:ResourceOrgID</code>). Ngăn nhân viên chép dữ liệu sang bucket cá nhân qua endpoint.</li>
+<li>Bucket policy chỉ cho truy cập qua endpoint: điều kiện <code>aws:SourceVpce</code> hoặc <code>aws:SourceVpc</code>.</li>
+<li><b>AWS Network Firewall</b>: stateful rule (Suricata), lọc theo <b>tên miền (SNI / Host)</b> cho traffic ra, IPS. Đặt ở subnet riêng, route table phải đưa traffic đi qua firewall endpoint (cả chiều đi và về, cẩn thận định tuyến bất đối xứng). Mô hình tập trung: inspection VPC với Transit Gateway.</li>
+<li><b>DNS Firewall</b>: chặn tên miền xấu, chống DNS exfiltration. Cấu hình <b>fail-open / fail-closed</b>.</li>
+<li>NAT Gateway không lọc gì cả, chỉ chuyển địa chỉ.</li>
+</ul>
+
+<h2 id="waf-chuyen-sau"><a href="#waf-chuyen-sau" class="anchor" aria-hidden="true">#</a>WAF chuyên sâu</h2>
+<ul>
+<li>Managed rule groups: <b>Core rule set</b> (OWASP Top 10), <b>Known bad inputs</b>, <b>SQL database</b>, <b>IP reputation</b>, <b>Anonymous IP list</b> (VPN, Tor), <b>Bot Control</b>, <b>Account Takeover Prevention</b> (ATP, chống dò mật khẩu ở trang login), <b>Account Creation Fraud Prevention</b>.</li>
+<li>Rate-based rule: theo IP, theo header, theo kết hợp khoá. Hành động: Block, Count, <b>CAPTCHA</b>, <b>Challenge</b>.</li>
+<li>Thứ tự rule quan trọng: rule có số priority nhỏ được xét trước, rule Allow sớm sẽ bỏ qua các rule Block sau.</li>
+<li>Chỉ cho ALB nhận traffic từ CloudFront: SG của ALB dùng prefix list của CloudFront + CloudFront gửi một <b>custom header bí mật</b>, WAF trên ALB chỉ cho request có header đó.</li>
+</ul>
+
+<h2 id="shield-advanced"><a href="#shield-advanced" class="anchor" aria-hidden="true">#</a>Shield Advanced</h2>
+<ul>
+<li>Bảo vệ CloudFront, Route 53, Global Accelerator, ELB, Elastic IP.</li>
+<li><b>Shield Response Team (SRT)</b> hỗ trợ 24/7 khi bị tấn công (cấp quyền cho SRT bằng role), <b>proactive engagement</b> (SRT chủ động liên hệ khi health check của bạn lỗi).</li>
+<li><b>Cost protection</b>: hoàn tiền chi phí scale do DDoS.</li>
+<li><b>Automatic application layer DDoS mitigation</b>: tự tạo rule WAF khi phát hiện tấn công layer 7.</li>
+<li>Kiến trúc chống DDoS: CloudFront + Route 53 ở biên, ASG để hấp thụ, giảm bề mặt tấn công (không để EC2 public).</li>
+</ul>
+
+<h2 id="privatelink-va-truy-cap-rieng-tu"><a href="#privatelink-va-truy-cap-rieng-tu" class="anchor" aria-hidden="true">#</a>PrivateLink và truy cập riêng tư</h2>
+<ul>
+<li>Cung cấp dịch vụ cho account / khách hàng khác qua <b>endpoint service</b> (sau NLB / GWLB), chấp nhận kết nối theo principal được phép, không lộ cả VPC.</li>
+<li><b>Gateway Load Balancer</b>: chèn thiết bị bảo mật bên thứ ba (firewall ảo) vào đường đi của traffic, minh bạch, dùng giao thức GENEVE.</li>
+<li><b>Verified Access</b>: cho nhân viên vào ứng dụng nội bộ không cần VPN, kiểm tra danh tính (Identity Center / IdP) và trạng thái thiết bị theo từng request (zero trust).</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty muốn chặn mọi EC2 trong VPC truy cập Internet, trừ các tên miền *.windowsupdate.com và *.amazonaws.com. Giải pháp?</p><div class="qo"><button type="button" class="opt">Security group với rule outbound theo tên miền</button><button type="button" class="opt" data-ok>AWS Network Firewall với stateful domain list rule (allowlist), định tuyến traffic ra qua firewall endpoint</button><button type="button" class="opt">NACL chặn mọi cổng trừ 443</button></div><p class="why" hidden>Security group và NACL không lọc theo tên miền. Network Firewall lọc theo SNI / Host header.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Trang đăng nhập bị dò mật khẩu từ hàng nghìn IP khác nhau, mỗi IP gửi ít request. Lớp bảo vệ phù hợp nhất?</p><div class="qo"><button type="button" class="opt">Rate-based rule chặn IP gửi quá 100 request / 5 phút</button><button type="button" class="opt" data-ok>AWS WAF Account Takeover Prevention (ATP) managed rule group trên trang login</button><button type="button" class="opt">NACL chặn các IP đó</button></div><p class="why" hidden>Tấn công phân tán qua nhiều IP nên rate limit theo IP không hiệu quả. ATP phân tích dấu hiệu dò thông tin đăng nhập.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-infra-network">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-incident-response.html"><small>Bài trước</small>Ứng phó sự cố</a><a class="next" href="scs-infra-compute.html"><small>Bài tiếp theo</small>Bảo mật compute và container</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#phong-thu-nhieu-lop-o-mang">Phòng thủ nhiều lớp ở mạng</a><a href="#security-group-va-nacl-o-muc-chuyen-sau">Security group và NACL ở mức chuyên sâu</a><a href="#kiem-soat-traffic-ra-egress-va-ro-ri-du-lieu">Kiểm soát traffic ra (egress) và rò rỉ dữ liệu</a><a href="#waf-chuyen-sau">WAF chuyên sâu</a><a href="#shield-advanced">Shield Advanced</a><a href="#privatelink-va-truy-cap-rieng-tu">PrivateLink và truy cập riêng tư</a></nav>
+</div>
+</body>
+</html>

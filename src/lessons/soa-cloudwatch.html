@@ -1,0 +1,96 @@
+<h2>Metrics: cái gì có sẵn, cái gì phải cài agent</h2>
+<p>CloudWatch thu metric của hầu hết dịch vụ một cách tự động. Với EC2, AWS chỉ nhìn được <b>từ bên ngoài máy ảo</b> (hypervisor), nên có những thứ không thấy được nếu không cài phần mềm bên trong.</p>
+<table>
+<tr><th>Có sẵn cho EC2 (không cần agent)</th><th>Phải có CloudWatch agent</th></tr>
+<tr><td>CPUUtilization, NetworkIn/Out, DiskReadOps (chỉ instance store), StatusCheckFailed (system / instance / attached EBS), CPUCreditBalance (T-family)</td><td><b>Memory</b> (RAM), <b>disk space</b> đã dùng, số process, swap, metric tuỳ chỉnh từ ứng dụng, log file trong máy</td></tr>
+</table>
+<ul>
+<li><b>Basic monitoring</b>: 5 phút một điểm, miễn phí. <b>Detailed monitoring</b>: 1 phút một điểm, trả phí. Auto Scaling phản ứng nhanh hơn khi bật detailed monitoring.</li>
+<li><b>High-resolution custom metric</b>: tới 1 giây một điểm (gửi bằng <code>PutMetricData</code> với <code>StorageResolution=1</code>). Alarm high-resolution có chu kỳ 10 hoặc 30 giây.</li>
+<li>Metric là duy nhất theo <b>namespace + tên + dimensions</b>. Metric không xoá được, tự hết hạn (dữ liệu 1 phút giữ 15 ngày, 5 phút giữ 63 ngày, 1 giờ giữ 15 tháng).</li>
+</ul>
+
+<h2>CloudWatch agent</h2>
+<fig type="flow" caption="Cài agent trên nhiều máy: dùng Systems Manager, cấu hình để ở Parameter Store">
+[ext] Parameter Store / file cấu hình agent (JSON)
+-> SSM Run Command: AWS-ConfigureAWSPackage + AmazonCloudWatch-ManageAgent
+[go] EC2 / on-premises / có cài agent
+-> PutMetricData, PutLogEvents
+[cache] CloudWatch / metrics + Logs
+</fig>
+<ul>
+<li>Agent cần quyền: gắn IAM role có policy <code>CloudWatchAgentServerPolicy</code> vào instance (instance profile). Thiếu quyền là lý do số một khiến "agent chạy mà không thấy metric".</li>
+<li>Instance trong private subnet không có NAT: cần <b>VPC interface endpoint</b> cho <code>monitoring</code> (metrics) và <code>logs</code>.</li>
+<li>Cấu hình dùng chung cho cả đội: lưu file JSON trong <b>SSM Parameter Store</b>, các máy tải về khi khởi động agent.</li>
+<li>Agent chạy được trên máy on-premises (dùng access key hoặc SSM hybrid activation), và trên ECS / EKS dưới tên <b>Container Insights</b>.</li>
+<li>Agent cũng gửi được metric theo chuẩn <b>StatsD</b> và <b>collectd</b> từ ứng dụng.</li>
+</ul>
+<aside class="prod"><p>"Cần giám sát dung lượng ổ đĩa / RAM của EC2" → luôn là <b>CloudWatch agent</b>. Đáp án "bật detailed monitoring" là bẫy: detailed monitoring chỉ làm metric có sẵn dày hơn, không thêm metric RAM.</p></aside>
+
+<h2>Alarm</h2>
+<p>Alarm theo dõi <b>một metric</b> (hoặc một biểu thức toán học trên metric) và có 3 trạng thái:</p>
+<table>
+<tr><th>Trạng thái</th><th>Nghĩa</th></tr>
+<tr><td><code>OK</code></td><td>Metric trong ngưỡng</td></tr>
+<tr><td><code>ALARM</code></td><td>Vượt ngưỡng đủ số lần theo cấu hình</td></tr>
+<tr><td><code>INSUFFICIENT_DATA</code></td><td>Chưa đủ dữ liệu: alarm mới tạo, metric không có điểm dữ liệu nào (sai dimension, instance đã tắt, agent không gửi)</td></tr>
+</table>
+<ul>
+<li><b>Period</b> (độ dài một chu kỳ), <b>evaluation periods</b> (xét bao nhiêu chu kỳ gần nhất), <b>datapoints to alarm</b> (bao nhiêu chu kỳ trong đó vượt ngưỡng thì báo). Ví dụ "3 trong 5" giảm báo động giả do giật cục.</li>
+<li><b>Treat missing data</b>: <code>missing</code>, <code>notBreaching</code>, <code>breaching</code>, <code>ignore</code>. Metric chỉ có khi có lỗi (ví dụ số lỗi 5xx) thì đặt <code>notBreaching</code> để alarm không treo ở INSUFFICIENT_DATA.</li>
+<li>Hành động của alarm: gửi <b>SNS</b>, hành động EC2 (stop, terminate, reboot, <b>recover</b>), Auto Scaling policy, Systems Manager OpsItem / Incident. Mọi thay đổi trạng thái alarm cũng là một event trong <b>EventBridge</b>, từ đó gọi được Lambda, SSM Automation...</li>
+<li><b>Composite alarm</b>: kết hợp nhiều alarm bằng AND / OR / NOT. Dùng để giảm nhiễu: chỉ báo khi "CPU cao AND latency cao", hoặc tắt báo trong giờ bảo trì.</li>
+<li><b>Anomaly detection</b>: alarm theo dải giá trị bình thường mà CloudWatch tự học, hợp với metric có chu kỳ ngày / tuần.</li>
+</ul>
+<aside class="real"><p><b>EC2 auto recovery</b>: alarm trên <code>StatusCheckFailed_System</code> với action <code>recover</code> chuyển instance sang phần cứng khác, giữ nguyên instance ID, IP private, Elastic IP, EBS. Không dùng được nếu instance có instance store. Ngày nay nhiều loại instance có <b>simplified automatic recovery</b> bật sẵn. Lỗi <code>StatusCheckFailed_Instance</code> (lỗi bên trong OS) thì recover không giúp, phải reboot hoặc sửa OS.</p></aside>
+
+<h2>CloudWatch Logs</h2>
+<ul>
+<li>Cấu trúc: <b>log group</b> (thường một ứng dụng) chứa nhiều <b>log stream</b> (thường một máy / một container). Đặt <b>retention</b> ở log group (mặc định giữ mãi mãi, tốn tiền).</li>
+<li>Mã hoá log group bằng KMS key: key policy phải cho phép principal <code>logs.&lt;region&gt;.amazonaws.com</code>.</li>
+<li><b>Metric filter</b>: đếm số dòng log khớp mẫu (ví dụ chữ <code>ERROR</code>) thành một metric, rồi đặt alarm. Chỉ đếm log <b>đến sau</b> khi tạo filter.</li>
+<li><b>Logs Insights</b>: truy vấn log tương tác (<code>fields</code>, <code>filter</code>, <code>stats</code>, <code>sort</code>). Dùng để điều tra, không phải để cảnh báo liên tục.</li>
+<li><b>Subscription filter</b>: đẩy log gần thời gian thực sang Kinesis Data Streams, Firehose (rồi S3 / OpenSearch), hoặc Lambda. Gom log nhiều account về một account trung tâm bằng subscription + destination.</li>
+<li><b>Export to S3</b> (CreateExportTask): xuất theo lô, có thể mất tới 12 giờ, không phải thời gian thực.</li>
+<li><b>Live Tail</b>: xem log trực tiếp khi đang gỡ lỗi.</li>
+</ul>
+<pre lang="text" file="Logs Insights: 10 IP gọi API nhiều lỗi 5xx nhất trong 1 giờ">
+fields @timestamp, clientIp, status
+| filter status >= 500
+| stats count(*) as errors by clientIp
+| sort errors desc
+| limit 10
+</pre>
+
+<h2>Dashboards</h2>
+<ul>
+<li>Dashboard là <b>global</b>: một dashboard hiển thị được metric của nhiều Region.</li>
+<li><b>Cross-account observability</b>: cấu hình một account làm <b>monitoring account</b>, các account khác là source account (liên kết bằng CloudWatch Observability Access Manager). Từ monitoring account xem metric, log, trace của mọi account.</li>
+<li>Chia sẻ dashboard cho người không có tài khoản AWS: chia sẻ công khai hoặc qua đăng nhập SSO / Cognito.</li>
+<li><b>Amazon Managed Service for Prometheus</b> + <b>Amazon Managed Grafana</b>: khi đội đã quen PromQL / Grafana, hay gặp với EKS.</li>
+</ul>
+
+<h2>CloudTrail ở góc nhìn vận hành</h2>
+<ul>
+<li>CloudTrail ghi lại <b>ai đã gọi API gì</b>. Câu hỏi "ai đã xoá security group / tắt instance" → tra <b>CloudTrail Event history</b> (90 ngày management events, miễn phí) hoặc trail lưu về S3.</li>
+<li>Muốn phản ứng ngay khi có API call cụ thể (ví dụ ai đó tắt CloudTrail) → <b>EventBridge rule</b> khớp event "AWS API Call via CloudTrail".</li>
+</ul>
+
+<quiz q="Đội vận hành cần cảnh báo khi ổ đĩa gốc của 200 EC2 Linux đầy quá 90%. Cách nào đúng và ít công sức nhất?">
+- Bật detailed monitoring cho các instance và tạo alarm trên DiskSpaceUtilization
++ Cài CloudWatch agent bằng Systems Manager (cấu hình lưu trong Parameter Store), gắn role có CloudWatchAgentServerPolicy, rồi tạo alarm trên metric disk_used_percent
+- Viết cron job trên mỗi máy gửi email khi đĩa đầy
+? Dung lượng đĩa là metric bên trong OS, chỉ có khi cài CloudWatch agent. SSM giúp cài và cấu hình hàng loạt.
+</quiz>
+<quiz q="Alarm đếm lỗi 5xx của ứng dụng thường xuyên nằm ở INSUFFICIENT_DATA vào ban đêm khi không có lỗi. Cách sửa?">
+- Giảm period của alarm xuống 10 giây
++ Đặt Treat missing data = notBreaching
+- Chuyển sang composite alarm
+? Metric chỉ phát sinh khi có lỗi, ban đêm không có điểm dữ liệu nào. Coi dữ liệu thiếu là "không vượt ngưỡng" là đúng ngữ nghĩa.
+</quiz>
+<quiz q="Cần một alarm chỉ gửi trang (page) cho người trực khi CẢ CPU cao VÀ thời gian phản hồi cao, để giảm báo động giả. Dùng gì?">
+- Hai alarm riêng cùng gửi một SNS topic
++ Composite alarm với điều kiện AND trên hai alarm con
+- Metric math tính trung bình hai metric
+? Composite alarm kết hợp trạng thái nhiều alarm bằng AND / OR / NOT, đúng mục đích giảm nhiễu cảnh báo.
+</quiz>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Bảo mật compute và container · Ôn thi AWS</title>
+<meta name="description" content="IMDSv2, Session Manager thay SSH, Inspector, patching, ECR scanning, Lambda, EKS / ECS, Nitro Enclaves.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute" aria-current="page"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-infra-compute">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</span><span>Bài 05</span><span>40 phút</span></div>
+    <h1>Bảo mật compute và container</h1>
+    <p class="lead">IMDSv2, Session Manager thay SSH, Inspector, patching, ECR scanning, Lambda, EKS / ECS, Nitro Enclaves.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Giảm bề mặt tấn công của EC2</li><li>Quản lý lỗ hổng phần mềm</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="bao-ve-ec2"><a href="#bao-ve-ec2" class="anchor" aria-hidden="true">#</a>Bảo vệ EC2</h2>
+<ul>
+<li><b>IMDSv2</b>: bắt buộc dùng token phiên (PUT rồi mới GET), chống tấn công SSRF lấy credential của role. Ép buộc: <code>HttpTokens=required</code> trong launch template, mặc định ở cấp account, SCP / <b>declarative policy</b> chặn tạo instance thiếu IMDSv2, Config rule <code>ec2-imdsv2-check</code>. Đặt <code>HttpPutResponseHopLimit=1</code> (2 nếu chạy container) để container không lấy được credential của host.</li>
+<li>Không mở SSH / RDP ra Internet: dùng <b>Session Manager</b> (log phiên về S3 / CloudWatch, mã hoá KMS, không cần key pair) hoặc <b>EC2 Instance Connect Endpoint</b> (SSH vào máy private không cần bastion).</li>
+<li>Máy mất key / không vào được: SSM <code>AWSSupport-ResetAccess</code> hoặc EC2Rescue.</li>
+<li><b>Patching</b>: SSM Patch Manager. <b>Lỗ hổng</b>: Inspector (EC2, ECR, Lambda), có SBOM export.</li>
+<li><b>Golden AMI</b>: dựng bằng EC2 Image Builder có bước hardening (CIS benchmark), quét Inspector, chỉ cho phép dùng AMI đã duyệt (SCP / declarative policy <b>allowed AMIs</b>).</li>
+<li>Mã hoá EBS mặc định, chặn chia sẻ AMI / snapshot công khai (block public access for AMIs / snapshots).</li>
+<li><b>Nitro Enclaves</b>: môi trường cô lập trong instance để xử lý dữ liệu cực nhạy cảm (khoá, dữ liệu thẻ), có attestation với KMS.</li>
+</ul>
+
+<h2 id="container-va-serverless"><a href="#container-va-serverless" class="anchor" aria-hidden="true">#</a>Container và serverless</h2>
+<ul>
+<li><b>ECR</b>: image scanning (basic khi push, enhanced với Inspector quét liên tục), repository policy, mã hoá KMS, <b>tag immutability</b>, pull through cache cho registry bên ngoài.</li>
+<li><b>ECS</b>: task role (quyền cho ứng dụng) khác task execution role (quyền kéo image, đọc secret, ghi log). Secret đưa vào container từ Secrets Manager / Parameter Store, không đặt trong biến môi trường plain text của task definition.</li>
+<li><b>EKS</b>: <b>IRSA</b> hoặc <b>EKS Pod Identity</b> để pod có IAM role riêng; EKS access entries thay cho aws-auth ConfigMap; bật audit log của control plane; GuardDuty EKS Protection + Runtime Monitoring; network policy.</li>
+<li><b>Lambda</b>: execution role least privilege, resource policy (ai được gọi), code signing (chỉ chạy code đã ký bằng AWS Signer), biến môi trường mã hoá KMS, chạy trong VPC khi cần truy cập tài nguyên private.</li>
+<li><b>Chuỗi cung ứng phần mềm</b>: quét thư viện (Inspector cho Lambda / ECR, CodeGuru Security / Amazon Q), ký image, SBOM, chỉ kéo từ registry tin cậy.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Một lỗi SSRF trong ứng dụng web trên EC2 cho phép kẻ tấn công gọi http://169.254.169.254 để lấy credential. Biện pháp trực tiếp nhất?</p><div class="qo"><button type="button" class="opt" data-ok>Bắt buộc IMDSv2 (HttpTokens=required) cho instance</button><button type="button" class="opt">Đổi security group chặn cổng 80</button><button type="button" class="opt">Bật GuardDuty</button></div><p class="why" hidden>IMDSv2 yêu cầu token qua PUT với header riêng, kiểu SSRF thông thường (chỉ GET) không lấy được credential.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> ECS task cần mật khẩu database. Cách an toàn nhất?</p><div class="qo"><button type="button" class="opt">Ghi mật khẩu vào biến môi trường trong task definition</button><button type="button" class="opt" data-ok>Lưu trong Secrets Manager, tham chiếu ở trường secrets của container definition, cấp quyền đọc cho task execution role</button><button type="button" class="opt">Đóng gói mật khẩu vào image</button></div><p class="why" hidden>ECS lấy secret từ Secrets Manager khi khởi động task, secret không nằm trong task definition hay image.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-infra-compute">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-infra-network.html"><small>Bài trước</small>Bảo mật mạng và biên</a><a class="next" href="scs-iam-authn.html"><small>Bài tiếp theo</small>Xác thực: Identity Center, federation, Cognito, STS</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#bao-ve-ec2">Bảo vệ EC2</a><a href="#container-va-serverless">Container và serverless</a></nav>
+</div>
+</body>
+</html>

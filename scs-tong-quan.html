@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Đề SCS-C03 và tư duy bảo mật AWS · Ôn thi AWS</title>
+<meta name="description" content="6 domain, dạng câu hỏi mới (ordering, matching), shared responsibility, phòng thủ nhiều lớp.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan" aria-current="page"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-tong-quan">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#64748b">Khởi động</span><span>Bài 00</span><span>20 phút</span></div>
+    <h1>Đề SCS-C03 và tư duy bảo mật AWS</h1>
+    <p class="lead">6 domain, dạng câu hỏi mới (ordering, matching), shared responsibility, phòng thủ nhiều lớp.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Biết đề hỏi gì</li><li>Có khung tư duy để chọn đáp án bảo mật</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="de-thi-trong-the-nao"><a href="#de-thi-trong-the-nao" class="anchor" aria-hidden="true">#</a>Đề thi trông thế nào</h2>
+<table>
+<tr><th>Mục</th><th>Chi tiết</th></tr>
+<tr><td>Tên</td><td>AWS Certified Security – Specialty (<b>SCS-C03</b>), thay SCS-C02 từ tháng 12/2025</td></tr>
+<tr><td>Số câu</td><td>65 câu: 50 tính điểm + 15 không tính điểm</td></tr>
+<tr><td>Dạng câu</td><td>Multiple choice, multiple response, và <b>mới</b>: <b>ordering</b> (sắp xếp 3 đến 5 bước theo đúng thứ tự) và <b>matching</b> (ghép 3 đến 7 cặp). Phải đúng hết mới được điểm câu đó</td></tr>
+<tr><td>Thời gian</td><td>170 phút</td></tr>
+<tr><td>Điểm</td><td>Thang 100 đến 1000, <b>đậu từ 750</b>, không trừ điểm khi sai</td></tr>
+</table>
+
+<h2 id="6-domain"><a href="#6-domain" class="anchor" aria-hidden="true">#</a>6 domain</h2>
+<figure class="dg"><svg viewBox="0 0 1010.5600000000002 432" style="min-width:600px;max-width:1010.5600000000002px" role="img" aria-label="IAM nặng nhất, rồi Infrastructure Security và Data Protection"><g class="nd cache"><rect x="10" y="10" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="41" class="tt" text-anchor="middle">Domain 1 · Detection</text></g><text x="456.40000000000003" y="41" class="tl" text-anchor="start">16% · GuardDuty, Security Hub, Macie, Security Lake, CloudTrail, logging</text><line x1="223.20000000000002" y1="62" x2="223.20000000000002" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="82" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="113" class="tt" text-anchor="middle">Domain 2 · Incident Response</text></g><text x="456.40000000000003" y="113" class="tl" text-anchor="start">14% · quy trình IR, cô lập, điều tra, tự động hoá phản ứng</text><line x1="223.20000000000002" y1="134" x2="223.20000000000002" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd ext"><rect x="10" y="154" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="185" class="tt" text-anchor="middle">Domain 3 · Infrastructure Security</text></g><text x="456.40000000000003" y="185" class="tl" text-anchor="start">18% · VPC, WAF, Shield, Network Firewall, EC2, container</text><line x1="223.20000000000002" y1="206" x2="223.20000000000002" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="226" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="257" class="tt" text-anchor="middle">Domain 4 · Identity and Access Management</text></g><text x="456.40000000000003" y="257" class="tl" text-anchor="start">20% · Identity Center, STS, policy evaluation, Access Analyzer</text><line x1="223.20000000000002" y1="278" x2="223.20000000000002" y2="296" class="ln" marker-end="url(#ar)"/><g class="nd ok"><rect x="10" y="298" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="329" class="tt" text-anchor="middle">Domain 5 · Data Protection</text></g><text x="456.40000000000003" y="329" class="tl" text-anchor="start">18% · KMS, CloudHSM, S3 / EBS / RDS encryption, Secrets Manager, ACM</text><line x1="223.20000000000002" y1="350" x2="223.20000000000002" y2="368" class="ln" marker-end="url(#ar)"/><g class="nd db"><rect x="10" y="370" width="426.40000000000003" height="52" rx="10"/><text x="223.20000000000002" y="401" class="tt" text-anchor="middle">Domain 6 · Security Foundations and Governance</text></g><text x="456.40000000000003" y="401" class="tl" text-anchor="start">14% · Organizations, Control Tower, SCP / RCP, Config, Audit Manager</text></svg><figcaption>IAM nặng nhất, rồi Infrastructure Security và Data Protection</figcaption></figure>
+<p>Domain 6 là domain <b>mới</b> so với SCS-C02: quản trị nhiều account được tách riêng và nhấn mạnh hơn. Đề cũng nhắc các tính năng mới như <b>RCP</b> (resource control policies), <b>declarative policies</b>, <b>centralized root access</b>, <b>Security Lake</b>, <b>Verified Permissions</b>.</p>
+
+<h2 id="khung-tu-duy-chon-dap-an-bao-mat"><a href="#khung-tu-duy-chon-dap-an-bao-mat" class="anchor" aria-hidden="true">#</a>Khung tư duy chọn đáp án bảo mật</h2>
+<ol>
+<li><b>Shared responsibility</b>: AWS lo bảo mật <i>của</i> cloud (phần cứng, hypervisor, dịch vụ managed), bạn lo bảo mật <i>trong</i> cloud (IAM, mã hoá, cấu hình, OS của EC2).</li>
+<li><b>Least privilege</b>: đáp án cấp đúng quyền cần thiết, hẹp nhất, có điều kiện, thắng đáp án dùng <code>*</code>.</li>
+<li><b>Preventive trước, detective sau</b>: chặn được từ đầu (SCP, policy, Block Public Access) tốt hơn chỉ phát hiện (Config, GuardDuty).</li>
+<li><b>Tập trung hoá</b>: delegated administrator, organization trail, aggregator, Firewall Manager thắng cấu hình từng account.</li>
+<li><b>Tự động hoá phản ứng</b>: EventBridge + Lambda / SSM thắng "đội bảo mật nhận email rồi xử lý tay".</li>
+<li><b>Thông tin xác thực tạm thời</b>: role, STS, Identity Center thắng IAM user với access key dài hạn.</li>
+<li><b>Mã hoá ở mọi nơi</b>: at rest bằng KMS, in transit bằng TLS, ép buộc bằng policy (<code>aws:SecureTransport</code>).</li>
+</ol>
+
+<h2 id="lo-trinh-6-tuan"><a href="#lo-trinh-6-tuan" class="anchor" aria-hidden="true">#</a>Lộ trình 6 tuần</h2>
+<table>
+<tr><th>Tuần</th><th>Học</th></tr>
+<tr><td>1</td><td>Bài 01, 02 (Detection)</td></tr>
+<tr><td>2</td><td>Bài 03 (Incident Response), 04, 05 (Infrastructure)</td></tr>
+<tr><td>3</td><td>Bài 06, 07 (IAM). Dành thêm thời gian: đây là domain nặng nhất</td></tr>
+<tr><td>4</td><td>Bài 08, 09 (Data Protection)</td></tr>
+<tr><td>5</td><td>Bài 10 (Governance), bài 11 (mẹo). Luyện đề theo domain</td></tr>
+<tr><td>6</td><td>Thi thử 65 câu nhiều lần, ôn domain yếu, đọc whitepaper <i>AWS Security Incident Response Guide</i></td></tr>
+</table>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Câu ordering trong SCS-C03 được chấm thế nào?</p><div class="qo"><button type="button" class="opt">Đúng bao nhiêu bước được bấy nhiêu điểm</button><button type="button" class="opt" data-ok>Phải chọn đúng các bước và đúng thứ tự mới được điểm câu đó</button><button type="button" class="opt">Không tính điểm, chỉ để khảo sát</button></div><p class="why" hidden>Exam guide ghi rõ: phải chọn đúng và xếp đúng thứ tự mới được tính điểm.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-tong-quan">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><span></span><a class="next" href="scs-detection.html"><small>Bài tiếp theo</small>Dịch vụ phát hiện mối đe doạ</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#de-thi-trong-the-nao">Đề thi trông thế nào</a><a href="#6-domain">6 domain</a><a href="#khung-tu-duy-chon-dap-an-bao-mat">Khung tư duy chọn đáp án bảo mật</a><a href="#lo-trinh-6-tuan">Lộ trình 6 tuần</a></nav>
+</div>
+</body>
+</html>

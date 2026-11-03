@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · VPC và xử lý sự cố mạng · Ôn thi AWS</title>
+<meta name="description" content="Route table, SG vs NACL, NAT, VPC endpoint, Flow Logs, Reachability Analyzer, Transit Gateway, VPN, Direct Connect, Route 53 Resolver.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking" aria-current="page"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-networking">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</span><span>Bài 10</span><span>60 phút</span></div>
+    <h1>VPC và xử lý sự cố mạng</h1>
+    <p class="lead">Route table, SG vs NACL, NAT, VPC endpoint, Flow Logs, Reachability Analyzer, Transit Gateway, VPN, Direct Connect, Route 53 Resolver.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Tìm ra vì sao hai máy không nói chuyện được</li><li>Chọn cách kết nối VPC và on-premises</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="hai-may-khong-noi-chuyen-duoc-kiem-tra-theo-thu-tu"><a href="#hai-may-khong-noi-chuyen-duoc-kiem-tra-theo-thu-tu" class="anchor" aria-hidden="true">#</a>Hai máy không nói chuyện được: kiểm tra theo thứ tự</h2>
+<figure class="dg"><svg viewBox="0 0 1296.88 86" style="min-width:600px;max-width:1296.88px" role="img" aria-label="Đường đi của gói tin ra khỏi một instance trong private subnet"><g class="nd go"><rect x="10" y="10" width="194.00000000000003" height="66" rx="10"/><text x="107.00000000000001" y="40" class="tt" text-anchor="middle">EC2</text><text x="107.00000000000001" y="58" class="ts" text-anchor="middle">security group (stateful)</text></g><line x1="206.00000000000003" y1="43" x2="270" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="274" y="10" width="281.36" height="66" rx="10"/><text x="414.68" y="40" class="tt" text-anchor="middle">Subnet</text><text x="414.68" y="58" class="ts" text-anchor="middle">NACL (stateless, chiều đi và chiều về)</text></g><line x1="557.36" y1="43" x2="621.36" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="625.36" y="10" width="146.96" height="66" rx="10"/><text x="698.84" y="40" class="tt" text-anchor="middle">Route table</text><text x="698.84" y="58" class="ts" text-anchor="middle">0.0.0.0/0 → NAT GW</text></g><line x1="774.32" y1="43" x2="838.32" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd ok"><rect x="842.32" y="10" width="153.68" height="66" rx="10"/><text x="919.1600000000001" y="40" class="tt" text-anchor="middle">NAT Gateway</text><text x="919.1600000000001" y="58" class="ts" text-anchor="middle">nằm ở public subnet</text></g><line x1="998" y1="43" x2="1062" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd ext"><rect x="1066" y="10" width="220.88000000000002" height="66" rx="10"/><text x="1176.44" y="40" class="tt" text-anchor="middle">Internet Gateway</text><text x="1176.44" y="58" class="ts" text-anchor="middle">route table của public subnet</text></g></svg><figcaption>Đường đi của gói tin ra khỏi một instance trong private subnet</figcaption></figure>
+<table>
+<tr><th>Lớp</th><th>Kiểm tra</th></tr>
+<tr><td>Security group</td><td><b>Stateful</b>: cho vào thì chiều về tự được phép. Chỉ có Allow. Nguồn có thể là một security group khác</td></tr>
+<tr><td>NACL</td><td><b>Stateless</b>: phải cho phép cả chiều về, gồm <b>ephemeral ports 1024-65535</b>. Có Allow và Deny, xét theo số thứ tự rule từ nhỏ đến lớn</td></tr>
+<tr><td>Route table</td><td>Subnet có route tới đích không: IGW (public), NAT (private ra Internet), peering, TGW, VGW, endpoint</td></tr>
+<tr><td>Public IP</td><td>Instance ở public subnet cần public IP / Elastic IP để ra Internet qua IGW</td></tr>
+<tr><td>NAT Gateway</td><td>Phải đặt ở <b>public</b> subnet, có Elastic IP. Lỗi <code>ErrorPortAllocation</code>: quá nhiều kết nối đồng thời tới cùng một đích, thêm IP phụ cho NAT</td></tr>
+<tr><td>OS firewall</td><td>iptables / Windows Firewall bên trong máy</td></tr>
+</table>
+<h3>Công cụ</h3>
+<ul>
+<li><b>VPC Flow Logs</b> (VPC, subnet, ENI): ghi <code>ACCEPT</code> / <code>REJECT</code> cho từng luồng. Gửi về CloudWatch Logs hoặc S3. Thấy chiều vào ACCEPT mà chiều ra REJECT → thường là NACL chặn ephemeral port (vì SG stateful không chặn chiều về). Flow Logs <b>không</b> ghi nội dung gói tin, không ghi traffic tới DNS của Amazon, metadata 169.254.169.254.</li>
+<li><b>Reachability Analyzer</b>: kiểm tra cấu hình xem từ A tới B có đường đi không, chỉ ra thành phần chặn (SG, NACL, route), không cần gửi gói tin thật.</li>
+<li><b>Network Access Analyzer</b>: tìm các đường truy cập ngoài ý muốn (ví dụ mạng nào đi được tới database từ Internet).</li>
+<li><b>Traffic Mirroring</b>: sao chép gói tin thật để phân tích sâu (IDS).</li>
+</ul>
+
+<h2 id="vpc-endpoint"><a href="#vpc-endpoint" class="anchor" aria-hidden="true">#</a>VPC endpoint</h2>
+<table>
+<tr><th>Loại</th><th>Dịch vụ</th><th>Ghi nhớ</th></tr>
+<tr><td><b>Gateway endpoint</b></td><td>Chỉ <b>S3</b> và <b>DynamoDB</b></td><td>Miễn phí, thêm route vào route table, có endpoint policy</td></tr>
+<tr><td><b>Interface endpoint</b> (PrivateLink)</td><td>Hầu hết dịch vụ khác (SSM, ECR, CloudWatch, KMS, Secrets Manager, S3 cũng có)</td><td>Tạo ENI trong subnet, tính tiền theo giờ, cần security group cho cổng 443, bật <b>Private DNS</b> để dùng tên miền mặc định</td></tr>
+</table>
+<p>Kết nối tới interface endpoint bị timeout: security group của endpoint chưa cho cổng 443 từ nguồn, hoặc VPC chưa bật <code>enableDnsSupport</code> / <code>enableDnsHostnames</code> nên Private DNS không hoạt động.</p>
+
+<h2 id="ket-noi-nhieu-vpc-va-on-premises"><a href="#ket-noi-nhieu-vpc-va-on-premises" class="anchor" aria-hidden="true">#</a>Kết nối nhiều VPC và on-premises</h2>
+<table>
+<tr><th>Giải pháp</th><th>Ghi nhớ</th></tr>
+<tr><td>VPC peering</td><td>1-1, <b>không bắc cầu</b> (A-B và B-C không cho A-C), CIDR không được trùng, phải thêm route cả hai bên</td></tr>
+<tr><td><b>Transit Gateway</b></td><td>Trung tâm nối hàng trăm VPC và VPN / DX. Route table của TGW để tách / nối các nhóm VPC. Chia sẻ qua RAM. Có <b>TGW Flow Logs</b></td></tr>
+<tr><td>Site-to-Site VPN</td><td>Qua Internet, mã hoá IPsec, 2 tunnel cho dự phòng, nhanh có. Tunnel down: kiểm tra route propagation, phía khách hàng (customer gateway)</td></tr>
+<tr><td><b>Direct Connect</b></td><td>Đường riêng, ổn định, mất vài tuần để có. <b>Không mã hoá</b> mặc định: chạy VPN trên DX, hoặc MACsec. DX Gateway nối nhiều Region. Dự phòng: DX thứ hai hoặc VPN backup</td></tr>
+<tr><td>Client VPN</td><td>Người dùng từ laptop vào VPC</td></tr>
+<tr><td>PrivateLink</td><td>Cung cấp <b>một dịch vụ</b> (sau NLB) cho VPC khác mà không cần nối mạng toàn bộ, CIDR trùng cũng được</td></tr>
+</table>
+
+<h2 id="dns-route-53-resolver"><a href="#dns-route-53-resolver" class="anchor" aria-hidden="true">#</a>DNS: Route 53 Resolver</h2>
+<ul>
+<li>Mỗi VPC có DNS resolver ở địa chỉ <code>.2</code> của dải VPC (ví dụ <code>10.0.0.2</code>).</li>
+<li><b>Private hosted zone</b>: tên miền nội bộ, gắn với VPC. Cần bật <code>enableDnsHostnames</code> và <code>enableDnsSupport</code>.</li>
+<li><b>Inbound endpoint</b>: máy on-premises hỏi được tên miền private của AWS.</li>
+<li><b>Outbound endpoint</b> + <b>forwarding rule</b>: máy trong VPC hỏi được tên miền của on-premises (ví dụ <code>corp.local</code>). Chia sẻ rule cho VPC khác bằng RAM.</li>
+<li><b>Resolver query logs</b>: ghi mọi truy vấn DNS từ VPC. <b>DNS Firewall</b>: chặn tên miền độc hại.</li>
+</ul>
+<aside class="prod"><p>"Máy on-premises cần phân giải tên trong private hosted zone" → <b>inbound</b> endpoint. "EC2 cần phân giải tên miền của data center" → <b>outbound</b> endpoint + forwarding rule. Hai chiều rất hay bị đảo trong đáp án.</p></aside>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Instance ở private subnet ping được ra Internet nhưng không tải được gói cài đặt. Flow Logs cho thấy gói về bị REJECT ở subnet. SG cho phép mọi traffic ra. Nguyên nhân?</p><div class="qo"><button type="button" class="opt">Security group chặn chiều về</button><button type="button" class="opt" data-ok>NACL của subnet chưa cho phép chiều vào trên ephemeral ports 1024-65535</button><button type="button" class="opt">NAT Gateway thiếu Elastic IP</button></div><p class="why" hidden>SG stateful tự cho chiều về. NACL stateless phải mở dải cổng tạm cho response quay về.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Máy chủ trong VPC cần phân giải tên app.corp.internal do DNS server on-premises quản lý (đã có VPN). Cấu hình gì?</p><div class="qo"><button type="button" class="opt">Inbound Resolver endpoint</button><button type="button" class="opt" data-ok>Outbound Resolver endpoint và forwarding rule cho corp.internal tới IP DNS on-premises</button><button type="button" class="opt">Private hosted zone corp.internal</button></div><p class="why" hidden>Truy vấn đi từ VPC ra ngoài cần outbound endpoint và rule chuyển tiếp.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-networking">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-security.html"><small>Bài trước</small>Bảo mật và tuân thủ trong vận hành</a><a class="next" href="soa-cdn.html"><small>Bài tiếp theo</small>CloudFront, WAF, Shield và Global Accelerator</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#hai-may-khong-noi-chuyen-duoc-kiem-tra-theo-thu-tu">Hai máy không nói chuyện được: kiểm tra theo thứ tự</a><a href="#vpc-endpoint">VPC endpoint</a><a href="#ket-noi-nhieu-vpc-va-on-premises">Kết nối nhiều VPC và on-premises</a><a href="#dns-route-53-resolver">DNS: Route 53 Resolver</a></nav>
+</div>
+</body>
+</html>

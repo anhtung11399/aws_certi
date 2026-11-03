@@ -1,0 +1,89 @@
+<h2>Cấu trúc nhiều account</h2>
+<fig type="stack" caption="Mẫu Organization phổ biến (theo whitepaper Organizing Your AWS Environment)">
+[db] Management account :: chỉ quản lý Organizations, billing. Không chạy workload
+[warn] Security OU :: Log Archive (log tập trung), Security Tooling / Audit (delegated admin của các dịch vụ bảo mật)
+[q] Infrastructure OU :: mạng dùng chung (TGW, DNS), shared services
+[go] Workloads OU :: Prod, Non-prod (mỗi ứng dụng / môi trường một account)
+[ext] Sandbox OU :: thử nghiệm, giới hạn chi phí chặt
+[cache] Suspended OU :: account chờ đóng, SCP chặn mọi thứ
+</fig>
+
+<h2>Organizations và các loại policy</h2>
+<table>
+<tr><th>Policy</th><th>Làm gì</th></tr>
+<tr><td><b>SCP</b></td><td>Giới hạn quyền tối đa của principal (IAM user / role) trong account thành viên. Ví dụ: chặn Region, cấm tắt CloudTrail / GuardDuty, cấm rời Organization, cấm dùng root</td></tr>
+<tr><td><b>RCP</b></td><td>Giới hạn quyền tối đa trên tài nguyên của account thành viên, áp cả với người gọi bên ngoài. Dựng data perimeter</td></tr>
+<tr><td><b>Declarative policy</b></td><td>Ép cấu hình của dịch vụ ở mức API, kể cả khi dịch vụ ra tính năng mới: chặn VPC Block Public Access, ép IMDSv2 mặc định, chặn chia sẻ AMI / snapshot công khai, allowed AMIs. Có thông báo lỗi tuỳ chỉnh</td></tr>
+<tr><td>Tag policy</td><td>Chuẩn hoá key / value của tag</td></tr>
+<tr><td>Backup policy</td><td>Áp backup plan cho mọi account</td></tr>
+<tr><td>AI services opt-out policy</td><td>Không cho AWS dùng dữ liệu của bạn để cải thiện dịch vụ AI</td></tr>
+</table>
+<pre lang="json" file="SCP: chặn mọi Region ngoài 2 Region được phép, trừ dịch vụ global">
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyOtherRegions",
+    "Effect": "Deny",
+    "NotAction": ["iam:*", "organizations:*", "route53:*", "cloudfront:*", "sts:*", "support:*", "budgets:*"],
+    "Resource": "*",
+    "Condition": {
+      "StringNotEquals": { "aws:RequestedRegion": ["ap-southeast-1", "us-east-1"] },
+      "ArnNotLike": { "aws:PrincipalARN": "arn:aws:iam::*:role/BreakGlassAdmin" }
+    }
+  }]
+}
+</pre>
+
+<h2>Control Tower</h2>
+<ul>
+<li>Dựng <b>landing zone</b> theo best practice: Organization, OU Security với Log Archive và Audit account, IAM Identity Center, organization trail, Config.</li>
+<li><b>Controls</b> (trước gọi là guardrails): <b>preventive</b> (SCP / RCP / declarative), <b>detective</b> (Config rule), <b>proactive</b> (CloudFormation Hook, kiểm tra tài nguyên <b>trước khi</b> tạo). Mandatory, strongly recommended, elective.</li>
+<li><b>Account Factory</b>: tạo account mới đã cấu hình chuẩn (Account Factory for Terraform cho đội dùng Terraform). <b>Customizations for Control Tower (CfCT)</b>: tự động áp thêm StackSets / SCP riêng.</li>
+<li>Đưa account / OU có sẵn vào: <b>enroll account</b>, <b>register OU</b>. Drift: ai đó sửa tay SCP của Control Tower → repair landing zone.</li>
+</ul>
+
+<h2>Quản lý tập trung dịch vụ bảo mật</h2>
+<ul>
+<li><b>Delegated administrator</b>: management account chỉ định account Security Tooling quản trị GuardDuty, Security Hub, Macie, Inspector, Detective, Config, Firewall Manager, IAM Access Analyzer, Audit Manager... cho cả Organization. Tránh làm việc hằng ngày trong management account.</li>
+<li><b>Quản lý root tập trung</b> (centralized root access): xoá thông tin đăng nhập root của account thành viên, khi cần làm việc chỉ root mới làm được (mở khoá bucket policy chặn nhầm mọi người) thì dùng <b>root session</b> có giới hạn từ account quản trị.</li>
+<li><b>Break-glass</b>: tài khoản khẩn cấp, MFA phần cứng cất kỹ, mật khẩu chia cho nhiều người, cảnh báo ngay khi được dùng.</li>
+</ul>
+
+<h2>Triển khai nhất quán và an toàn</h2>
+<ul>
+<li><b>CloudFormation StackSets</b> (service-managed, tự deploy cho account mới), <b>Terraform</b>.</li>
+<li>Kiểm tra IaC trước khi deploy: <b>cfn-lint</b> (cú pháp, best practice), <b>CloudFormation Guard</b> (policy-as-code: "mọi bucket phải mã hoá"), <b>CloudFormation Hooks</b> (chặn lúc deploy), <b>Access Analyzer custom policy checks</b> trong pipeline.</li>
+<li><b>Firewall Manager</b>: áp WAF web ACL, Shield Advanced, security group, Network Firewall, DNS Firewall cho mọi account / tài nguyên mới tự động. Cần Organizations + Config.</li>
+<li>Chia sẻ an toàn: <b>RAM</b> (subnet, TGW, Resolver rules, giới hạn chỉ trong Organization), <b>Service Catalog</b> (danh mục sản phẩm đã duyệt, người dùng launch mà không cần quyền tạo tài nguyên trực tiếp, nhờ <b>launch constraint</b> role).</li>
+<li>Tag theo phòng ban, cost center, môi trường, kết hợp tag policy.</li>
+</ul>
+
+<h2>Tuân thủ và kiểm toán</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Dùng khi</th></tr>
+<tr><td><b>AWS Config</b> + aggregator + conformance pack</td><td>Đánh giá liên tục cấu hình theo rule, tự remediation, xem tổng hợp nhiều account</td></tr>
+<tr><td><b>Security Hub</b></td><td>Chấm điểm theo chuẩn (CIS, FSBP, PCI, NIST)</td></tr>
+<tr><td><b>Audit Manager</b></td><td>Thu thập <b>bằng chứng</b> tự động cho cuộc kiểm toán (framework SOC 2, PCI, GDPR, HIPAA), xuất báo cáo cho kiểm toán viên</td></tr>
+<tr><td><b>AWS Artifact</b></td><td>Tải <b>báo cáo tuân thủ của chính AWS</b> (SOC, ISO, PCI) và ký thoả thuận (BAA cho HIPAA)</td></tr>
+<tr><td><b>Well-Architected Tool</b></td><td>Tự đánh giá kiến trúc theo các trụ cột, có Security Pillar</td></tr>
+</table>
+<aside class="tip"><p>"Kiểm toán viên yêu cầu báo cáo SOC 2 <b>của AWS</b>" → Artifact. "Thu thập bằng chứng <b>của hệ thống bạn</b> cho kiểm toán" → Audit Manager.</p></aside>
+
+<quiz q="Cần đảm bảo mọi account trong Organization, kể cả account mới, không ai tắt được GuardDuty và CloudTrail. Dùng gì?">
++ SCP Deny guardduty:DeleteDetector, cloudtrail:StopLogging, cloudtrail:DeleteTrail... gắn ở root của Organization (trừ role quản trị bảo mật)
+- Config rule phát hiện CloudTrail bị tắt
+- IAM policy trong từng account
+? SCP là kiểm soát phòng ngừa áp cho mọi account thành viên, kể cả admin của account đó.
+</quiz>
+<quiz q="Muốn chặn việc tạo bất kỳ EC2 nào chưa bật IMDSv2 trên toàn Organization, kể cả cách tạo mới về sau, với thông báo lỗi rõ ràng cho developer. Lựa chọn phù hợp nhất?">
+- Config rule ec2-imdsv2-check
++ Declarative policy cho EC2 ép IMDSv2 mặc định
+- GuardDuty
+? Declarative policy ép cấu hình ở mức dịch vụ, có thông báo lỗi tuỳ chỉnh, không cần cập nhật khi API mới ra.
+</quiz>
+<quiz q="Kiểm toán viên cần bản báo cáo ISO 27001 chứng nhận hạ tầng của AWS. Lấy ở đâu?">
+- AWS Audit Manager
++ AWS Artifact
+- Security Hub
+? Artifact cung cấp báo cáo tuân thủ của chính AWS.
+</quiz>

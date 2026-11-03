@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Phân quyền: logic đánh giá policy và Access Analyzer · Ôn thi AWS</title>
+<meta name="description" content="Thứ tự đánh giá policy, SCP, RCP, permission boundary, session policy, resource policy, cross-account, ABAC, Access Analyzer, Policy Simulator, Verified Permissions.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz" aria-current="page"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-iam-authz">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</span><span>Bài 07</span><span>65 phút</span></div>
+    <h1>Phân quyền: logic đánh giá policy và Access Analyzer</h1>
+    <p class="lead">Thứ tự đánh giá policy, SCP, RCP, permission boundary, session policy, resource policy, cross-account, ABAC, Access Analyzer, Policy Simulator, Verified Permissions.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đoán đúng một request bị Allow hay Deny</li><li>Viết policy least privilege</li><li>Tìm quyền thừa</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="logic-danh-gia-policy"><a href="#logic-danh-gia-policy" class="anchor" aria-hidden="true">#</a>Logic đánh giá policy</h2>
+<figure class="dg"><svg viewBox="0 0 1661.6000000000004 86" style="min-width:600px;max-width:1661.6000000000004px" role="img" aria-label="Một request đi qua các lớp. Explicit Deny ở bất kỳ đâu thắng tất cả"><g class="nd warn"><rect x="10" y="10" width="200.72000000000003" height="66" rx="10"/><text x="110.36000000000001" y="40" class="tt" text-anchor="middle">Explicit Deny?</text><text x="110.36000000000001" y="58" class="ts" text-anchor="middle">ở bất kỳ policy nào → DENY</text></g><line x1="212.72000000000003" y1="43" x2="276.72" y2="43" class="ln" marker-end="url(#ar)"/><text x="245.72000000000003" y="34" class="tl" text-anchor="middle">không</text><g class="nd q"><rect x="280.72" y="10" width="173.84" height="66" rx="10"/><text x="367.64000000000004" y="40" class="tt" text-anchor="middle">SCP + RCP</text><text x="367.64000000000004" y="58" class="ts" text-anchor="middle">Organization cho phép?</text></g><line x1="456.56000000000006" y1="43" x2="520.5600000000001" y2="43" class="ln" marker-end="url(#ar)"/><text x="489.56000000000006" y="34" class="tl" text-anchor="middle">có</text><g class="nd ext"><rect x="524.5600000000001" y="10" width="301.52000000000004" height="66" rx="10"/><text x="675.32" y="40" class="tt" text-anchor="middle">Resource policy</text><text x="675.32" y="58" class="ts" text-anchor="middle">Allow trực tiếp? (cùng account có thể đủ)</text></g><line x1="828.0800000000002" y1="43" x2="892.0800000000002" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="896.0800000000002" y="10" width="167.12" height="66" rx="10"/><text x="979.6400000000001" y="40" class="tt" text-anchor="middle">Identity policy</text><text x="979.6400000000001" y="58" class="ts" text-anchor="middle">user / role có Allow?</text></g><line x1="1065.2000000000003" y1="43" x2="1129.2000000000003" y2="43" class="ln" marker-end="url(#ar)"/><text x="1098.2000000000003" y="34" class="tl" text-anchor="middle">có</text><g class="nd cache"><rect x="1133.2000000000003" y="10" width="332.40000000000003" height="66" rx="10"/><text x="1299.4000000000003" y="40" class="tt" text-anchor="middle">Permission boundary + session policy</text><text x="1299.4000000000003" y="58" class="ts" text-anchor="middle">có cho phép?</text></g><line x1="1467.6000000000004" y1="43" x2="1531.6000000000004" y2="43" class="ln" marker-end="url(#ar)"/><text x="1500.6000000000004" y="34" class="tl" text-anchor="middle">có</text><g class="nd ok"><rect x="1535.6000000000004" y="10" width="116" height="66" rx="10"/><text x="1593.6000000000004" y="48" class="tt" text-anchor="middle">ALLOW</text></g></svg><figcaption>Một request đi qua các lớp. Explicit Deny ở bất kỳ đâu thắng tất cả</figcaption></figure>
+<ul>
+<li><b>Mặc định là Deny</b> (implicit deny). Phải có Allow ở đúng chỗ.</li>
+<li><b>Explicit Deny</b> luôn thắng.</li>
+<li><b>SCP</b> (service control policy): giới hạn quyền <b>tối đa</b> của principal trong account thành viên. Không cấp quyền. Không áp cho management account, không áp cho service-linked role.</li>
+<li><b>RCP</b> (resource control policy, mới): giới hạn quyền tối đa trên <b>tài nguyên</b> của account (S3, STS, KMS, SQS, Secrets Manager...), kể cả khi người gọi ở ngoài Organization. Dùng để dựng <b>data perimeter</b>: "tài nguyên của tôi chỉ được truy cập bởi principal trong tổ chức".</li>
+<li><b>Permission boundary</b>: giới hạn quyền tối đa của một user / role. Quyền thực = giao của identity policy và boundary. Dùng để <b>uỷ quyền</b> cho developer tự tạo role mà không leo thang quyền: bắt buộc mọi role họ tạo phải gắn boundary (điều kiện <code>iam:PermissionsBoundary</code>).</li>
+<li><b>Session policy</b>: truyền vào khi AssumeRole để thu hẹp thêm quyền của phiên đó.</li>
+<li><b>Cùng account</b>: Allow ở identity policy <b>hoặc</b> resource policy là đủ (trừ KMS key policy và role trust policy phải cho phép rõ). <b>Khác account</b>: cần Allow ở <b>cả hai</b>.</li>
+</ul>
+
+<h2 id="doc-policy"><a href="#doc-policy" class="anchor" aria-hidden="true">#</a>Đọc policy</h2>
+<div class="code"><div class="code-h"><span>Chỉ cho bật / tắt EC2 mang tag Team giống tag của người gọi (ABAC)</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Version&quot;</span>: <span class="s">&quot;2012-10-17&quot;</span>,
+  <span class="s">&quot;Statement&quot;</span>: [{
+    <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Allow&quot;</span>,
+    <span class="s">&quot;Action&quot;</span>: [<span class="s">&quot;ec2:StartInstances&quot;</span>, <span class="s">&quot;ec2:StopInstances&quot;</span>],
+    <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;arn:aws:ec2:*:*:instance/*&quot;</span>,
+    <span class="s">&quot;Condition&quot;</span>: {
+      <span class="s">&quot;StringEquals&quot;</span>: { <span class="s">&quot;aws:ResourceTag/Team&quot;</span>: <span class="s">&quot;${aws:PrincipalTag/Team}&quot;</span> }
+    }
+  }]
+}</code></pre></div>
+<table>
+<tr><th>Thành phần</th><th>Ghi nhớ</th></tr>
+<tr><td><code>NotAction</code> + Allow</td><td>Cho mọi thứ trừ danh sách: nguy hiểm, dễ cấp thừa</td></tr>
+<tr><td><code>NotAction</code> + Deny</td><td>Chặn mọi thứ trừ danh sách. Mẫu kinh điển: Deny mọi hành động khi chưa có MFA, trừ các hành động để tự thiết lập MFA</td></tr>
+<tr><td><code>aws:PrincipalOrgID</code></td><td>Chỉ principal trong Organization (dùng trong resource policy)</td></tr>
+<tr><td><code>aws:ResourceOrgID</code></td><td>Chỉ tài nguyên thuộc Organization (dùng trong identity / endpoint policy)</td></tr>
+<tr><td><code>aws:SourceIp</code> / <code>aws:SourceVpce</code></td><td>Giới hạn nguồn. Lưu ý: request qua VPC endpoint không có SourceIp công khai</td></tr>
+<tr><td><code>aws:RequestedRegion</code></td><td>Chặn Region không dùng (SCP)</td></tr>
+<tr><td><code>aws:CalledVia</code> / <code>aws:ViaAWSService</code></td><td>Cho phép khi dịch vụ AWS gọi thay (ví dụ Athena gọi S3)</td></tr>
+<tr><td><code>aws:SecureTransport</code></td><td>Ép HTTPS</td></tr>
+</table>
+
+<h2 id="rbac-va-abac"><a href="#rbac-va-abac" class="anchor" aria-hidden="true">#</a>RBAC và ABAC</h2>
+<ul>
+<li><b>RBAC</b>: mỗi chức danh một role, policy liệt kê tài nguyên. Thêm dự án mới phải sửa policy.</li>
+<li><b>ABAC</b>: quyền dựa trên <b>tag</b> của principal và tài nguyên. Thêm dự án mới chỉ cần gắn tag, không sửa policy. Cần chặn người dùng tự sửa tag (điều kiện <code>aws:TagKeys</code>, <code>aws:RequestTag</code>) và dùng <b>tag policy</b> để chuẩn hoá tag.</li>
+<li><b>IAM paths</b>: nhóm role / user theo đường dẫn (<code>/team-a/</code>), policy cấp quyền theo path.</li>
+<li><b>Amazon Verified Permissions</b>: phân quyền <b>bên trong ứng dụng của bạn</b> (ai được xem tài liệu nào) bằng ngôn ngữ policy <b>Cedar</b>, thay cho code if/else tự viết.</li>
+</ul>
+
+<h2 id="tim-va-sua-quyen-sai"><a href="#tim-va-sua-quyen-sai" class="anchor" aria-hidden="true">#</a>Tìm và sửa quyền sai</h2>
+<ul>
+<li><b>IAM Access Analyzer</b>:
+  <ul>
+  <li><b>External access</b>: tài nguyên (S3, KMS, role, Lambda, SQS, Secrets...) cho phép principal ngoài account / Organization (zone of trust).</li>
+  <li><b>Internal access</b>: ai trong tổ chức truy cập được tài nguyên quan trọng.</li>
+  <li><b>Unused access</b>: role, access key, quyền không dùng.</li>
+  <li><b>Policy validation</b> (lỗi cú pháp, cảnh báo bảo mật), <b>custom policy checks</b> (chặn policy mới cấp quyền nguy hiểm trong CI/CD), <b>policy generation</b> từ CloudTrail.</li>
+  </ul></li>
+<li><b>Policy Simulator</b>: thử quyền của một principal với hành động cụ thể.</li>
+<li>Thông báo AccessDenied hiện nay ghi rõ loại policy gây chặn (SCP, boundary, session policy, resource policy) và ARN.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Developer được phép tạo role cho Lambda, nhưng không được tạo role có quyền cao hơn chính họ. Cách đúng?</p><div class="qo"><button type="button" class="opt">Cho developer quyền iam:* nhưng theo dõi bằng CloudTrail</button><button type="button" class="opt" data-ok>Cho phép iam:CreateRole với điều kiện iam:PermissionsBoundary bắt buộc gắn một boundary định sẵn, và cấm sửa / xoá boundary đó</button><button type="button" class="opt">Dùng SCP cấm iam:CreateRole</button></div><p class="why" hidden>Permission boundary bắt buộc là cách chuẩn để uỷ quyền tạo role mà không leo thang đặc quyền.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Công ty muốn đảm bảo mọi bucket S3 và key KMS chỉ được truy cập bởi principal trong Organization, kể cả khi ai đó lỡ viết bucket policy cho phép account ngoài. Dùng gì?</p><div class="qo"><button type="button" class="opt">SCP deny s3:* cho principal ngoài tổ chức</button><button type="button" class="opt" data-ok>RCP áp cho Organization với điều kiện aws:PrincipalOrgID</button><button type="button" class="opt">IAM Access Analyzer</button></div><p class="why" hidden>SCP chỉ giới hạn principal của tổ chức. RCP giới hạn quyền trên tài nguyên, áp cả với người gọi bên ngoài: đúng mục đích data perimeter.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Role trong account A có identity policy Allow s3:GetObject trên bucket ở account B. Bucket policy của B không nhắc gì tới A. Kết quả?</p><div class="qo"><button type="button" class="opt">Allow, vì identity policy đã cho phép</button><button type="button" class="opt" data-ok>Deny, vì truy cập cross-account cần resource policy của B cũng cho phép</button><button type="button" class="opt">Phụ thuộc SCP</button></div><p class="why" hidden>Khác account cần Allow ở cả identity policy bên gọi và resource policy bên sở hữu.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-iam-authz">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-iam-authn.html"><small>Bài trước</small>Xác thực: Identity Center, federation, Cognito, STS</a><a class="next" href="scs-kms.html"><small>Bài tiếp theo</small>KMS, CloudHSM và mã hoá</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#logic-danh-gia-policy">Logic đánh giá policy</a><a href="#doc-policy">Đọc policy</a><a href="#rbac-va-abac">RBAC và ABAC</a><a href="#tim-va-sua-quyen-sai">Tìm và sửa quyền sai</a></nav>
+</div>
+</body>
+</html>

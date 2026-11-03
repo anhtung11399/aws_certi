@@ -1,0 +1,78 @@
+<h2>Các loại key</h2>
+<table>
+<tr><th>Loại</th><th>Ai quản lý</th><th>Ghi nhớ</th></tr>
+<tr><td>AWS owned key</td><td>AWS, dùng chung nhiều khách hàng</td><td>Không thấy, không kiểm soát, miễn phí</td></tr>
+<tr><td>AWS managed key (<code>aws/s3</code>, <code>aws/ebs</code>...)</td><td>AWS tạo trong account bạn</td><td>Không sửa key policy, không chia sẻ cross-account được, tự xoay vòng hằng năm</td></tr>
+<tr><td><b>Customer managed key</b></td><td>Bạn</td><td>Tự viết key policy, grant, bật / tắt, xoay vòng (tự động 90 đến 2560 ngày, hoặc on-demand), chia sẻ cross-account, xoá sau 7 đến 30 ngày chờ</td></tr>
+</table>
+<ul>
+<li><b>Symmetric</b> (AES-256, mặc định, dùng cho gần như mọi dịch vụ) và <b>asymmetric</b> (RSA / ECC để ký hoặc mã hoá ngoài AWS, tải được public key), <b>HMAC</b>.</li>
+<li><b>Multi-Region key</b>: cùng key material ở nhiều Region (primary + replica), giải mã ở Region khác không cần gọi về Region gốc. Dùng cho DynamoDB Global Tables, DR, mã hoá phía client.</li>
+<li><b>Imported key material</b> (BYOK): bạn tự tạo key material và nhập vào. Bạn chịu trách nhiệm độ bền, có thể đặt thời hạn hết hạn, xoá ngay lập tức. <b>Không</b> tự xoay vòng được.</li>
+<li><b>Custom key store</b>: key nằm trong <b>CloudHSM</b> của bạn, hoặc <b>external key store (XKS)</b> ở ngoài AWS.</li>
+</ul>
+
+<h2>Envelope encryption</h2>
+<fig type="flow" caption="KMS chỉ mã hoá tối đa 4 KB trực tiếp. Dữ liệu lớn dùng data key">
+[go] Ứng dụng / gọi GenerateDataKey
+-> 
+[q] KMS / trả data key dạng plaintext + bản mã hoá
+-> 
+[go] Ứng dụng / mã hoá dữ liệu bằng plaintext key, xoá key khỏi bộ nhớ, lưu bản mã hoá của key cạnh dữ liệu
+-> giải mã sau
+[q] KMS Decrypt / giải mã data key, rồi giải mã dữ liệu tại chỗ
+</fig>
+<p>Dịch vụ như S3, EBS, RDS làm việc này tự động. Tự mã hoá phía client: dùng <b>AWS Encryption SDK</b>.</p>
+
+<h2>Key policy: phần quan trọng nhất</h2>
+<ul>
+<li>Mỗi KMS key <b>bắt buộc</b> có key policy. Không như các tài nguyên khác, IAM policy <b>chỉ có tác dụng</b> khi key policy có câu cho phép account root:</li>
+</ul>
+<pre lang="json" file="Câu mặc định: uỷ quyền cho IAM của account quyết định">
+{
+  "Sid": "Enable IAM policies",
+  "Effect": "Allow",
+  "Principal": { "AWS": "arn:aws:iam::111122223333:root" },
+  "Action": "kms:*",
+  "Resource": "*"
+}
+</pre>
+<ul>
+<li>Thiếu câu này thì dù IAM policy cho phép, user vẫn không dùng được key. Xoá nhầm và không ai còn quyền → phải liên hệ AWS Support.</li>
+<li>Tách vai trò: <b>key administrator</b> (quản lý key, không mã hoá / giải mã được) và <b>key user</b> (dùng key, không sửa policy).</li>
+<li>Cross-account: key policy cho phép account kia <b>và</b> IAM policy ở account kia cho phép user của họ.</li>
+<li>Điều kiện hay dùng: <code>kms:ViaService</code> (chỉ dùng key thông qua một dịch vụ, ví dụ <code>s3.ap-southeast-1.amazonaws.com</code>), <code>kms:CallerAccount</code>, <code>kms:EncryptionContext:*</code>.</li>
+<li><b>Grant</b>: cấp quyền dùng key tạm thời, có thể thu hồi, hay được dịch vụ AWS dùng (EBS, RDS tạo grant khi gắn volume).</li>
+<li><b>Encryption context</b>: cặp key-value đi kèm khi mã hoá, phải khớp khi giải mã. Ghi vào CloudTrail, dùng để kiểm toán và làm điều kiện trong policy.</li>
+</ul>
+
+<h2>Xử lý sự cố KMS</h2>
+<table>
+<tr><th>Lỗi</th><th>Nguyên nhân</th></tr>
+<tr><td><code>AccessDeniedException</code> khi giải mã</td><td>Key policy / IAM thiếu <code>kms:Decrypt</code>, hoặc điều kiện ViaService / encryption context không khớp</td></tr>
+<tr><td><code>DisabledException</code> / <code>KMSInvalidStateException</code></td><td>Key bị disable hoặc đang chờ xoá. Huỷ lịch xoá (cancel deletion) trong thời gian chờ để cứu</td></tr>
+<tr><td><code>ThrottlingException</code></td><td>Vượt quota request KMS. Dùng S3 Bucket Key, cache data key (Encryption SDK), xin tăng quota</td></tr>
+<tr><td>Chia sẻ snapshot / AMI mã hoá cho account khác không dùng được</td><td>Đang dùng AWS managed key (không chia sẻ được): copy lại bằng customer managed key rồi chia sẻ cả key</td></tr>
+</table>
+<aside class="prod"><p>Sợ xoá nhầm key: tạo CloudWatch alarm / EventBridge rule trên CloudTrail event <code>ScheduleKeyDeletion</code>, và dùng SCP cấm <code>kms:ScheduleKeyDeletion</code> trừ role quản trị. Thử trước bằng cách <b>disable</b> key thay vì xoá.</p></aside>
+
+<h2>CloudHSM</h2>
+<ul>
+<li>HSM chuyên dụng một khách hàng (single-tenant), chuẩn <b>FIPS 140-3 level 3</b>, bạn toàn quyền quản lý key, AWS không truy cập được key.</li>
+<li>Dùng khi: cần kiểm soát độc quyền, giao thức chuẩn (PKCS#11, JCE, CNG), <b>SSL/TLS offload</b> cho web server, Oracle TDE, ký code, CA riêng.</li>
+<li>Bạn tự lo high availability: cluster ít nhất 2 HSM ở 2 AZ.</li>
+<li>KMS cũng đạt FIPS 140-3 level 3 hiện nay; chọn CloudHSM khi đề nhấn mạnh "single-tenant", "customer exclusive control", "PKCS#11".</li>
+</ul>
+
+<quiz q="IAM policy của user cho phép kms:Decrypt trên một customer managed key nhưng user vẫn bị AccessDenied. Key policy chỉ có một câu cho phép role Admin. Vì sao?">
++ Key policy không có câu cho phép account root (uỷ quyền cho IAM), nên IAM policy không có tác dụng
+- Thiếu quyền s3:GetObject
+- Key chưa bật rotation
+? Với KMS, key policy là điểm quyết định. Chỉ khi key policy uỷ quyền cho account thì IAM policy mới được xét.
+</quiz>
+<quiz q="Yêu cầu: key mã hoá phải nằm trong HSM single-tenant do công ty kiểm soát độc quyền, nhưng vẫn muốn S3 / EBS tích hợp KMS bình thường. Giải pháp?">
+- Imported key material
++ KMS custom key store dựa trên CloudHSM cluster
+- Multi-Region key
+? Custom key store giữ key trong CloudHSM của bạn mà dịch vụ AWS vẫn dùng qua API KMS.
+</quiz>

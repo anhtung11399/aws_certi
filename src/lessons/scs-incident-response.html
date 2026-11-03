@@ -1,0 +1,80 @@
+<h2>Quy trình ứng phó sự cố</h2>
+<fig type="flow" caption="Vòng đời IR (theo NIST và AWS Security Incident Response Guide)">
+[q] Chuẩn bị / runbook, quyền, công cụ, diễn tập
+-> 
+[cache] Phát hiện và phân tích / GuardDuty, Security Hub, log
+-> 
+[warn] Cô lập (containment) / chặn lan rộng, giữ bằng chứng
+-> 
+[go] Loại bỏ và khôi phục / xoá nguyên nhân, dựng lại sạch
+-> 
+[ok] Rút kinh nghiệm / post-incident, sửa quy trình
+</fig>
+<ul>
+<li><b>Chuẩn bị</b>: có sẵn role <b>break-glass</b> / role điều tra, account <b>forensics</b> riêng, AMI công cụ điều tra, runbook (SSM document), liên hệ AWS Support / <b>AWS Security Incident Response</b> (dịch vụ hỗ trợ ứng phó).</li>
+<li>Tự động hoá nhiều nhất có thể, nhưng các bước có thể phá huỷ bằng chứng thì cân nhắc.</li>
+</ul>
+
+<h2>EC2 bị chiếm quyền: thứ tự xử lý</h2>
+<p>Đây là dạng câu <b>ordering</b> rất hay gặp. Nguyên tắc: <b>giữ bằng chứng, cô lập, không tắt máy vội</b> (tắt máy là mất dữ liệu trong RAM).</p>
+<ol>
+<li><b>Bật termination protection</b>, gắn tag đánh dấu (ví dụ <code>Quarantine=true</code>), ghi lại metadata của instance.</li>
+<li><b>Tách khỏi ASG</b> (detach hoặc đặt standby) và <b>deregister khỏi target group</b>, để ASG không terminate mất bằng chứng và người dùng không còn bị phục vụ bởi máy này.</li>
+<li><b>Cô lập mạng</b>: đổi sang <b>security group cách ly</b> không có rule nào (hoặc chỉ cho máy điều tra). Lưu ý: kết nối đang mở (tracked connection) có thể vẫn còn với SG; dùng NACL để cắt ngay nếu cần.</li>
+<li><b>Thu bằng chứng</b>: snapshot các EBS volume, chụp bộ nhớ (memory dump bằng công cụ qua SSM), lưu log.</li>
+<li><b>Điều tra</b> trong account forensics: tạo volume từ snapshot, gắn vào máy điều tra (đã cô lập).</li>
+<li><b>Loại bỏ và khôi phục</b>: thay bằng instance mới từ AMI sạch, vá lỗ hổng, xoay vòng credential liên quan.</li>
+</ol>
+<aside class="prod"><p>Đáp án "terminate instance ngay" hoặc "stop instance để chụp snapshot" thường là bẫy: mất bằng chứng trong RAM, và tắt máy trước khi điều tra không cần thiết. Tuy nhiên nếu đề ưu tiên "ngăn thiệt hại ngay lập tức" hơn điều tra thì cô lập mạng luôn là bước đầu.</p></aside>
+
+<h2>Credential bị lộ</h2>
+<h3>IAM user access key lộ (ví dụ đẩy lên GitHub)</h3>
+<ol>
+<li><b>Vô hiệu hoá</b> (deactivate) access key ngay. AWS có thể đã tự gắn policy <code>AWSCompromisedKeyQuarantine</code> và gửi thông báo qua Health.</li>
+<li>Tra <b>CloudTrail</b> mọi hành động của key đó: tạo user mới, key mới, role, instance... rồi dọn hết.</li>
+<li>Xoay vòng: tạo key mới cho ứng dụng (tốt hơn: chuyển sang role), xoá key cũ.</li>
+<li>Kiểm tra hoá đơn và mọi Region (máy đào coin).</li>
+</ol>
+<h3>Credential tạm thời của role bị lộ (ví dụ lấy từ metadata của EC2)</h3>
+<ul>
+<li>Không "xoá" được credential tạm thời đã cấp. Dùng <b>Revoke active sessions</b> trên role: IAM gắn policy Deny mọi request có <code>aws:TokenIssueTime</code> trước thời điểm thu hồi.</li>
+<li>Bật <b>IMDSv2</b> để giảm nguy cơ SSRF lấy credential.</li>
+</ul>
+<h3>Root bị lộ</h3>
+<ul><li>Đổi mật khẩu, bật / thay MFA, xoá access key của root (root không nên có access key), kiểm tra CloudTrail, liên hệ AWS Support.</li></ul>
+
+<h2>Tự động hoá phản ứng</h2>
+<fig type="seq" caption="GuardDuty phát hiện, EventBridge kích hoạt, hệ thống tự cô lập và báo người trực">
+actors: [cache] GuardDuty, [q] EventBridge, [go] Lambda-SSM, [ext] EC2, [fe] Đội bảo mật
+GuardDuty -> EventBridge: finding High: EC2 gọi IP đào coin
+EventBridge -> Lambda-SSM: rule khớp severity >= 7
+Lambda-SSM -> EC2: đổi sang SG cách ly, snapshot EBS, gắn tag
+Lambda-SSM -> Đội bảo mật: SNS / Chatbot / tạo ticket
+note Đội bảo mật: điều tra bằng Detective, quyết định bước tiếp
+</fig>
+<ul>
+<li>Runbook có sẵn: <b>AWS Systems Manager Automation</b> (ví dụ <code>AWSSupport-ContainEC2Instance</code>), giải pháp <b>Automated Security Response on AWS</b> (phản ứng cho finding của Security Hub).</li>
+<li>Step Functions khi quy trình nhiều bước, có chờ phê duyệt.</li>
+<li>S3 bucket bị công khai: Config rule + remediation bật lại Block Public Access.</li>
+</ul>
+
+<h2>Điều tra nguyên nhân gốc</h2>
+<ul>
+<li><b>Detective</b>: từ một finding, xem IP / role / instance liên quan, hành vi trước và sau, so với bình thường.</li>
+<li><b>CloudTrail Lake / Athena</b> truy vấn ai làm gì, từ IP nào, user agent nào.</li>
+<li>Kiểm tra lỗ hổng được khai thác bằng Inspector, đối chiếu WAF / ALB log.</li>
+<li>Root cause analysis xong: sửa nguyên nhân (vá, siết policy), thêm control phòng ngừa (SCP, Config rule), cập nhật runbook.</li>
+</ul>
+
+<quiz q="Sắp xếp đúng thứ tự khi phát hiện EC2 trong ASG bị chiếm: (1) snapshot EBS, (2) detach instance khỏi ASG, (3) đổi sang security group cách ly. Thứ tự nào hợp lý nhất?">
+- 1 → 3 → 2
++ 2 → 3 → 1
+- 3 → 1 → 2
+? Detach trước để ASG không thay thế mất máy, cô lập mạng để chặn thiệt hại, rồi thu bằng chứng.
+</quiz>
+<quiz q="Credential tạm thời của một role trên EC2 bị đánh cắp và đang được dùng từ IP bên ngoài. Cách vô hiệu hoá nhanh nhất mà không xoá role?">
+- Xoá access key của role
++ Dùng tính năng Revoke active sessions của role (Deny theo aws:TokenIssueTime)
+- Đổi trust policy của role
+? Credential tạm thời không xoá được. Revoke active sessions chặn mọi token cấp trước thời điểm đó.
+</quiz>

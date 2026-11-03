@@ -1,0 +1,32 @@
+<h2>Bảo vệ EC2</h2>
+<ul>
+<li><b>IMDSv2</b>: bắt buộc dùng token phiên (PUT rồi mới GET), chống tấn công SSRF lấy credential của role. Ép buộc: <code>HttpTokens=required</code> trong launch template, mặc định ở cấp account, SCP / <b>declarative policy</b> chặn tạo instance thiếu IMDSv2, Config rule <code>ec2-imdsv2-check</code>. Đặt <code>HttpPutResponseHopLimit=1</code> (2 nếu chạy container) để container không lấy được credential của host.</li>
+<li>Không mở SSH / RDP ra Internet: dùng <b>Session Manager</b> (log phiên về S3 / CloudWatch, mã hoá KMS, không cần key pair) hoặc <b>EC2 Instance Connect Endpoint</b> (SSH vào máy private không cần bastion).</li>
+<li>Máy mất key / không vào được: SSM <code>AWSSupport-ResetAccess</code> hoặc EC2Rescue.</li>
+<li><b>Patching</b>: SSM Patch Manager. <b>Lỗ hổng</b>: Inspector (EC2, ECR, Lambda), có SBOM export.</li>
+<li><b>Golden AMI</b>: dựng bằng EC2 Image Builder có bước hardening (CIS benchmark), quét Inspector, chỉ cho phép dùng AMI đã duyệt (SCP / declarative policy <b>allowed AMIs</b>).</li>
+<li>Mã hoá EBS mặc định, chặn chia sẻ AMI / snapshot công khai (block public access for AMIs / snapshots).</li>
+<li><b>Nitro Enclaves</b>: môi trường cô lập trong instance để xử lý dữ liệu cực nhạy cảm (khoá, dữ liệu thẻ), có attestation với KMS.</li>
+</ul>
+
+<h2>Container và serverless</h2>
+<ul>
+<li><b>ECR</b>: image scanning (basic khi push, enhanced với Inspector quét liên tục), repository policy, mã hoá KMS, <b>tag immutability</b>, pull through cache cho registry bên ngoài.</li>
+<li><b>ECS</b>: task role (quyền cho ứng dụng) khác task execution role (quyền kéo image, đọc secret, ghi log). Secret đưa vào container từ Secrets Manager / Parameter Store, không đặt trong biến môi trường plain text của task definition.</li>
+<li><b>EKS</b>: <b>IRSA</b> hoặc <b>EKS Pod Identity</b> để pod có IAM role riêng; EKS access entries thay cho aws-auth ConfigMap; bật audit log của control plane; GuardDuty EKS Protection + Runtime Monitoring; network policy.</li>
+<li><b>Lambda</b>: execution role least privilege, resource policy (ai được gọi), code signing (chỉ chạy code đã ký bằng AWS Signer), biến môi trường mã hoá KMS, chạy trong VPC khi cần truy cập tài nguyên private.</li>
+<li><b>Chuỗi cung ứng phần mềm</b>: quét thư viện (Inspector cho Lambda / ECR, CodeGuru Security / Amazon Q), ký image, SBOM, chỉ kéo từ registry tin cậy.</li>
+</ul>
+
+<quiz q="Một lỗi SSRF trong ứng dụng web trên EC2 cho phép kẻ tấn công gọi http://169.254.169.254 để lấy credential. Biện pháp trực tiếp nhất?">
++ Bắt buộc IMDSv2 (HttpTokens=required) cho instance
+- Đổi security group chặn cổng 80
+- Bật GuardDuty
+? IMDSv2 yêu cầu token qua PUT với header riêng, kiểu SSRF thông thường (chỉ GET) không lấy được credential.
+</quiz>
+<quiz q="ECS task cần mật khẩu database. Cách an toàn nhất?">
+- Ghi mật khẩu vào biến môi trường trong task definition
++ Lưu trong Secrets Manager, tham chiếu ở trường secrets của container definition, cấp quyền đọc cho task execution role
+- Đóng gói mật khẩu vào image
+? ECS lấy secret từ Secrets Manager khi khởi động task, secret không nằm trong task definition hay image.
+</quiz>

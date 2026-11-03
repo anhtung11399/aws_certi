@@ -1,0 +1,55 @@
+<h2>Đề thi trông thế nào</h2>
+<table>
+<tr><th>Mục</th><th>Chi tiết</th></tr>
+<tr><td>Tên</td><td>AWS Certified CloudOps Engineer – Associate (mã <b>SOA-C03</b>). Đây là phiên bản mới của SysOps Administrator – Associate (SOA-C02), đổi tên và cập nhật nội dung.</td></tr>
+<tr><td>Số câu</td><td>65 câu: 50 câu tính điểm + 15 câu thử nghiệm không tính điểm (bạn không biết câu nào)</td></tr>
+<tr><td>Dạng câu</td><td>Multiple choice (1 đáp án đúng trong 4) và multiple response (chọn từ 2 đáp án trở lên trong 5 hoặc hơn)</td></tr>
+<tr><td>Thời gian</td><td>130 phút</td></tr>
+<tr><td>Điểm</td><td>Thang 100 đến 1000, <b>đậu từ 720</b>. Không trừ điểm khi sai, nên đừng bỏ trống câu nào</td></tr>
+<tr><td>Bài lab</td><td>SOA-C02 từng có exam lab (làm trực tiếp trên console). SOA-C03 chỉ có câu trắc nghiệm theo exam guide hiện tại</td></tr>
+</table>
+
+<h2>5 domain và tỉ trọng</h2>
+<fig type="stack" caption="Tỉ trọng 5 domain của SOA-C03: ba domain đầu chiếm 66% đề">
+[cache] Domain 1 · Monitoring, Logging, Analysis, Remediation, Performance :: 22% · CloudWatch, EventBridge, Systems Manager, tối ưu EC2 / EBS / S3 / RDS
+[ok] Domain 2 · Reliability and Business Continuity :: 22% · ELB, Auto Scaling, Route 53, Backup, DR
+[q] Domain 3 · Deployment, Provisioning, Automation :: 22% · CloudFormation, CDK, StackSets, Image Builder, SSM
+[warn] Domain 4 · Security and Compliance :: 16% · IAM, KMS, Config, Security Hub, GuardDuty
+[ext] Domain 5 · Networking and Content Delivery :: 18% · VPC troubleshooting, TGW, DX, Route 53 Resolver, CloudFront
+</fig>
+
+<h2>Khác SAA-C03 ở đâu</h2>
+<p>SAA hỏi "<b>nên thiết kế thế nào</b>". SOA hỏi "<b>hệ thống đang chạy bị lỗi / chậm / cần tự động hoá, xử lý thế nào</b>". Bạn đã biết các dịch vụ, giờ phải biết <b>cấu hình chi tiết</b> và <b>xử lý sự cố</b>.</p>
+<table>
+<tr><th>Chủ đề</th><th>SAA hỏi</th><th>SOA hỏi</th></tr>
+<tr><td>CloudWatch</td><td>Dùng CloudWatch để giám sát</td><td>Metric bộ nhớ không có, vì sao? Alarm ở trạng thái INSUFFICIENT_DATA nghĩa là gì? Cấu hình agent ra sao?</td></tr>
+<tr><td>Auto Scaling</td><td>Dùng ASG để co giãn</td><td>Instance bị terminate liên tục ngay sau khi launch, vì sao? Cần chạy script trước khi terminate thì dùng gì?</td></tr>
+<tr><td>CloudFormation</td><td>Dùng IaC</td><td>Stack kẹt UPDATE_ROLLBACK_FAILED thì làm gì? Làm sao giữ lại database khi xoá stack?</td></tr>
+<tr><td>VPC</td><td>Thiết kế public / private subnet</td><td>Instance trong private subnet không tải được bản vá, kiểm tra theo thứ tự nào?</td></tr>
+</table>
+<aside class="fe"><p>Khoảng một nửa kiến thức SAA dùng lại được: VPC, ELB, ASG, S3, RDS, Route 53, IAM cơ bản. Site này không giảng lại những phần đó, chỉ đi vào phần <b>vận hành</b> mà SAA ít hỏi.</p></aside>
+
+<h2>Tư duy chọn đáp án của SOA</h2>
+<ol>
+<li><b>Tự động hơn thủ công.</b> Đáp án có EventBridge, Systems Manager Automation, Config remediation thường thắng đáp án "quản trị viên vào kiểm tra rồi sửa".</li>
+<li><b>Ít công sức vận hành nhất</b> (least operational overhead). Dịch vụ được quản lý thắng tự dựng: AWS Backup thắng script cron chụp snapshot, Session Manager thắng bastion host.</li>
+<li><b>Dùng đúng công cụ có sẵn.</b> Cần RAM, dung lượng đĩa → CloudWatch agent. Cần vá lỗi → Patch Manager. Cần chạy lệnh trên 500 máy → Run Command.</li>
+<li><b>Đọc kỹ ràng buộc.</b> "Không được downtime", "chi phí thấp nhất", "trong vòng 15 phút", "trên nhiều account" mỗi cụm từ loại bỏ một vài đáp án.</li>
+</ol>
+
+<h2>Lộ trình 4 tuần</h2>
+<table>
+<tr><th>Tuần</th><th>Học</th><th>Luyện</th></tr>
+<tr><td>1</td><td>Bài 01 đến 04 (Domain 1)</td><td>Luyện đề Domain 1</td></tr>
+<tr><td>2</td><td>Bài 05, 06 (Domain 2), bài 07, 08 (Domain 3)</td><td>Luyện đề Domain 2, 3</td></tr>
+<tr><td>3</td><td>Bài 09 đến 11 (Domain 4, 5)</td><td>Luyện đề Domain 4, 5</td></tr>
+<tr><td>4</td><td>Bài 12 (mẹo), đọc lại các bài yếu, cheat sheet của Tutorials Dojo</td><td>Thi thử 65 câu, ít nhất 3 lần</td></tr>
+</table>
+<aside class="tip"><p>Mở một tài khoản AWS cá nhân (bật billing alarm trước!) và tự bấm làm các phần chính: cài CloudWatch agent, tạo alarm, chạy một runbook SSM, deploy một stack CloudFormation lỗi rồi đọc lỗi. 30 phút bấm tay nhớ lâu hơn 3 giờ đọc.</p></aside>
+
+<quiz q="Đề hỏi: &quot;Giải pháp nào đáp ứng yêu cầu với <b>LEAST operational overhead</b>?&quot;. Hướng ưu tiên khi chọn là gì?">
+- Giải pháp rẻ nhất dù phải tự viết và duy trì script
++ Giải pháp dùng dịch vụ được AWS quản lý, tự động hoá, ít phải tự bảo trì nhất
+- Giải pháp có nhiều dịch vụ nhất để chắc chắn
+? Operational overhead là công sức vận hành. Dịch vụ managed và automation giảm công sức đó, kể cả khi không phải rẻ nhất.
+</quiz>

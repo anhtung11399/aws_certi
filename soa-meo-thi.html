@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Bảng từ khoá và mẹo làm bài SOA · Ôn thi AWS</title>
+<meta name="description" content="Từ khoá trong đề trỏ tới dịch vụ nào, bẫy hay gặp, cách loại đáp án.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi" aria-current="page"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-meo-thi">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#0f766e">Về đích</span><span>Bài 12</span><span>30 phút</span></div>
+    <h1>Bảng từ khoá và mẹo làm bài SOA</h1>
+    <p class="lead">Từ khoá trong đề trỏ tới dịch vụ nào, bẫy hay gặp, cách loại đáp án.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Nhìn từ khoá là đoán được hướng đáp án</li><li>Tránh các bẫy kinh điển</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="tu-khoa-trong-de-huong-dap-an"><a href="#tu-khoa-trong-de-huong-dap-an" class="anchor" aria-hidden="true">#</a>Từ khoá trong đề → hướng đáp án</h2>
+<table>
+<tr><th>Đề nói</th><th>Nghĩ ngay tới</th></tr>
+<tr><td>memory, disk space, RAM của EC2</td><td>CloudWatch agent</td></tr>
+<tr><td>chạy lệnh trên nhiều máy, không SSH</td><td>SSM Run Command</td></tr>
+<tr><td>vào máy không mở cổng 22, có audit</td><td>SSM Session Manager</td></tr>
+<tr><td>vá OS định kỳ</td><td>SSM Patch Manager + Maintenance Window</td></tr>
+<tr><td>tự sửa tài nguyên sai cấu hình</td><td>Config rule + remediation (SSM Automation)</td></tr>
+<tr><td>phản ứng khi có sự kiện / API call</td><td>EventBridge rule</td></tr>
+<tr><td>giảm báo động giả, kết hợp nhiều điều kiện</td><td>Composite alarm</td></tr>
+<tr><td>câu SQL nào làm chậm</td><td>RDS Performance Insights</td></tr>
+<tr><td>quá nhiều kết nối tới RDS, Lambda</td><td>RDS Proxy</td></tr>
+<tr><td>backup tập trung nhiều dịch vụ / account</td><td>AWS Backup (+ Vault Lock nếu chống xoá)</td></tr>
+<tr><td>deploy cho mọi account trong OU</td><td>CloudFormation StackSets (service-managed)</td></tr>
+<tr><td>giữ dữ liệu khi xoá stack</td><td>DeletionPolicy Retain / Snapshot</td></tr>
+<tr><td>chờ máy cài xong mới báo stack thành công</td><td>CreationPolicy + cfn-signal</td></tr>
+<tr><td>dựng AMI chuẩn tự động</td><td>EC2 Image Builder</td></tr>
+<tr><td>chia sẻ subnet / TGW cho account khác</td><td>AWS RAM</td></tr>
+<tr><td>vì sao kết nối bị chặn</td><td>VPC Flow Logs, Reachability Analyzer</td></tr>
+<tr><td>on-prem phân giải tên trong AWS</td><td>Route 53 Resolver inbound endpoint</td></tr>
+<tr><td>người dùng xa upload S3 chậm</td><td>S3 Transfer Acceleration / multipart</td></tr>
+<tr><td>đồng bộ file on-prem lên AWS định kỳ</td><td>DataSync</td></tr>
+<tr><td>IP tĩnh, failover Region nhanh, TCP/UDP</td><td>Global Accelerator</td></tr>
+<tr><td>chặn IP gửi quá nhiều request</td><td>WAF rate-based rule</td></tr>
+<tr><td>cảnh báo sắp chạm service quota</td><td>Trusted Advisor / Service Quotas + CloudWatch</td></tr>
+</table>
+
+<h2 id="bay-hay-gap"><a href="#bay-hay-gap" class="anchor" aria-hidden="true">#</a>Bẫy hay gặp</h2>
+<ul>
+<li>Detailed monitoring không cho metric RAM.</li>
+<li>Reboot không chuyển host: lỗi system status check phải stop / start.</li>
+<li>Gateway endpoint chỉ có S3 và DynamoDB.</li>
+<li>NACL stateless, nhớ ephemeral ports. Security group không có Deny.</li>
+<li>VPC peering không bắc cầu.</li>
+<li>Chứng chỉ ACM cho CloudFront phải ở us-east-1. Event của IAM, CloudFront ở us-east-1.</li>
+<li>RDS restore luôn ra instance mới, endpoint mới.</li>
+<li>Read replica để giảm tải đọc, Multi-AZ để chịu lỗi. Đừng nhầm.</li>
+<li>Config phát hiện, không ngăn chặn. SCP ngăn chặn nhưng không áp cho management account.</li>
+</ul>
+
+<h2 id="chien-thuat-trong-phong-thi"><a href="#chien-thuat-trong-phong-thi" class="anchor" aria-hidden="true">#</a>Chiến thuật trong phòng thi</h2>
+<ol>
+<li>Đọc <b>câu cuối</b> trước (câu hỏi thật sự là gì), rồi mới đọc tình huống.</li>
+<li>Gạch các ràng buộc: least operational overhead, cost-effective, no downtime, multiple accounts.</li>
+<li>Loại hai đáp án sai rõ, cân nhắc hai đáp án còn lại.</li>
+<li>Câu khó: đánh dấu (flag), làm tiếp, quay lại sau. Đừng mất quá 3 phút một câu.</li>
+<li>Không bỏ trống câu nào.</li>
+</ol>
+<p>Xong bài này, sang <a href="luyen-de-soa.html">Luyện đề SOA-C03</a> và làm thi thử 65 câu.</p>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-meo-thi">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-cdn.html"><small>Bài trước</small>CloudFront, WAF, Shield và Global Accelerator</a><a class="next" href="luyen-de-soa.html"><small>Tiếp theo</small>Luyện đề SOA-C03</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#tu-khoa-trong-de-huong-dap-an">Từ khoá trong đề → hướng đáp án</a><a href="#bay-hay-gap">Bẫy hay gặp</a><a href="#chien-thuat-trong-phong-thi">Chiến thuật trong phòng thi</a></nav>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Độ tin cậy: ELB, Auto Scaling, Route 53 · Ôn thi AWS</title>
+<meta name="description" content="Health check, xử lý lỗi 5xx của ALB, Multi-AZ, Route 53 routing policy và health check, caching.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability" aria-current="page"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-reliability">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</span><span>Bài 05</span><span>55 phút</span></div>
+    <h1>Độ tin cậy: ELB, Auto Scaling, Route 53</h1>
+    <p class="lead">Health check, xử lý lỗi 5xx của ALB, Multi-AZ, Route 53 routing policy và health check, caching.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đọc được mã lỗi ALB và tìm nguyên nhân</li><li>Thiết kế ứng dụng sống sót khi mất một AZ</li><li>Chọn routing policy Route 53</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="elastic-load-balancing-xu-ly-su-co"><a href="#elastic-load-balancing-xu-ly-su-co" class="anchor" aria-hidden="true">#</a>Elastic Load Balancing: xử lý sự cố</h2>
+<h3>Health check</h3>
+<ul>
+<li>Target group định nghĩa: protocol, port, path (ví dụ <code>/health</code>), mã thành công (mặc định 200), healthy / unhealthy threshold, interval, timeout.</li>
+<li>Target <b>unhealthy</b> hay gặp vì: security group của target không cho phép <b>security group của ALB</b> vào cổng ứng dụng; path health check trả 301 / 302 / 404; ứng dụng khởi động chậm hơn interval × threshold; NACL chặn cổng.</li>
+<li>Tất cả target đều unhealthy: ALB vẫn gửi request tới mọi target (fail open).</li>
+<li><b>Deregistration delay</b> (connection draining, mặc định 300 giây): khi rút target, ALB chờ request đang chạy xong. Ứng dụng request ngắn thì giảm xuống để deploy nhanh hơn.</li>
+<li><b>Slow start</b>: cho target mới nhận tải tăng dần.</li>
+</ul>
+<h3>Mã lỗi ALB</h3>
+<table>
+<tr><th>Mã</th><th>Thường do</th></tr>
+<tr><td><b>502 Bad Gateway</b></td><td>Target đóng kết nối, trả response sai định dạng, hoặc keep-alive timeout của ứng dụng <b>ngắn hơn</b> idle timeout của ALB (mặc định 60 giây). Lambda target trả response sai cấu trúc</td></tr>
+<tr><td><b>503 Service Unavailable</b></td><td>Target group <b>không có target nào được đăng ký</b>, hoặc không có target khoẻ trong AZ được bật (khi tắt cross-zone)</td></tr>
+<tr><td><b>504 Gateway Timeout</b></td><td>Target không trả lời trong idle timeout (ứng dụng chậm, database chậm), hoặc không kết nối được target</td></tr>
+<tr><td>460</td><td>Client đóng kết nối trước khi ALB kịp trả lời</td></tr>
+<tr><td>4xx từ target</td><td>Lỗi của ứng dụng, xem metric <code>HTTPCode_Target_4XX_Count</code> để phân biệt với lỗi của ALB (<code>HTTPCode_ELB_5XX_Count</code>)</td></tr>
+</table>
+<ul>
+<li>Bật <b>access logs</b> của ALB (về S3) để xem từng request: thời gian xử lý, mã lỗi, target nào. Phân tích bằng Athena.</li>
+<li><code>SurgeQueueLength</code>, <code>SpilloverCount</code> (Classic LB): target không kịp nhận, request bị bỏ.</li>
+<li><b>Sticky session</b> làm tải lệch giữa các target. <b>Cross-zone load balancing</b>: ALB luôn bật, NLB mặc định tắt (bật thì có phí chuyển dữ liệu giữa AZ).</li>
+<li>NLB giữ <b>IP nguồn</b> của client, có IP tĩnh mỗi AZ (gắn Elastic IP được). ALB thì IP thay đổi, lấy IP client từ header <code>X-Forwarded-For</code>.</li>
+</ul>
+<aside class="prod"><p>ALB báo 502 ngắt quãng, ứng dụng Node.js / Nginx phía sau dùng keep-alive timeout mặc định 5 giây trong khi ALB idle timeout 60 giây: ALB gửi request vào một kết nối mà backend vừa đóng. Cách sửa: tăng keep-alive timeout của backend lên <b>lớn hơn</b> idle timeout của ALB.</p></aside>
+
+<h2 id="thiet-ke-song-sot-khi-mat-mot-az"><a href="#thiet-ke-song-sot-khi-mat-mot-az" class="anchor" aria-hidden="true">#</a>Thiết kế sống sót khi mất một AZ</h2>
+<ul>
+<li>ASG trải trên ít nhất 2 AZ (tốt nhất 3), đủ máy để khi mất một AZ các AZ còn lại gánh được (static stability: chạy dư sẵn thay vì chờ scale).</li>
+<li>RDS Multi-AZ, ElastiCache Multi-AZ có automatic failover, EFS (Regional), S3.</li>
+<li><b>NAT Gateway</b> đặt mỗi AZ một cái, route table của private subnet trỏ tới NAT cùng AZ. Một NAT duy nhất là điểm lỗi đơn.</li>
+<li><b>Route 53 Application Recovery Controller</b> (zonal shift): chuyển traffic khỏi một AZ đang có vấn đề.</li>
+</ul>
+
+<h2 id="route-53"><a href="#route-53" class="anchor" aria-hidden="true">#</a>Route 53</h2>
+<table>
+<tr><th>Routing policy</th><th>Dùng khi</th></tr>
+<tr><td>Simple</td><td>Một tài nguyên, không health check</td></tr>
+<tr><td><b>Failover</b></td><td>Active-passive: primary có health check, hỏng thì trả secondary (thường là trang tĩnh trên S3 / Region DR)</td></tr>
+<tr><td><b>Weighted</b></td><td>Chia tỉ lệ traffic: canary 10% cho bản mới, A/B test</td></tr>
+<tr><td><b>Latency</b></td><td>Trả về Region có độ trễ thấp nhất với người dùng</td></tr>
+<tr><td>Geolocation</td><td>Theo quốc gia / châu lục của người dùng (pháp lý, ngôn ngữ). Nhớ đặt bản ghi Default</td></tr>
+<tr><td>Geoproximity</td><td>Theo khoảng cách, có bias để kéo / đẩy traffic (dùng Traffic Flow)</td></tr>
+<tr><td>Multivalue answer</td><td>Trả tới 8 IP khoẻ, cân tải đơn giản phía client</td></tr>
+<tr><td>IP-based</td><td>Theo dải IP nguồn (CIDR) của client</td></tr>
+</table>
+<ul>
+<li><b>Health check</b> kiểm tra endpoint (HTTP/HTTPS/TCP, có thể tìm chuỗi trong response), <b>calculated</b> health check (kết hợp nhiều check), hoặc theo trạng thái một <b>CloudWatch alarm</b> (dùng cho tài nguyên private không gọi được từ Internet).</li>
+<li>Health checker nằm ngoài VPC: firewall / security group phải cho phép dải IP của Route 53 health checker.</li>
+<li><b>Alias record</b>: trỏ tới ELB, CloudFront, S3 website, API Gateway, VPC endpoint... Miễn phí truy vấn, dùng được ở <b>zone apex</b> (<code>example.com</code>), CNAME thì không.</li>
+<li><b>TTL</b>: hạ TTL trước khi đổi bản ghi để thay đổi lan nhanh.</li>
+<li>Chuyển tên miền sang Route 53 mà tên miền không phân giải: kiểm tra <b>NS record</b> ở nhà đăng ký có trùng với hosted zone không.</li>
+</ul>
+
+<h2 id="caching-de-giam-tai"><a href="#caching-de-giam-tai" class="anchor" aria-hidden="true">#</a>Caching để giảm tải</h2>
+<ul>
+<li>CloudFront trước ALB / S3 (bài 12). ElastiCache trước database. DAX trước DynamoDB. API Gateway có cache theo stage.</li>
+<li>RDS read replica cho báo cáo, tách tải đọc nặng khỏi primary.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Người dùng gặp lỗi HTTP 503 từ ALB. Kiểm tra thấy target group không có target nào. Nguyên nhân thường gặp?</p><div class="qo"><button type="button" class="opt" data-ok>ASG chưa được gắn với target group hoặc các instance chưa được đăng ký vào target group</button><button type="button" class="opt">Idle timeout quá ngắn</button><button type="button" class="opt">Security group của ALB chặn cổng 443</button></div><p class="why" hidden>503 từ ALB thường nghĩa là không có target đăng ký / không có target khoẻ để gửi request.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Website chính chạy ở ap-southeast-1. Khi Region đó lỗi, muốn người dùng tự động thấy trang bảo trì tĩnh. Cấu hình Route 53?</p><div class="qo"><button type="button" class="opt">Weighted 100/0</button><button type="button" class="opt" data-ok>Failover routing: primary trỏ ALB có health check, secondary trỏ S3 static website</button><button type="button" class="opt">Latency routing giữa ALB và S3</button></div><p class="why" hidden>Failover routing là active-passive dựa vào health check của bản ghi primary.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-reliability">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-perf-storage.html"><small>Bài trước</small>Tối ưu storage và database</a><a class="next" href="soa-backup-dr.html"><small>Bài tiếp theo</small>Backup và khôi phục thảm hoạ</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#elastic-load-balancing-xu-ly-su-co">Elastic Load Balancing: xử lý sự cố</a><a href="#thiet-ke-song-sot-khi-mat-mot-az">Thiết kế sống sót khi mất một AZ</a><a href="#route-53">Route 53</a><a href="#caching-de-giam-tai">Caching để giảm tải</a></nav>
+</div>
+</body>
+</html>

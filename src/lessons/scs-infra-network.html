@@ -1,0 +1,63 @@
+<h2>Phòng thủ nhiều lớp ở mạng</h2>
+<fig type="stack" caption="Từ ngoài vào trong: mỗi lớp chặn một loại tấn công">
+[ext] Shield (Standard / Advanced) :: DDoS layer 3/4 (và layer 7 với Advanced)
+[warn] CloudFront + WAF :: tấn công web layer 7: SQLi, XSS, bot, rate limit, geo block
+[q] ALB / NLB :: chỉ mở cổng cần thiết, TLS, chỉ nhận từ CloudFront
+[cache] Network Firewall :: lọc stateful, IPS, lọc tên miền ra ngoài, ở mức VPC
+[go] Security group + NACL :: mức instance / subnet
+[db] Route 53 Resolver DNS Firewall :: chặn phân giải tên miền độc hại / rò dữ liệu qua DNS
+</fig>
+
+<h2>Security group và NACL ở mức chuyên sâu</h2>
+<ul>
+<li>SG tham chiếu SG khác (ví dụ DB chỉ nhận từ SG của app) thay vì CIDR. Có thể tham chiếu SG ở VPC peer cùng Region.</li>
+<li>NACL dùng để <b>chặn một IP / dải IP</b> cụ thể (SG không có Deny).</li>
+<li><b>Managed prefix list</b>: gom dải IP dùng chung cho nhiều SG / route table, chia sẻ qua RAM.</li>
+<li>Firewall Manager áp <b>security group policy</b> chung, kiểm tra SG quá rộng trên cả Organization.</li>
+</ul>
+
+<h2>Kiểm soát traffic ra (egress) và rò rỉ dữ liệu</h2>
+<ul>
+<li><b>VPC endpoint</b> để truy cập dịch vụ AWS không qua Internet, kèm <b>endpoint policy</b> chỉ cho phép bucket / tài nguyên của tổ chức (điều kiện <code>aws:ResourceOrgID</code>). Ngăn nhân viên chép dữ liệu sang bucket cá nhân qua endpoint.</li>
+<li>Bucket policy chỉ cho truy cập qua endpoint: điều kiện <code>aws:SourceVpce</code> hoặc <code>aws:SourceVpc</code>.</li>
+<li><b>AWS Network Firewall</b>: stateful rule (Suricata), lọc theo <b>tên miền (SNI / Host)</b> cho traffic ra, IPS. Đặt ở subnet riêng, route table phải đưa traffic đi qua firewall endpoint (cả chiều đi và về, cẩn thận định tuyến bất đối xứng). Mô hình tập trung: inspection VPC với Transit Gateway.</li>
+<li><b>DNS Firewall</b>: chặn tên miền xấu, chống DNS exfiltration. Cấu hình <b>fail-open / fail-closed</b>.</li>
+<li>NAT Gateway không lọc gì cả, chỉ chuyển địa chỉ.</li>
+</ul>
+
+<h2>WAF chuyên sâu</h2>
+<ul>
+<li>Managed rule groups: <b>Core rule set</b> (OWASP Top 10), <b>Known bad inputs</b>, <b>SQL database</b>, <b>IP reputation</b>, <b>Anonymous IP list</b> (VPN, Tor), <b>Bot Control</b>, <b>Account Takeover Prevention</b> (ATP, chống dò mật khẩu ở trang login), <b>Account Creation Fraud Prevention</b>.</li>
+<li>Rate-based rule: theo IP, theo header, theo kết hợp khoá. Hành động: Block, Count, <b>CAPTCHA</b>, <b>Challenge</b>.</li>
+<li>Thứ tự rule quan trọng: rule có số priority nhỏ được xét trước, rule Allow sớm sẽ bỏ qua các rule Block sau.</li>
+<li>Chỉ cho ALB nhận traffic từ CloudFront: SG của ALB dùng prefix list của CloudFront + CloudFront gửi một <b>custom header bí mật</b>, WAF trên ALB chỉ cho request có header đó.</li>
+</ul>
+
+<h2>Shield Advanced</h2>
+<ul>
+<li>Bảo vệ CloudFront, Route 53, Global Accelerator, ELB, Elastic IP.</li>
+<li><b>Shield Response Team (SRT)</b> hỗ trợ 24/7 khi bị tấn công (cấp quyền cho SRT bằng role), <b>proactive engagement</b> (SRT chủ động liên hệ khi health check của bạn lỗi).</li>
+<li><b>Cost protection</b>: hoàn tiền chi phí scale do DDoS.</li>
+<li><b>Automatic application layer DDoS mitigation</b>: tự tạo rule WAF khi phát hiện tấn công layer 7.</li>
+<li>Kiến trúc chống DDoS: CloudFront + Route 53 ở biên, ASG để hấp thụ, giảm bề mặt tấn công (không để EC2 public).</li>
+</ul>
+
+<h2>PrivateLink và truy cập riêng tư</h2>
+<ul>
+<li>Cung cấp dịch vụ cho account / khách hàng khác qua <b>endpoint service</b> (sau NLB / GWLB), chấp nhận kết nối theo principal được phép, không lộ cả VPC.</li>
+<li><b>Gateway Load Balancer</b>: chèn thiết bị bảo mật bên thứ ba (firewall ảo) vào đường đi của traffic, minh bạch, dùng giao thức GENEVE.</li>
+<li><b>Verified Access</b>: cho nhân viên vào ứng dụng nội bộ không cần VPN, kiểm tra danh tính (Identity Center / IdP) và trạng thái thiết bị theo từng request (zero trust).</li>
+</ul>
+
+<quiz q="Công ty muốn chặn mọi EC2 trong VPC truy cập Internet, trừ các tên miền *.windowsupdate.com và *.amazonaws.com. Giải pháp?">
+- Security group với rule outbound theo tên miền
++ AWS Network Firewall với stateful domain list rule (allowlist), định tuyến traffic ra qua firewall endpoint
+- NACL chặn mọi cổng trừ 443
+? Security group và NACL không lọc theo tên miền. Network Firewall lọc theo SNI / Host header.
+</quiz>
+<quiz q="Trang đăng nhập bị dò mật khẩu từ hàng nghìn IP khác nhau, mỗi IP gửi ít request. Lớp bảo vệ phù hợp nhất?">
+- Rate-based rule chặn IP gửi quá 100 request / 5 phút
++ AWS WAF Account Takeover Prevention (ATP) managed rule group trên trang login
+- NACL chặn các IP đó
+? Tấn công phân tán qua nhiều IP nên rate limit theo IP không hiệu quả. ATP phân tích dấu hiệu dò thông tin đăng nhập.
+</quiz>

@@ -1,0 +1,78 @@
+<h2>EventBridge: bộ định tuyến sự kiện</h2>
+<p>Hầu hết thay đổi trong AWS sinh ra một <b>event</b> (dạng JSON): instance đổi trạng thái, alarm đổi trạng thái, API call được CloudTrail ghi lại, GuardDuty có finding, lịch hẹn giờ... EventBridge nhận event vào <b>event bus</b>, <b>rule</b> lọc event theo mẫu, rồi gửi tới <b>target</b>.</p>
+<fig type="flow" caption="Mẫu tự khắc phục kinh điển: event → rule → hành động">
+[ext] Nguồn event / EC2, CloudWatch alarm, CloudTrail, Config, GuardDuty, lịch cron
+-> event JSON
+[q] EventBridge rule / event pattern hoặc schedule
+-> target
+[go] Lambda / SSM Automation / SNS / SQS / Step Functions / ECS task
+</fig>
+<pre lang="json" file="Event pattern: EC2 bị stop">
+{
+  "source": ["aws.ec2"],
+  "detail-type": ["EC2 Instance State-change Notification"],
+  "detail": { "state": ["stopped", "terminated"] }
+}
+</pre>
+<ul>
+<li><b>Default bus</b> nhận event của dịch vụ AWS. <b>Custom bus</b> cho ứng dụng của bạn. <b>Partner bus</b> cho SaaS (Datadog, Zendesk...).</li>
+<li>Gửi event sang account / Region khác: target là event bus của account kia, bus đó cần <b>resource policy</b> cho phép.</li>
+<li><b>Input transformer</b>: sửa event trước khi gửi (lấy vài trường, ghép thành câu thông báo). Đề hay gọi là "enrich / customize the notification".</li>
+<li>Target lỗi: EventBridge thử lại tới 24 giờ, cấu hình <b>DLQ</b> (SQS) để giữ event không gửi được.</li>
+<li><b>EventBridge Scheduler</b>: hẹn giờ chạy (cron, rate, một lần), thay cho rule schedule kiểu cũ, nhiều target hơn.</li>
+<li>Rule không chạy? Kiểm tra: event có đúng ở <b>Region</b> đó không (nhiều dịch vụ global như IAM gửi event ở us-east-1), pattern có khớp đúng hoa thường, target có <b>quyền</b> (Lambda resource policy cho <code>events.amazonaws.com</code>, hoặc IAM role của rule).</li>
+</ul>
+<aside class="prod"><p>Event "AWS API Call via CloudTrail" chỉ có khi CloudTrail đang ghi management events trong Region đó. Bắt API của IAM, CloudFront, Route 53 (dịch vụ global) phải đặt rule ở <b>us-east-1</b>.</p></aside>
+
+<h2>Systems Manager: bộ công cụ vận hành</h2>
+<p>Điều kiện để SSM quản lý một máy (gọi là <b>managed node</b>): có <b>SSM Agent</b> (có sẵn trên Amazon Linux, Windows AMI của AWS), có <b>IAM role</b> với <code>AmazonSSMManagedInstanceCore</code>, và <b>kết nối được</b> tới endpoint SSM (qua Internet / NAT, hoặc VPC endpoint <code>ssm</code>, <code>ssmmessages</code>, <code>ec2messages</code>). Thiếu một trong ba là máy không hiện trong Fleet Manager.</p>
+<table>
+<tr><th>Tính năng</th><th>Dùng khi đề nói</th></tr>
+<tr><td><b>Run Command</b></td><td>"Chạy một lệnh / script trên nhiều máy ngay bây giờ", không cần SSH. Chọn máy theo tag, giới hạn tốc độ (rate control) và ngưỡng lỗi</td></tr>
+<tr><td><b>Automation</b> (runbook)</td><td>"Quy trình nhiều bước": tạo AMI, khôi phục instance, sửa cấu hình. Có sẵn runbook <code>AWS-*</code>, ví dụ <code>AWS-RestartEC2Instance</code>, <code>AWSSupport-ResetAccess</code> (lấy lại quyền vào máy mất key). Gọi được từ EventBridge, Config remediation, alarm</td></tr>
+<tr><td><b>Patch Manager</b></td><td>"Vá lỗi hệ điều hành định kỳ". Patch baseline (quy tắc vá gì), patch group (tag <code>Patch Group</code>), lịch chạy trong <b>Maintenance Window</b>, báo cáo compliance</td></tr>
+<tr><td><b>State Manager</b></td><td>"Đảm bảo máy luôn ở một trạng thái": agent luôn được cài, cấu hình luôn đúng. Áp lại định kỳ (association)</td></tr>
+<tr><td><b>Maintenance Windows</b></td><td>"Chỉ làm việc gây gián đoạn trong khung giờ cho phép"</td></tr>
+<tr><td><b>Session Manager</b></td><td>"Vào shell của máy mà không mở cổng 22, không bastion, có log phiên". Ghi log phiên về S3 / CloudWatch Logs</td></tr>
+<tr><td><b>Parameter Store</b></td><td>Lưu cấu hình, chuỗi kết nối. <code>SecureString</code> mã hoá bằng KMS. Standard miễn phí (tới 4 KB), Advanced (8 KB, có parameter policy hết hạn)</td></tr>
+<tr><td><b>Inventory</b></td><td>"Liệt kê phần mềm đã cài trên mọi máy"</td></tr>
+<tr><td><b>OpsCenter</b> / <b>Incident Manager</b></td><td>Gom sự cố vận hành (OpsItem), quy trình trực sự cố, gọi người trực</td></tr>
+<tr><td><b>Distributor</b></td><td>Đóng gói và phân phối phần mềm (agent của bên thứ ba)</td></tr>
+<tr><td><b>Change Manager</b> / <b>Change Calendar</b></td><td>Phê duyệt thay đổi, chặn thay đổi trong giai đoạn đóng băng</td></tr>
+</table>
+<aside class="real"><p>Mẫu hay gặp nhất trong đề: <b>Config rule</b> phát hiện tài nguyên sai (ví dụ S3 bucket public, security group mở 0.0.0.0/0 cổng 22) → <b>remediation action</b> là một SSM Automation runbook tự sửa. Có thể đặt <b>automatic remediation</b> (tự chạy, có số lần thử lại).</p></aside>
+
+<h2>Tự động khắc phục: ghép các mảnh</h2>
+<table>
+<tr><th>Tình huống</th><th>Giải pháp</th></tr>
+<tr><td>Instance hỏng phần cứng</td><td>Alarm <code>StatusCheckFailed_System</code> → action recover</td></tr>
+<tr><td>Ứng dụng treo, cần restart dịch vụ trong máy</td><td>Alarm → EventBridge → SSM Run Command / Automation chạy lệnh restart</td></tr>
+<tr><td>Ai đó mở security group ra Internet</td><td>Config rule <code>restricted-ssh</code> → remediation runbook <code>AWS-DisableIncomingSSHOnPort22</code></td></tr>
+<tr><td>Ổ EBS gần đầy</td><td>Alarm trên metric của agent → Lambda / Automation mở rộng volume rồi mở rộng file system</td></tr>
+<tr><td>Báo cho kênh chat khi có sự cố</td><td>SNS → AWS Chatbot (Amazon Q Developer in chat applications) tới Slack / Teams</td></tr>
+</table>
+
+<h2>AWS Health</h2>
+<ul>
+<li><b>AWS Health Dashboard</b>: sự cố của AWS ảnh hưởng tới tài nguyên của bạn, lịch bảo trì (ví dụ EC2 sắp bị retire do phần cứng). Event của Health có trong EventBridge, nên tự động hoá được: "khi có lịch retire instance thì tự stop / start để chuyển sang phần cứng mới".</li>
+<li>Tổng hợp Health event cho cả Organization: bật <b>organizational view</b>.</li>
+</ul>
+
+<quiz q="Công ty cần vá bản cập nhật bảo mật cho 300 EC2 Windows và Linux mỗi Chủ nhật 2 giờ sáng, có báo cáo máy nào chưa vá. Giải pháp?">
+- Cron job trên từng máy chạy yum update / Windows Update
++ SSM Patch Manager với patch baseline, gắn tag Patch Group, chạy AWS-RunPatchBaseline trong Maintenance Window
+- Tạo AMI mới mỗi tuần và thay toàn bộ instance
+? Patch Manager + Maintenance Window đúng tình huống "vá định kỳ có lịch và có báo cáo compliance".
+</quiz>
+<quiz q="EC2 trong private subnet (không có NAT) không xuất hiện trong Systems Manager dù đã gắn role đúng. Cần thêm gì?">
+- Mở cổng 22 trong security group
++ VPC interface endpoint cho ssm, ssmmessages và ec2messages
+- Gắn Elastic IP cho instance
+? SSM Agent phải gọi ra endpoint của SSM. Không có đường ra Internet thì cần VPC endpoint, không cần mở cổng vào nào.
+</quiz>
+<quiz q="Rule EventBridge bắt sự kiện DeleteUser của IAM được tạo ở ap-southeast-1 nhưng không bao giờ chạy. Nguyên nhân có khả năng nhất?">
+- IAM không gửi event cho EventBridge
++ IAM là dịch vụ global, event qua CloudTrail được ghi ở us-east-1, phải tạo rule ở us-east-1
+- Cần bật CloudTrail data events
+? API của dịch vụ global như IAM được ghi nhận ở us-east-1, rule phải đặt ở đó.
+</quiz>

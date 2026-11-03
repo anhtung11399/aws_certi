@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · Backup và khôi phục thảm hoạ · Ôn thi AWS</title>
+<meta name="description" content="AWS Backup, snapshot, PITR, versioning, cross-Region replication, 4 chiến lược DR, RPO / RTO, Elastic Disaster Recovery.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr" aria-current="page"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-backup-dr">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</span><span>Bài 06</span><span>45 phút</span></div>
+    <h1>Backup và khôi phục thảm hoạ</h1>
+    <p class="lead">AWS Backup, snapshot, PITR, versioning, cross-Region replication, 4 chiến lược DR, RPO / RTO, Elastic Disaster Recovery.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Chọn chiến lược DR theo RPO / RTO và chi phí</li><li>Cấu hình backup tập trung với AWS Backup</li><li>Khôi phục đúng loại tài nguyên</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="rpo-va-rto"><a href="#rpo-va-rto" class="anchor" aria-hidden="true">#</a>RPO và RTO</h2>
+<ul>
+<li><b>RPO</b> (Recovery Point Objective): chấp nhận <b>mất tối đa bao nhiêu dữ liệu</b>, tính theo thời gian. RPO 1 giờ = backup / sao chép ít nhất mỗi giờ.</li>
+<li><b>RTO</b> (Recovery Time Objective): chấp nhận <b>ngừng dịch vụ bao lâu</b>. RTO 15 phút = phải chạy lại trong 15 phút.</li>
+</ul>
+
+<h2 id="4-chien-luoc-dr"><a href="#4-chien-luoc-dr" class="anchor" aria-hidden="true">#</a>4 chiến lược DR</h2>
+<figure class="dg"><svg viewBox="0 0 1359.44 86" style="min-width:600px;max-width:1359.44px" role="img" aria-label="Đi từ trái sang phải: RPO / RTO nhỏ dần, chi phí tăng dần"><g class="nd db"><rect x="10" y="10" width="180.56" height="66" rx="10"/><text x="100.28" y="40" class="tt" text-anchor="middle">Backup &amp; Restore</text><text x="100.28" y="58" class="ts" text-anchor="middle">RPO, RTO: giờ / rẻ nhất</text></g><line x1="192.56" y1="43" x2="256.56" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="260.56" y="10" width="415.76000000000005" height="66" rx="10"/><text x="468.44000000000005" y="40" class="tt" text-anchor="middle">Pilot Light</text><text x="468.44000000000005" y="58" class="ts" text-anchor="middle">RPO phút, RTO 10 phút đến giờ / chỉ dữ liệu + lõi chạy sẵn</text></g><line x1="678.32" y1="43" x2="742.32" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="746.32" y="10" width="301.52000000000004" height="66" rx="10"/><text x="897.08" y="40" class="tt" text-anchor="middle">Warm Standby</text><text x="897.08" y="58" class="ts" text-anchor="middle">RPO giây, RTO phút / bản thu nhỏ chạy sẵn</text></g><line x1="1049.8400000000001" y1="43" x2="1113.8400000000001" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd ok"><rect x="1117.8400000000001" y="10" width="231.60000000000002" height="66" rx="10"/><text x="1233.64" y="40" class="tt" text-anchor="middle">Multi-site Active-Active</text><text x="1233.64" y="58" class="ts" text-anchor="middle">RPO, RTO gần 0 / đắt nhất</text></g></svg><figcaption>Đi từ trái sang phải: RPO / RTO nhỏ dần, chi phí tăng dần</figcaption></figure>
+<table>
+<tr><th>Chiến lược</th><th>Ở Region DR có gì</th><th>Khi có sự cố</th></tr>
+<tr><td>Backup &amp; Restore</td><td>Chỉ backup (snapshot, AMI, AWS Backup copy)</td><td>Dựng lại toàn bộ từ IaC + backup</td></tr>
+<tr><td>Pilot Light</td><td>Database được sao chép liên tục, hạ tầng đã định nghĩa sẵn nhưng compute tắt</td><td>Bật / scale compute lên, đổi DNS</td></tr>
+<tr><td>Warm Standby</td><td>Toàn bộ hệ thống chạy với quy mô nhỏ</td><td>Scale lên quy mô thật, đổi DNS</td></tr>
+<tr><td>Active-Active</td><td>Chạy đầy đủ, nhận traffic thật</td><td>Chỉ cần ngừng gửi traffic về Region lỗi</td></tr>
+</table>
+
+<h2 id="aws-backup"><a href="#aws-backup" class="anchor" aria-hidden="true">#</a>AWS Backup</h2>
+<ul>
+<li>Backup tập trung cho EC2, EBS, RDS, Aurora, DynamoDB, EFS, FSx, S3, Storage Gateway, DocumentDB, Neptune...</li>
+<li><b>Backup plan</b>: lịch (backup rule), thời gian giữ, chuyển sang cold storage, <b>copy sang Region / account khác</b>. Chọn tài nguyên bằng <b>tag</b> (resource assignment), nên tài nguyên mới gắn tag là tự được backup.</li>
+<li><b>Backup vault</b>: nơi chứa recovery point, mã hoá bằng KMS. <b>Vault Lock</b> (compliance mode): không ai, kể cả root, xoá được backup trước hạn (WORM), chống ransomware.</li>
+<li>Dùng với <b>Organizations</b>: backup policy áp cho mọi account. <b>Backup Audit Manager</b>: báo cáo tài nguyên nào chưa được backup đúng chính sách.</li>
+<li><b>Restore testing</b>: tự động khôi phục thử định kỳ để chắc backup dùng được.</li>
+</ul>
+<aside class="prod"><p>"Backup tập trung, nhiều dịch vụ, nhiều account, ít công sức" → <b>AWS Backup</b>. Script Lambda tự chụp snapshot là đáp án sai về operational overhead.</p></aside>
+
+<h2 id="khoi-phuc-tung-loai-tai-nguyen"><a href="#khoi-phuc-tung-loai-tai-nguyen" class="anchor" aria-hidden="true">#</a>Khôi phục từng loại tài nguyên</h2>
+<table>
+<tr><th>Tài nguyên</th><th>Cơ chế</th><th>Ghi nhớ</th></tr>
+<tr><td>RDS</td><td>Automated backup (giữ 1 đến 35 ngày) + <b>point-in-time recovery</b> tới khoảng 5 phút gần nhất. Manual snapshot giữ mãi</td><td>Khôi phục luôn tạo <b>instance mới</b> với endpoint mới, phải đổi chuỗi kết nối. Cross-Region: automated backup replication hoặc copy snapshot</td></tr>
+<tr><td>Aurora</td><td>Backup liên tục, PITR, Backtrack (MySQL), Global Database</td><td>Backtrack quay ngược tại chỗ, không tạo cluster mới</td></tr>
+<tr><td>DynamoDB</td><td><b>PITR</b> (35 ngày gần nhất, theo từng giây), on-demand backup, Global Tables</td><td>Khôi phục vào <b>bảng mới</b></td></tr>
+<tr><td>S3</td><td><b>Versioning</b> (chống xoá / ghi đè nhầm), <b>Replication</b> CRR / SRR, Object Lock</td><td>Replication cần bật versioning cả hai bên. Chỉ object mới được sao chép, object cũ dùng <b>S3 Batch Replication</b></td></tr>
+<tr><td>EC2</td><td>AMI, EBS snapshot, copy sang Region khác</td><td>AMI dùng snapshot mã hoá KMS: phải chia sẻ cả key cho account / Region đích</td></tr>
+<tr><td>EFS</td><td>AWS Backup, EFS replication sang Region khác</td><td></td></tr>
+</table>
+
+<h2 id="aws-elastic-disaster-recovery-drs"><a href="#aws-elastic-disaster-recovery-drs" class="anchor" aria-hidden="true">#</a>AWS Elastic Disaster Recovery (DRS)</h2>
+<p>Sao chép liên tục ở mức block từ máy chủ (on-premises hoặc EC2 Region khác) sang một vùng staging rẻ tiền ở AWS. Khi có sự cố, launch máy thật trong vài phút. RPO tính bằng giây, RTO tính bằng phút. Đúng cho câu "DR cho máy chủ on-premises với RPO giây, RTO phút, chi phí thấp".</p>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Yêu cầu: RPO 1 giờ, RTO 24 giờ, chi phí thấp nhất. Chiến lược DR?</p><div class="qo"><button type="button" class="opt" data-ok>Backup & Restore: AWS Backup copy recovery point sang Region khác mỗi giờ</button><button type="button" class="opt">Pilot Light với Aurora Global Database</button><button type="button" class="opt">Multi-site Active-Active</button></div><p class="why" hidden>RTO một ngày cho phép dựng lại từ backup, đây là phương án rẻ nhất đáp ứng được.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Đội cần đảm bảo không ai, kể cả quản trị viên có quyền cao, xoá được bản backup trong 1 năm để chống ransomware. Dùng gì?</p><div class="qo"><button type="button" class="opt">IAM policy deny xoá backup</button><button type="button" class="opt" data-ok>AWS Backup Vault Lock ở compliance mode</button><button type="button" class="opt">Bật versioning cho bucket chứa backup</button></div><p class="why" hidden>Vault Lock compliance mode tạo bảo vệ WORM không thể gỡ, kể cả root.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-backup-dr">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-reliability.html"><small>Bài trước</small>Độ tin cậy: ELB, Auto Scaling, Route 53</a><a class="next" href="soa-cloudformation.html"><small>Bài tiếp theo</small>CloudFormation, CDK và StackSets</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#rpo-va-rto">RPO và RTO</a><a href="#4-chien-luoc-dr">4 chiến lược DR</a><a href="#aws-backup">AWS Backup</a><a href="#khoi-phuc-tung-loai-tai-nguyen">Khôi phục từng loại tài nguyên</a><a href="#aws-elastic-disaster-recovery-drs">AWS Elastic Disaster Recovery (DRS)</a></nav>
+</div>
+</body>
+</html>

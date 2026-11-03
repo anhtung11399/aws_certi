@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOA-C03 · CloudFront, WAF, Shield và Global Accelerator · Ôn thi AWS</title>
+<meta name="description" content="Cache behavior, TTL, invalidation, OAC, lỗi 403 / 502 / 504, WAF rule, Shield, Global Accelerator.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#ff9900"><span>SOA-C03</span>CloudOps</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="soa-tong-quan.html" data-slug="soa-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SOA-C03 và cách học</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ff9900">Domain 1 · Monitoring, Logging, Remediation, Performance (22%)</div><ol><li><a href="soa-cloudwatch.html" data-slug="soa-cloudwatch"><i class="dot"></i><span class="no">01</span><span class="tx">CloudWatch: metrics, logs, alarms, dashboards</span></a></li><li><a href="soa-eventbridge-ssm.html" data-slug="soa-eventbridge-ssm"><i class="dot"></i><span class="no">02</span><span class="tx">EventBridge và Systems Manager: tự động khắc phục</span></a></li><li><a href="soa-perf-compute.html" data-slug="soa-perf-compute"><i class="dot"></i><span class="no">03</span><span class="tx">Tối ưu EC2 và Auto Scaling</span></a></li><li><a href="soa-perf-storage.html" data-slug="soa-perf-storage"><i class="dot"></i><span class="no">04</span><span class="tx">Tối ưu storage và database</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 2 · Reliability &amp; Business Continuity (22%)</div><ol><li><a href="soa-reliability.html" data-slug="soa-reliability"><i class="dot"></i><span class="no">05</span><span class="tx">Độ tin cậy: ELB, Auto Scaling, Route 53</span></a></li><li><a href="soa-backup-dr.html" data-slug="soa-backup-dr"><i class="dot"></i><span class="no">06</span><span class="tx">Backup và khôi phục thảm hoạ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 3 · Deployment, Provisioning &amp; Automation (22%)</div><ol><li><a href="soa-cloudformation.html" data-slug="soa-cloudformation"><i class="dot"></i><span class="no">07</span><span class="tx">CloudFormation, CDK và StackSets</span></a></li><li><a href="soa-deploy-automation.html" data-slug="soa-deploy-automation"><i class="dot"></i><span class="no">08</span><span class="tx">Chiến lược deploy và tự động hoá</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#dc2626">Domain 4 · Security &amp; Compliance (16%)</div><ol><li><a href="soa-security.html" data-slug="soa-security"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo mật và tuân thủ trong vận hành</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</div><ol><li><a href="soa-networking.html" data-slug="soa-networking"><i class="dot"></i><span class="no">10</span><span class="tx">VPC và xử lý sự cố mạng</span></a></li><li><a href="soa-cdn.html" data-slug="soa-cdn" aria-current="page"><i class="dot"></i><span class="no">11</span><span class="tx">CloudFront, WAF, Shield và Global Accelerator</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="soa-meo-thi.html" data-slug="soa-meo-thi"><i class="dot"></i><span class="no">12</span><span class="tx">Bảng từ khoá và mẹo làm bài SOA</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-soa.html"><i class="dot plain"></i><span class="tx">Luyện đề SOA-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="scs-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SCS-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="soa-cdn">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#ff9900">SOA-C03</span><span class="ph" style="--pc:#0284c7">Domain 5 · Networking &amp; Content Delivery (18%)</span><span>Bài 11</span><span>40 phút</span></div>
+    <h1>CloudFront, WAF, Shield và Global Accelerator</h1>
+    <p class="lead">Cache behavior, TTL, invalidation, OAC, lỗi 403 / 502 / 504, WAF rule, Shield, Global Accelerator.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Cấu hình CloudFront đúng cho S3 và ALB</li><li>Xử lý lỗi cache và lỗi origin</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="cloudfront"><a href="#cloudfront" class="anchor" aria-hidden="true">#</a>CloudFront</h2>
+<ul>
+<li><b>Origin</b>: S3, ALB, EC2, API Gateway, MediaStore, bất kỳ HTTP server. <b>Origin group</b>: failover sang origin phụ khi origin chính trả lỗi 5xx / 4xx đã chọn.</li>
+<li><b>Cache behavior</b> theo path pattern (<code>/api/*</code> không cache, <code>/static/*</code> cache lâu). <b>Cache policy</b> quyết định cache key (header, cookie, query string nào được tính). <b>Origin request policy</b> quyết định gửi gì về origin.</li>
+<li>Cache key càng nhiều thành phần thì <b>cache hit ratio</b> càng thấp. Cache hit thấp: bỏ bớt header / cookie / query string không cần trong cache key.</li>
+<li><b>TTL</b>: min / default / max, origin gửi <code>Cache-Control: max-age</code>. Nội dung đổi mà người dùng vẫn thấy bản cũ: <b>invalidation</b> (<code>/*</code> hoặc đường dẫn cụ thể, tính phí sau 1.000 path / tháng) hoặc tốt hơn là đổi tên file theo phiên bản (<code>app.v42.js</code>).</li>
+<li><b>Origin Access Control (OAC)</b>: chỉ cho CloudFront đọc bucket S3 private, bucket policy cho phép principal <code>cloudfront.amazonaws.com</code> với điều kiện <code>AWS:SourceArn</code> là distribution. OAI là cách cũ.</li>
+<li>Bucket mã hoá SSE-KMS: key policy phải cho CloudFront (qua OAC) dùng key.</li>
+<li>Nội dung riêng tư: <b>signed URL</b> (một file) / <b>signed cookies</b> (nhiều file).</li>
+<li><b>Geo restriction</b> chặn theo quốc gia. <b>Field-level encryption</b> mã hoá trường nhạy cảm.</li>
+<li>Logs: standard logs về S3, real-time logs qua Kinesis. Metric: <code>CacheHitRate</code> (bật thêm metric), <code>4xxErrorRate</code>, <code>5xxErrorRate</code>, <code>OriginLatency</code>.</li>
+<li>Chạy code ở edge: <b>CloudFront Functions</b> (rất nhẹ, viewer request / response, sửa header, redirect) và <b>Lambda@Edge</b> (nặng hơn, gọi được mạng, có cả origin request / response).</li>
+</ul>
+<table>
+<tr><th>Lỗi</th><th>Thường do</th></tr>
+<tr><td>403 với S3 origin</td><td>Bucket policy chưa cho OAC, object không tồn tại (S3 trả 403 thay 404 khi không có quyền list), thiếu quyền KMS, geo restriction, WAF chặn</td></tr>
+<tr><td>502</td><td>CloudFront không bắt tay TLS được với origin: chứng chỉ origin hết hạn / không khớp tên miền</td></tr>
+<tr><td>504</td><td>Origin không trả lời kịp (origin response timeout, mặc định 30 giây), security group của ALB không cho dải IP của CloudFront (dùng managed prefix list <code>com.amazonaws.global.cloudfront.origin-facing</code>)</td></tr>
+</table>
+
+<h2 id="waf-shield-global-accelerator"><a href="#waf-shield-global-accelerator" class="anchor" aria-hidden="true">#</a>WAF, Shield, Global Accelerator</h2>
+<ul>
+<li><b>AWS WAF</b>: gắn vào CloudFront, ALB, API Gateway, AppSync, Cognito. <b>Web ACL</b> gồm rule: managed rule groups (OWASP, IP xấu, bot), <b>rate-based rule</b> (chặn IP gửi quá N request / 5 phút), chặn theo quốc gia, IP set, regex. Log WAF về CloudWatch Logs / S3 / Firehose. Thử rule ở chế độ <b>Count</b> trước khi Block.</li>
+<li><b>Shield Standard</b>: miễn phí, chống DDoS layer 3/4. <b>Shield Advanced</b>: trả phí, có đội SRT (Shield Response Team) hỗ trợ, bảo vệ chi phí khi scale do DDoS, tự tạo rule WAF giảm nhẹ tấn công layer 7.</li>
+<li><b>Global Accelerator</b>: 2 IP anycast tĩnh, đi trên mạng của AWS tới endpoint gần nhất (ALB, NLB, EC2, EIP), failover giữa Region trong vài giây. Hợp với TCP / UDP, game, khi cần IP tĩnh cho whitelist. CloudFront thì cache nội dung HTTP.</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Website tĩnh trên S3 sau CloudFront. Sau khi bật OAC và chặn public access, người dùng nhận 403. Thiếu gì?</p><div class="qo"><button type="button" class="opt" data-ok>Bucket policy cho phép principal cloudfront.amazonaws.com với điều kiện AWS:SourceArn bằng ARN của distribution</button><button type="button" class="opt">Bật S3 static website hosting</button><button type="button" class="opt">Thêm CNAME vào Route 53</button></div><p class="why" hidden>Với OAC, bucket policy phải cấp quyền cho dịch vụ CloudFront gắn với đúng distribution.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cache hit ratio của CloudFront chỉ 15%. Phân tích cho thấy cache key gồm mọi header và mọi cookie. Cách cải thiện?</p><div class="qo"><button type="button" class="opt">Tăng số edge location</button><button type="button" class="opt" data-ok>Sửa cache policy chỉ đưa các header / cookie / query string thực sự cần vào cache key</button><button type="button" class="opt">Bật Origin Shield và giảm TTL</button></div><p class="why" hidden>Mỗi giá trị khác của header / cookie tạo một bản cache riêng. Cache key gọn thì tỉ lệ hit tăng.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="soa-cdn">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="soa-networking.html"><small>Bài trước</small>VPC và xử lý sự cố mạng</a><a class="next" href="soa-meo-thi.html"><small>Bài tiếp theo</small>Bảng từ khoá và mẹo làm bài SOA</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cloudfront">CloudFront</a><a href="#waf-shield-global-accelerator">WAF, Shield, Global Accelerator</a></nav>
+</div>
+</body>
+</html>

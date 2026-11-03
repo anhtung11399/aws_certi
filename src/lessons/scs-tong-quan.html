@@ -1,0 +1,49 @@
+<h2>Đề thi trông thế nào</h2>
+<table>
+<tr><th>Mục</th><th>Chi tiết</th></tr>
+<tr><td>Tên</td><td>AWS Certified Security – Specialty (<b>SCS-C03</b>), thay SCS-C02 từ tháng 12/2025</td></tr>
+<tr><td>Số câu</td><td>65 câu: 50 tính điểm + 15 không tính điểm</td></tr>
+<tr><td>Dạng câu</td><td>Multiple choice, multiple response, và <b>mới</b>: <b>ordering</b> (sắp xếp 3 đến 5 bước theo đúng thứ tự) và <b>matching</b> (ghép 3 đến 7 cặp). Phải đúng hết mới được điểm câu đó</td></tr>
+<tr><td>Thời gian</td><td>170 phút</td></tr>
+<tr><td>Điểm</td><td>Thang 100 đến 1000, <b>đậu từ 750</b>, không trừ điểm khi sai</td></tr>
+</table>
+
+<h2>6 domain</h2>
+<fig type="stack" caption="IAM nặng nhất, rồi Infrastructure Security và Data Protection">
+[cache] Domain 1 · Detection :: 16% · GuardDuty, Security Hub, Macie, Security Lake, CloudTrail, logging
+[warn] Domain 2 · Incident Response :: 14% · quy trình IR, cô lập, điều tra, tự động hoá phản ứng
+[ext] Domain 3 · Infrastructure Security :: 18% · VPC, WAF, Shield, Network Firewall, EC2, container
+[q] Domain 4 · Identity and Access Management :: 20% · Identity Center, STS, policy evaluation, Access Analyzer
+[ok] Domain 5 · Data Protection :: 18% · KMS, CloudHSM, S3 / EBS / RDS encryption, Secrets Manager, ACM
+[db] Domain 6 · Security Foundations and Governance :: 14% · Organizations, Control Tower, SCP / RCP, Config, Audit Manager
+</fig>
+<p>Domain 6 là domain <b>mới</b> so với SCS-C02: quản trị nhiều account được tách riêng và nhấn mạnh hơn. Đề cũng nhắc các tính năng mới như <b>RCP</b> (resource control policies), <b>declarative policies</b>, <b>centralized root access</b>, <b>Security Lake</b>, <b>Verified Permissions</b>.</p>
+
+<h2>Khung tư duy chọn đáp án bảo mật</h2>
+<ol>
+<li><b>Shared responsibility</b>: AWS lo bảo mật <i>của</i> cloud (phần cứng, hypervisor, dịch vụ managed), bạn lo bảo mật <i>trong</i> cloud (IAM, mã hoá, cấu hình, OS của EC2).</li>
+<li><b>Least privilege</b>: đáp án cấp đúng quyền cần thiết, hẹp nhất, có điều kiện, thắng đáp án dùng <code>*</code>.</li>
+<li><b>Preventive trước, detective sau</b>: chặn được từ đầu (SCP, policy, Block Public Access) tốt hơn chỉ phát hiện (Config, GuardDuty).</li>
+<li><b>Tập trung hoá</b>: delegated administrator, organization trail, aggregator, Firewall Manager thắng cấu hình từng account.</li>
+<li><b>Tự động hoá phản ứng</b>: EventBridge + Lambda / SSM thắng "đội bảo mật nhận email rồi xử lý tay".</li>
+<li><b>Thông tin xác thực tạm thời</b>: role, STS, Identity Center thắng IAM user với access key dài hạn.</li>
+<li><b>Mã hoá ở mọi nơi</b>: at rest bằng KMS, in transit bằng TLS, ép buộc bằng policy (<code>aws:SecureTransport</code>).</li>
+</ol>
+
+<h2>Lộ trình 6 tuần</h2>
+<table>
+<tr><th>Tuần</th><th>Học</th></tr>
+<tr><td>1</td><td>Bài 01, 02 (Detection)</td></tr>
+<tr><td>2</td><td>Bài 03 (Incident Response), 04, 05 (Infrastructure)</td></tr>
+<tr><td>3</td><td>Bài 06, 07 (IAM). Dành thêm thời gian: đây là domain nặng nhất</td></tr>
+<tr><td>4</td><td>Bài 08, 09 (Data Protection)</td></tr>
+<tr><td>5</td><td>Bài 10 (Governance), bài 11 (mẹo). Luyện đề theo domain</td></tr>
+<tr><td>6</td><td>Thi thử 65 câu nhiều lần, ôn domain yếu, đọc whitepaper <i>AWS Security Incident Response Guide</i></td></tr>
+</table>
+
+<quiz q="Câu ordering trong SCS-C03 được chấm thế nào?">
+- Đúng bao nhiêu bước được bấy nhiêu điểm
++ Phải chọn đúng các bước và đúng thứ tự mới được điểm câu đó
+- Không tính điểm, chỉ để khảo sát
+? Exam guide ghi rõ: phải chọn đúng và xếp đúng thứ tự mới được tính điểm.
+</quiz>

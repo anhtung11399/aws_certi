@@ -1,0 +1,39 @@
+<h2>CloudFront</h2>
+<ul>
+<li><b>Origin</b>: S3, ALB, EC2, API Gateway, MediaStore, bất kỳ HTTP server. <b>Origin group</b>: failover sang origin phụ khi origin chính trả lỗi 5xx / 4xx đã chọn.</li>
+<li><b>Cache behavior</b> theo path pattern (<code>/api/*</code> không cache, <code>/static/*</code> cache lâu). <b>Cache policy</b> quyết định cache key (header, cookie, query string nào được tính). <b>Origin request policy</b> quyết định gửi gì về origin.</li>
+<li>Cache key càng nhiều thành phần thì <b>cache hit ratio</b> càng thấp. Cache hit thấp: bỏ bớt header / cookie / query string không cần trong cache key.</li>
+<li><b>TTL</b>: min / default / max, origin gửi <code>Cache-Control: max-age</code>. Nội dung đổi mà người dùng vẫn thấy bản cũ: <b>invalidation</b> (<code>/*</code> hoặc đường dẫn cụ thể, tính phí sau 1.000 path / tháng) hoặc tốt hơn là đổi tên file theo phiên bản (<code>app.v42.js</code>).</li>
+<li><b>Origin Access Control (OAC)</b>: chỉ cho CloudFront đọc bucket S3 private, bucket policy cho phép principal <code>cloudfront.amazonaws.com</code> với điều kiện <code>AWS:SourceArn</code> là distribution. OAI là cách cũ.</li>
+<li>Bucket mã hoá SSE-KMS: key policy phải cho CloudFront (qua OAC) dùng key.</li>
+<li>Nội dung riêng tư: <b>signed URL</b> (một file) / <b>signed cookies</b> (nhiều file).</li>
+<li><b>Geo restriction</b> chặn theo quốc gia. <b>Field-level encryption</b> mã hoá trường nhạy cảm.</li>
+<li>Logs: standard logs về S3, real-time logs qua Kinesis. Metric: <code>CacheHitRate</code> (bật thêm metric), <code>4xxErrorRate</code>, <code>5xxErrorRate</code>, <code>OriginLatency</code>.</li>
+<li>Chạy code ở edge: <b>CloudFront Functions</b> (rất nhẹ, viewer request / response, sửa header, redirect) và <b>Lambda@Edge</b> (nặng hơn, gọi được mạng, có cả origin request / response).</li>
+</ul>
+<table>
+<tr><th>Lỗi</th><th>Thường do</th></tr>
+<tr><td>403 với S3 origin</td><td>Bucket policy chưa cho OAC, object không tồn tại (S3 trả 403 thay 404 khi không có quyền list), thiếu quyền KMS, geo restriction, WAF chặn</td></tr>
+<tr><td>502</td><td>CloudFront không bắt tay TLS được với origin: chứng chỉ origin hết hạn / không khớp tên miền</td></tr>
+<tr><td>504</td><td>Origin không trả lời kịp (origin response timeout, mặc định 30 giây), security group của ALB không cho dải IP của CloudFront (dùng managed prefix list <code>com.amazonaws.global.cloudfront.origin-facing</code>)</td></tr>
+</table>
+
+<h2>WAF, Shield, Global Accelerator</h2>
+<ul>
+<li><b>AWS WAF</b>: gắn vào CloudFront, ALB, API Gateway, AppSync, Cognito. <b>Web ACL</b> gồm rule: managed rule groups (OWASP, IP xấu, bot), <b>rate-based rule</b> (chặn IP gửi quá N request / 5 phút), chặn theo quốc gia, IP set, regex. Log WAF về CloudWatch Logs / S3 / Firehose. Thử rule ở chế độ <b>Count</b> trước khi Block.</li>
+<li><b>Shield Standard</b>: miễn phí, chống DDoS layer 3/4. <b>Shield Advanced</b>: trả phí, có đội SRT (Shield Response Team) hỗ trợ, bảo vệ chi phí khi scale do DDoS, tự tạo rule WAF giảm nhẹ tấn công layer 7.</li>
+<li><b>Global Accelerator</b>: 2 IP anycast tĩnh, đi trên mạng của AWS tới endpoint gần nhất (ALB, NLB, EC2, EIP), failover giữa Region trong vài giây. Hợp với TCP / UDP, game, khi cần IP tĩnh cho whitelist. CloudFront thì cache nội dung HTTP.</li>
+</ul>
+
+<quiz q="Website tĩnh trên S3 sau CloudFront. Sau khi bật OAC và chặn public access, người dùng nhận 403. Thiếu gì?">
++ Bucket policy cho phép principal cloudfront.amazonaws.com với điều kiện AWS:SourceArn bằng ARN của distribution
+- Bật S3 static website hosting
+- Thêm CNAME vào Route 53
+? Với OAC, bucket policy phải cấp quyền cho dịch vụ CloudFront gắn với đúng distribution.
+</quiz>
+<quiz q="Cache hit ratio của CloudFront chỉ 15%. Phân tích cho thấy cache key gồm mọi header và mọi cookie. Cách cải thiện?">
+- Tăng số edge location
++ Sửa cache policy chỉ đưa các header / cookie / query string thực sự cần vào cache key
+- Bật Origin Shield và giảm TTL
+? Mỗi giá trị khác của header / cookie tạo một bản cache riêng. Cache key gọn thì tỉ lệ hit tăng.
+</quiz>

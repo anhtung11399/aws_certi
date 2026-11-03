@@ -1,0 +1,53 @@
+<h2>Từ khoá trong đề → hướng đáp án</h2>
+<table>
+<tr><th>Đề nói</th><th>Nghĩ ngay tới</th></tr>
+<tr><td>hành vi độc hại, đào coin, credential dùng từ nơi lạ</td><td>GuardDuty</td></tr>
+<tr><td>lỗ hổng phần mềm, CVE, image container</td><td>Inspector</td></tr>
+<tr><td>PII, dữ liệu nhạy cảm trong S3</td><td>Macie</td></tr>
+<tr><td>gom finding, chấm điểm CIS / FSBP</td><td>Security Hub</td></tr>
+<tr><td>điều tra nguyên nhân gốc, đồ thị quan hệ</td><td>Detective</td></tr>
+<tr><td>data lake bảo mật, OCSF, SIEM bên thứ ba</td><td>Security Lake</td></tr>
+<tr><td>chứng minh log không bị sửa</td><td>CloudTrail log file integrity validation</td></tr>
+<tr><td>ai đọc object S3</td><td>CloudTrail data events</td></tr>
+<tr><td>chặn tên miền khi đi ra Internet</td><td>Network Firewall (domain list) / DNS Firewall</td></tr>
+<tr><td>SQLi, XSS, bot, rate limit</td><td>WAF</td></tr>
+<tr><td>DDoS, cần đội hỗ trợ, bảo vệ chi phí</td><td>Shield Advanced</td></tr>
+<tr><td>chèn firewall ảo bên thứ ba</td><td>Gateway Load Balancer</td></tr>
+<tr><td>SSRF lấy credential EC2</td><td>IMDSv2</td></tr>
+<tr><td>nhân viên đăng nhập nhiều account</td><td>IAM Identity Center + permission set</td></tr>
+<tr><td>người dùng app gọi trực tiếp S3</td><td>Cognito identity pool</td></tr>
+<tr><td>workload on-premises lấy credential tạm thời</td><td>IAM Roles Anywhere</td></tr>
+<tr><td>bên thứ ba assume role</td><td>External ID</td></tr>
+<tr><td>uỷ quyền tạo role không leo thang</td><td>Permission boundary</td></tr>
+<tr><td>tài nguyên chỉ truy cập từ trong tổ chức</td><td>RCP / aws:PrincipalOrgID (data perimeter)</td></tr>
+<tr><td>tìm tài nguyên chia sẻ ra ngoài, quyền không dùng</td><td>IAM Access Analyzer</td></tr>
+<tr><td>phân quyền trong ứng dụng, Cedar</td><td>Verified Permissions</td></tr>
+<tr><td>HSM single-tenant, PKCS#11</td><td>CloudHSM (custom key store nếu cần tích hợp KMS)</td></tr>
+<tr><td>giải mã ở Region khác không gọi về</td><td>KMS multi-Region key</td></tr>
+<tr><td>tự xoay vòng mật khẩu database</td><td>Secrets Manager</td></tr>
+<tr><td>không ai xoá được, kể cả root</td><td>S3 Object Lock compliance / Backup Vault Lock</td></tr>
+<tr><td>landing zone, account mới chuẩn sẵn</td><td>Control Tower, Account Factory</td></tr>
+<tr><td>áp WAF / SG cho mọi account</td><td>Firewall Manager</td></tr>
+<tr><td>bằng chứng kiểm toán của hệ thống bạn</td><td>Audit Manager</td></tr>
+<tr><td>báo cáo tuân thủ của AWS</td><td>Artifact</td></tr>
+</table>
+
+<h2>Bẫy hay gặp</h2>
+<ul>
+<li>SCP không cấp quyền, không áp cho management account.</li>
+<li>Cross-account cần Allow cả hai phía. KMS cần key policy cho phép.</li>
+<li>AWS managed key không chia sẻ cross-account được.</li>
+<li>GuardDuty, Security Hub, Config là dịch vụ Regional: bật ở mọi Region.</li>
+<li>Credential tạm thời không xoá được: revoke sessions.</li>
+<li>Terminate EC2 bị chiếm ngay là mất bằng chứng.</li>
+<li>Security group không chặn được một IP cụ thể: dùng NACL / WAF.</li>
+<li>Cognito user pool không cấp credential AWS: cần identity pool.</li>
+</ul>
+
+<h2>Câu ordering và matching</h2>
+<ul>
+<li>Ordering: tìm bước <b>đầu</b> và bước <b>cuối</b> trước (thường đầu là "chuẩn bị / phát hiện / cô lập", cuối là "khôi phục / rút kinh nghiệm"), rồi điền giữa.</li>
+<li>Matching: ghép cặp chắc chắn nhất trước, các cặp còn lại tự thu hẹp.</li>
+<li>Không có điểm từng phần, nên kiểm tra lại toàn bộ trước khi bấm tiếp.</li>
+</ul>
+<p>Xong bài này, sang <a href="luyen-de-scs.html">Luyện đề SCS-C03</a>.</p>

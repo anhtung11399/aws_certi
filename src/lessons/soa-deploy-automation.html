@@ -1,0 +1,40 @@
+<h2>Chiến lược deploy</h2>
+<table>
+<tr><th>Chiến lược</th><th>Cách làm</th><th>Downtime</th><th>Rollback</th><th>Chi phí thêm</th></tr>
+<tr><td>All at once / in-place</td><td>Cập nhật mọi máy cùng lúc</td><td>Có</td><td>Deploy lại bản cũ, chậm</td><td>Không</td></tr>
+<tr><td>Rolling</td><td>Cập nhật từng nhóm máy</td><td>Không, nhưng giảm năng lực trong lúc deploy</td><td>Chậm</td><td>Không</td></tr>
+<tr><td>Rolling with additional batch</td><td>Thêm một nhóm máy mới trước rồi mới rolling</td><td>Không, giữ đủ năng lực</td><td>Chậm</td><td>Ít</td></tr>
+<tr><td>Immutable</td><td>Dựng nhóm máy mới hoàn toàn, khoẻ thì chuyển, xoá cũ</td><td>Không</td><td>Nhanh: xoá nhóm mới</td><td>Gấp đôi trong lúc deploy</td></tr>
+<tr><td><b>Blue/Green</b></td><td>Môi trường mới song song, chuyển traffic (DNS, ALB, swap URL)</td><td>Không</td><td><b>Nhanh nhất</b>: chuyển traffic về blue</td><td>Gấp đôi</td></tr>
+<tr><td>Canary / linear</td><td>Chuyển dần 10% → 100% traffic</td><td>Không</td><td>Nhanh, ảnh hưởng ít người</td><td>Ít</td></tr>
+</table>
+<ul>
+<li><b>Elastic Beanstalk</b> có sẵn các kiểu trên (all at once, rolling, rolling with additional batch, immutable, traffic splitting). Blue/green trong Beanstalk = tạo môi trường thứ hai rồi <b>swap environment URLs</b>.</li>
+<li><b>CodeDeploy</b>: EC2 / on-premises (in-place hoặc blue/green với ASG), Lambda (canary / linear / all-at-once, chuyển traffic giữa alias version), ECS (blue/green qua ALB). Có tự rollback khi CloudWatch alarm kêu. File <code>appspec.yml</code> định nghĩa các hook (BeforeInstall, AfterInstall, ApplicationStart, ValidateService).</li>
+<li>Lambda: dùng <b>version</b> (bất biến) và <b>alias</b> (con trỏ, có weighted routing giữa hai version).</li>
+<li>Database thay đổi lược đồ: chú ý cả hai phiên bản cùng chạy trong lúc blue/green. <b>RDS Blue/Green Deployments</b> cho nâng cấp phiên bản engine với downtime rất ngắn.</li>
+</ul>
+
+<h2>Automation hướng sự kiện</h2>
+<table>
+<tr><th>Cần</th><th>Giải pháp</th></tr>
+<tr><td>Ảnh upload lên S3 thì tạo thumbnail</td><td><b>S3 Event Notifications</b> → Lambda (hoặc SQS / SNS, hoặc gửi sang EventBridge để lọc phức tạp hơn)</td></tr>
+<tr><td>Hằng đêm tắt máy dev để tiết kiệm</td><td>EventBridge Scheduler → SSM Automation <code>AWS-StopEC2Instance</code> theo tag (hoặc Instance Scheduler on AWS)</td></tr>
+<tr><td>Máy mới launch phải tự cài agent, join domain</td><td>User data / launch template, hoặc State Manager association theo tag</td></tr>
+<tr><td>Quy trình nhiều bước có rẽ nhánh, chờ phê duyệt</td><td><b>Step Functions</b>, hoặc SSM Automation có bước <code>aws:approve</code></td></tr>
+<tr><td>Chạy script quản trị định kỳ không cần máy chủ</td><td>Lambda theo lịch EventBridge</td></tr>
+</table>
+<aside class="tip"><p>Đề có thể nhắc các dịch vụ AI hỗ trợ vận hành như <b>Amazon Q Developer</b> (hỏi đáp, phân tích sự cố trong console), <b>Kiro</b>, <b>AWS DevOps Agent</b>. Chỉ cần biết chúng giúp phân tích nguyên nhân và đề xuất khắc phục, câu hỏi vẫn xoay quanh CloudWatch, EventBridge, SSM.</p></aside>
+
+<quiz q="Cần deploy bản mới của ứng dụng trên EC2 sao cho rollback gần như tức thì nếu có lỗi, chấp nhận chi phí gấp đôi trong lúc deploy. Chọn?">
+- Rolling deployment
++ Blue/green deployment
+- All at once
+? Blue/green giữ nguyên môi trường cũ, rollback chỉ là chuyển traffic về lại.
+</quiz>
+<quiz q="Lambda mới cần được thử với 10% traffic trong 10 phút, nếu alarm lỗi kêu thì tự quay lại. Dùng gì?">
++ CodeDeploy với cấu hình Canary10Percent10Minutes và CloudWatch alarm cho rollback
+- Tạo hai Lambda và chia bằng Route 53 weighted
+- Elastic Beanstalk immutable
+? CodeDeploy hỗ trợ chuyển traffic canary giữa version qua alias, tự rollback theo alarm.
+</quiz>

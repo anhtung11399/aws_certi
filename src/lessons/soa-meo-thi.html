@@ -1,0 +1,49 @@
+<h2>Từ khoá trong đề → hướng đáp án</h2>
+<table>
+<tr><th>Đề nói</th><th>Nghĩ ngay tới</th></tr>
+<tr><td>memory, disk space, RAM của EC2</td><td>CloudWatch agent</td></tr>
+<tr><td>chạy lệnh trên nhiều máy, không SSH</td><td>SSM Run Command</td></tr>
+<tr><td>vào máy không mở cổng 22, có audit</td><td>SSM Session Manager</td></tr>
+<tr><td>vá OS định kỳ</td><td>SSM Patch Manager + Maintenance Window</td></tr>
+<tr><td>tự sửa tài nguyên sai cấu hình</td><td>Config rule + remediation (SSM Automation)</td></tr>
+<tr><td>phản ứng khi có sự kiện / API call</td><td>EventBridge rule</td></tr>
+<tr><td>giảm báo động giả, kết hợp nhiều điều kiện</td><td>Composite alarm</td></tr>
+<tr><td>câu SQL nào làm chậm</td><td>RDS Performance Insights</td></tr>
+<tr><td>quá nhiều kết nối tới RDS, Lambda</td><td>RDS Proxy</td></tr>
+<tr><td>backup tập trung nhiều dịch vụ / account</td><td>AWS Backup (+ Vault Lock nếu chống xoá)</td></tr>
+<tr><td>deploy cho mọi account trong OU</td><td>CloudFormation StackSets (service-managed)</td></tr>
+<tr><td>giữ dữ liệu khi xoá stack</td><td>DeletionPolicy Retain / Snapshot</td></tr>
+<tr><td>chờ máy cài xong mới báo stack thành công</td><td>CreationPolicy + cfn-signal</td></tr>
+<tr><td>dựng AMI chuẩn tự động</td><td>EC2 Image Builder</td></tr>
+<tr><td>chia sẻ subnet / TGW cho account khác</td><td>AWS RAM</td></tr>
+<tr><td>vì sao kết nối bị chặn</td><td>VPC Flow Logs, Reachability Analyzer</td></tr>
+<tr><td>on-prem phân giải tên trong AWS</td><td>Route 53 Resolver inbound endpoint</td></tr>
+<tr><td>người dùng xa upload S3 chậm</td><td>S3 Transfer Acceleration / multipart</td></tr>
+<tr><td>đồng bộ file on-prem lên AWS định kỳ</td><td>DataSync</td></tr>
+<tr><td>IP tĩnh, failover Region nhanh, TCP/UDP</td><td>Global Accelerator</td></tr>
+<tr><td>chặn IP gửi quá nhiều request</td><td>WAF rate-based rule</td></tr>
+<tr><td>cảnh báo sắp chạm service quota</td><td>Trusted Advisor / Service Quotas + CloudWatch</td></tr>
+</table>
+
+<h2>Bẫy hay gặp</h2>
+<ul>
+<li>Detailed monitoring không cho metric RAM.</li>
+<li>Reboot không chuyển host: lỗi system status check phải stop / start.</li>
+<li>Gateway endpoint chỉ có S3 và DynamoDB.</li>
+<li>NACL stateless, nhớ ephemeral ports. Security group không có Deny.</li>
+<li>VPC peering không bắc cầu.</li>
+<li>Chứng chỉ ACM cho CloudFront phải ở us-east-1. Event của IAM, CloudFront ở us-east-1.</li>
+<li>RDS restore luôn ra instance mới, endpoint mới.</li>
+<li>Read replica để giảm tải đọc, Multi-AZ để chịu lỗi. Đừng nhầm.</li>
+<li>Config phát hiện, không ngăn chặn. SCP ngăn chặn nhưng không áp cho management account.</li>
+</ul>
+
+<h2>Chiến thuật trong phòng thi</h2>
+<ol>
+<li>Đọc <b>câu cuối</b> trước (câu hỏi thật sự là gì), rồi mới đọc tình huống.</li>
+<li>Gạch các ràng buộc: least operational overhead, cost-effective, no downtime, multiple accounts.</li>
+<li>Loại hai đáp án sai rõ, cân nhắc hai đáp án còn lại.</li>
+<li>Câu khó: đánh dấu (flag), làm tiếp, quay lại sau. Đừng mất quá 3 phút một câu.</li>
+<li>Không bỏ trống câu nào.</li>
+</ol>
+<p>Xong bài này, sang <a href="luyen-de-soa.html">Luyện đề SOA-C03</a> và làm thi thử 65 câu.</p>

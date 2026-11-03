@@ -1,0 +1,72 @@
+<h2>EC2: những thứ đề SOA hỏi sâu</h2>
+<h3>Status check</h3>
+<table>
+<tr><th>Loại</th><th>Ý nghĩa</th><th>Xử lý</th></tr>
+<tr><td>System status check</td><td>Lỗi phía AWS: phần cứng, mạng, nguồn của máy chủ vật lý</td><td>Stop rồi Start (chuyển sang host khác), hoặc auto recovery. Reboot <b>không</b> chuyển host</td></tr>
+<tr><td>Instance status check</td><td>Lỗi bên trong máy: OS không khởi động, hết bộ nhớ, cấu hình mạng sai, file system hỏng</td><td>Reboot, sửa OS, xem System log / screenshot trên console</td></tr>
+<tr><td>Attached EBS status check</td><td>Volume EBS gắn vào không truy cập được</td><td>Kiểm tra volume, stop / start</td></tr>
+</table>
+<h3>Lỗi khi khởi chạy</h3>
+<ul>
+<li><code>InstanceLimitExceeded</code> / <code>VcpuLimitExceeded</code>: chạm service quota theo vCPU. Xin tăng quota qua Service Quotas.</li>
+<li><code>InsufficientInstanceCapacity</code>: AZ đó tạm hết loại máy. Đổi AZ, đổi instance type, thử lại sau, hoặc dùng <b>On-Demand Capacity Reservation</b> cho tải quan trọng.</li>
+<li>Instance chuyển ngay từ <code>pending</code> sang <code>terminated</code>: EBS snapshot hỏng, chạm giới hạn EBS, hoặc AMI cần KMS key mà role không có quyền giải mã.</li>
+</ul>
+<h3>Hiệu năng mạng và placement group</h3>
+<table>
+<tr><th>Placement group</th><th>Đặc điểm</th><th>Hợp với</th></tr>
+<tr><td><b>Cluster</b></td><td>Cùng một AZ, gần nhau, độ trễ cực thấp, băng thông cao</td><td>HPC, tính toán cần trao đổi dữ liệu giữa các node</td></tr>
+<tr><td><b>Spread</b></td><td>Mỗi instance trên một rack riêng, tối đa 7 instance mỗi AZ</td><td>Vài máy cực quan trọng không được hỏng cùng lúc</td></tr>
+<tr><td><b>Partition</b></td><td>Chia nhóm theo rack, tới 7 partition mỗi AZ, hàng trăm máy</td><td>Hadoop, Cassandra, Kafka (biết topology)</td></tr>
+</table>
+<ul>
+<li><b>Enhanced networking</b> bằng ENA (tới 100 Gbps trở lên), <b>EFA</b> cho HPC / ML (bỏ qua kernel). Cần driver ENA trong AMI và instance type hỗ trợ.</li>
+<li>Thêm instance vào cluster placement group bị <code>InsufficientInstanceCapacity</code>: stop toàn bộ instance trong group rồi start lại cùng lúc.</li>
+</ul>
+<h3>Burstable (T-family)</h3>
+<p>T3 / T4g tích luỹ <b>CPU credit</b>. Hết credit (metric <code>CPUCreditBalance</code> về 0) thì CPU bị kìm xuống mức baseline, ứng dụng chậm hẳn. Cách sửa: bật <b>unlimited mode</b> (trả thêm khi vượt) hoặc đổi sang dòng M / C.</p>
+
+<h2>Auto Scaling ở góc nhìn vận hành</h2>
+<table>
+<tr><th>Loại policy</th><th>Cách hoạt động</th></tr>
+<tr><td><b>Target tracking</b></td><td>Giữ một metric quanh giá trị đích (CPU 50%, request mỗi target 1000). Dễ nhất, đề hay chọn</td></tr>
+<tr><td>Step scaling</td><td>Thêm / bớt số máy theo mức độ vượt ngưỡng của alarm</td></tr>
+<tr><td>Simple scaling</td><td>Kiểu cũ, chờ cooldown xong mới phản ứng tiếp</td></tr>
+<tr><td><b>Scheduled</b></td><td>Tải biết trước (8 giờ sáng thứ Hai)</td></tr>
+<tr><td><b>Predictive</b></td><td>Tự học chu kỳ tải hằng ngày / tuần và chuẩn bị máy trước</td></tr>
+</table>
+<ul>
+<li><b>Lifecycle hook</b>: tạm giữ instance ở <code>Pending:Wait</code> (cài phần mềm trước khi nhận tải) hoặc <code>Terminating:Wait</code> (đẩy log, rút khỏi cluster trước khi xoá). Kết hợp EventBridge → Lambda / SSM, xong gọi <code>CompleteLifecycleAction</code>.</li>
+<li><b>Warm pool</b>: giữ sẵn instance đã khởi tạo (ở trạng thái stopped) để scale-out nhanh với ứng dụng khởi động lâu.</li>
+<li><b>Instance refresh</b>: thay dần toàn bộ instance sang launch template mới (AMI mới), giữ tỉ lệ máy khoẻ tối thiểu.</li>
+<li><b>Health check</b> của ASG: mặc định chỉ EC2 status check. Bật <b>ELB health check</b> để thay máy khi ứng dụng chết mà OS còn sống.</li>
+<li><b>Health check grace period</b> quá ngắn: máy bị đánh dấu không khoẻ khi ứng dụng chưa kịp khởi động, ASG terminate và launch liên tục (vòng lặp). Tăng grace period.</li>
+<li>Muốn giữ một máy lại để điều tra: đặt <b>standby</b> hoặc <b>scale-in protection</b>, hoặc <b>suspend</b> process <code>ReplaceUnhealthy</code>, <code>Terminate</code>.</li>
+<li>Không launch được: launch template tham chiếu AMI đã xoá, key pair không tồn tại, security group ở VPC khác, hết quota.</li>
+</ul>
+
+<h2>Right-sizing và chi phí</h2>
+<ul>
+<li><b>AWS Compute Optimizer</b>: phân tích metric 14 ngày, đề xuất loại instance, kích thước EBS, cấu hình Lambda, ASG phù hợp. Cần metric bộ nhớ (từ agent) để đề xuất chính xác hơn.</li>
+<li><b>Trusted Advisor</b>: kiểm tra instance chạy không tải, EBS không gắn, Elastic IP không dùng. Đầy đủ các check cần gói Business support trở lên.</li>
+<li>Tag tài nguyên (cost allocation tags) để chia chi phí theo dự án, kết hợp <b>Cost Explorer</b>, <b>AWS Budgets</b> (cảnh báo khi sắp vượt ngân sách).</li>
+</ul>
+
+<quiz q="Ứng dụng web trên ASG sau ALB. Sau khi deploy bản mới, instance mới bị terminate và thay thế liên tục, dù log cho thấy ứng dụng khởi động mất khoảng 4 phút rồi chạy bình thường. Cách sửa?">
+- Chuyển ASG sang chỉ dùng EC2 health check
++ Tăng health check grace period lên lớn hơn thời gian khởi động ứng dụng
+- Đổi sang instance type lớn hơn
+? ELB health check thất bại trong lúc ứng dụng còn đang khởi động. Grace period cho máy thời gian khởi động trước khi bị đánh giá.
+</quiz>
+<quiz q="Một instance báo StatusCheckFailed_System. Reboot không hết. Cách xử lý đúng?">
++ Stop rồi Start instance (EBS-backed) để nó chạy trên host vật lý khác
+- Reboot thêm vài lần
+- Tạo lại từ AMI ở Region khác
+? Lỗi system check là lỗi host. Stop / Start chuyển instance sang host mới, reboot giữ nguyên host.
+</quiz>
+<quiz q="Trước khi một instance bị scale-in, đội cần chép log ứng dụng trong máy lên S3. Giải pháp?">
+- Đặt cron chép log mỗi phút
++ Lifecycle hook Terminating:Wait, EventBridge gọi SSM Run Command chép log, xong thì CompleteLifecycleAction
+- Tắt scale-in
+? Lifecycle hook giữ instance lại ở trạng thái chờ để làm việc dọn dẹp trước khi terminate.
+</quiz>

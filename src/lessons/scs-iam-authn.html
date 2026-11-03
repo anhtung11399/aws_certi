@@ -1,0 +1,63 @@
+<h2>Chọn giải pháp định danh</h2>
+<table>
+<tr><th>Ai đăng nhập</th><th>Giải pháp</th></tr>
+<tr><td>Nhân viên vào console / CLI của nhiều account</td><td><b>IAM Identity Center</b> (kết nối IdP công ty: Microsoft Entra ID, Okta, Google qua SAML 2.0 + SCIM để đồng bộ user / group)</td></tr>
+<tr><td>Người dùng cuối của ứng dụng web / mobile</td><td><b>Amazon Cognito</b> user pool (đăng ký, đăng nhập, MFA, đăng nhập Google / Facebook / SAML)</td></tr>
+<tr><td>Người dùng cuối cần gọi trực tiếp dịch vụ AWS (upload S3 từ app)</td><td><b>Cognito identity pool</b>: đổi token lấy credential AWS tạm thời qua STS</td></tr>
+<tr><td>Ứng dụng trên EC2 / ECS / Lambda</td><td><b>IAM role</b> (instance profile, task role, execution role)</td></tr>
+<tr><td>Máy chủ / workload ngoài AWS (on-premises)</td><td><b>IAM Roles Anywhere</b> (dùng chứng chỉ X.509 từ CA của bạn đổi lấy credential tạm thời)</td></tr>
+<tr><td>Ứng dụng cần Active Directory</td><td><b>AWS Directory Service</b>: Managed Microsoft AD, AD Connector (chuyển tiếp về AD on-premises), Simple AD</td></tr>
+<tr><td>Pipeline CI/CD ngoài AWS (GitHub Actions)</td><td><b>OIDC federation</b>: IAM OIDC identity provider + role có trust policy kiểm tra <code>sub</code> (repo, nhánh)</td></tr>
+</table>
+<aside class="tip"><p>Cognito: <b>user pool</b> = "danh bạ người dùng, trả JWT" (authentication). <b>Identity pool</b> = "đổi danh tính lấy credential AWS" (authorization tới dịch vụ AWS). Đề hay đánh đố đúng chỗ này.</p></aside>
+
+<h2>IAM Identity Center</h2>
+<ul>
+<li><b>Permission set</b>: tập policy, khi gán cho user / group trên một account sẽ tạo ra một IAM role trong account đó (tên bắt đầu <code>AWSReservedSSO_</code>).</li>
+<li>Session duration của permission set, MFA bắt buộc, <b>ABAC</b> bằng thuộc tính user từ IdP (attributes for access control → session tags).</li>
+<li>Lỗi hay gặp: user đăng nhập được nhưng không thấy account → chưa gán permission set cho account đó. Sửa tay role <code>AWSReservedSSO_*</code> trong account → sẽ bị Identity Center ghi đè, phải sửa ở permission set.</li>
+<li>Identity source chỉ một: Identity Center directory, Active Directory, hoặc IdP bên ngoài.</li>
+</ul>
+
+<h2>STS và thông tin xác thực tạm thời</h2>
+<table>
+<tr><th>API</th><th>Dùng khi</th></tr>
+<tr><td><code>AssumeRole</code></td><td>Đổi sang role khác (cross-account, nâng quyền tạm thời)</td></tr>
+<tr><td><code>AssumeRoleWithSAML</code></td><td>Federation SAML</td></tr>
+<tr><td><code>AssumeRoleWithWebIdentity</code></td><td>Token OIDC (GitHub Actions, EKS IRSA, Cognito)</td></tr>
+<tr><td><code>GetSessionToken</code></td><td>IAM user lấy credential tạm thời kèm MFA</td></tr>
+<tr><td><code>GetFederationToken</code></td><td>Proxy app cấp quyền cho người dùng (cách cũ)</td></tr>
+</table>
+<ul>
+<li><b>Trust policy</b> của role: ai được assume. Cross-account cần: trust policy bên role cho phép account / principal kia, <b>và</b> principal kia có quyền <code>sts:AssumeRole</code>.</li>
+<li><b>External ID</b>: khi cho bên thứ ba (SaaS) assume role trong account của bạn, chống lỗi <b>confused deputy</b>. Trust policy có điều kiện <code>sts:ExternalId</code>.</li>
+<li>Dịch vụ AWS assume role thay bạn: dùng điều kiện <code>aws:SourceArn</code> / <code>aws:SourceAccount</code> chống confused deputy giữa các khách hàng.</li>
+<li><b>Session tags</b>, <b>source identity</b> (giữ dấu vết người thật qua nhiều lần assume), <b>role chaining</b> giới hạn phiên 1 giờ.</li>
+<li><b>Presigned URL</b> S3: cho người không có tài khoản tải / upload một object trong thời gian ngắn. Quyền của URL = quyền của người ký. Ký bằng credential tạm thời thì URL hết hạn sớm hơn khi credential hết hạn.</li>
+</ul>
+
+<h2>MFA và gỡ lỗi xác thực</h2>
+<ul>
+<li>Ép MFA cho API: điều kiện <code>aws:MultiFactorAuthPresent</code> / <code>aws:MultiFactorAuthAge</code>. Ép MFA cho root: dùng passkey / hardware key, ưu tiên quản lý root tập trung (bài 10).</li>
+<li>Lỗi đăng nhập SAML: xem CloudTrail event <code>AssumeRoleWithSAML</code>, kiểm tra thời gian lệch, ARN role / provider trong assertion, audience.</li>
+<li>Cognito lỗi: app client, callback URL, token hết hạn, Lambda trigger lỗi. Identity pool lỗi: role của authenticated / unauthenticated identity thiếu quyền, trust policy kiểm <code>cognito-identity.amazonaws.com:aud</code>.</li>
+</ul>
+
+<quiz q="Ứng dụng mobile cần cho người dùng đã đăng nhập upload ảnh trực tiếp vào thư mục riêng của họ trên S3. Thiết kế đúng?">
+- Nhúng access key IAM user vào app
++ Cognito user pool để đăng nhập + identity pool cấp credential tạm thời, policy dùng biến ${cognito-identity.amazonaws.com:sub} giới hạn prefix
+- Cho bucket public write
+? Identity pool đổi token đăng nhập lấy credential tạm thời, biến policy giới hạn mỗi người vào prefix của mình.
+</quiz>
+<quiz q="Một công ty SaaS giám sát cần assume role trong account của bạn. Yếu tố nào chống confused deputy?">
++ Điều kiện sts:ExternalId trong trust policy với giá trị riêng do SaaS cấp cho bạn
+- Gắn MFA cho role
+- Dùng permission boundary
+? External ID đảm bảo SaaS chỉ assume role khi đang phục vụ đúng khách hàng của bạn.
+</quiz>
+<quiz q="Máy chủ on-premises cần gọi API S3 mà không lưu access key dài hạn. Giải pháp?">
+- IAM user với key xoay vòng 90 ngày
++ IAM Roles Anywhere với chứng chỉ X.509 từ CA tin cậy
+- Cognito identity pool
+? Roles Anywhere cho workload ngoài AWS đổi chứng chỉ lấy credential tạm thời.
+</quiz>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · KMS, CloudHSM và mã hoá · Ôn thi AWS</title>
+<meta name="description" content="Key type, key policy, grant, envelope encryption, rotation, multi-Region key, imported key material, CloudHSM, encryption context.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms" aria-current="page"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-kms">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</span><span>Bài 08</span><span>60 phút</span></div>
+    <h1>KMS, CloudHSM và mã hoá</h1>
+    <p class="lead">Key type, key policy, grant, envelope encryption, rotation, multi-Region key, imported key material, CloudHSM, encryption context.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Đọc hiểu key policy</li><li>Chọn KMS hay CloudHSM</li><li>Xử lý lỗi không giải mã được</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="cac-loai-key"><a href="#cac-loai-key" class="anchor" aria-hidden="true">#</a>Các loại key</h2>
+<table>
+<tr><th>Loại</th><th>Ai quản lý</th><th>Ghi nhớ</th></tr>
+<tr><td>AWS owned key</td><td>AWS, dùng chung nhiều khách hàng</td><td>Không thấy, không kiểm soát, miễn phí</td></tr>
+<tr><td>AWS managed key (<code>aws/s3</code>, <code>aws/ebs</code>...)</td><td>AWS tạo trong account bạn</td><td>Không sửa key policy, không chia sẻ cross-account được, tự xoay vòng hằng năm</td></tr>
+<tr><td><b>Customer managed key</b></td><td>Bạn</td><td>Tự viết key policy, grant, bật / tắt, xoay vòng (tự động 90 đến 2560 ngày, hoặc on-demand), chia sẻ cross-account, xoá sau 7 đến 30 ngày chờ</td></tr>
+</table>
+<ul>
+<li><b>Symmetric</b> (AES-256, mặc định, dùng cho gần như mọi dịch vụ) và <b>asymmetric</b> (RSA / ECC để ký hoặc mã hoá ngoài AWS, tải được public key), <b>HMAC</b>.</li>
+<li><b>Multi-Region key</b>: cùng key material ở nhiều Region (primary + replica), giải mã ở Region khác không cần gọi về Region gốc. Dùng cho DynamoDB Global Tables, DR, mã hoá phía client.</li>
+<li><b>Imported key material</b> (BYOK): bạn tự tạo key material và nhập vào. Bạn chịu trách nhiệm độ bền, có thể đặt thời hạn hết hạn, xoá ngay lập tức. <b>Không</b> tự xoay vòng được.</li>
+<li><b>Custom key store</b>: key nằm trong <b>CloudHSM</b> của bạn, hoặc <b>external key store (XKS)</b> ở ngoài AWS.</li>
+</ul>
+
+<h2 id="envelope-encryption"><a href="#envelope-encryption" class="anchor" aria-hidden="true">#</a>Envelope encryption</h2>
+<figure class="dg"><svg viewBox="0 0 1678.48 86" style="min-width:600px;max-width:1678.48px" role="img" aria-label="KMS chỉ mã hoá tối đa 4 KB trực tiếp. Dữ liệu lớn dùng data key"><g class="nd go"><rect x="10" y="10" width="153.68" height="66" rx="10"/><text x="86.84" y="40" class="tt" text-anchor="middle">Ứng dụng</text><text x="86.84" y="58" class="ts" text-anchor="middle">gọi GenerateDataKey</text></g><line x1="165.68" y1="43" x2="229.68" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="233.68" y="10" width="294.8" height="66" rx="10"/><text x="381.08000000000004" y="40" class="tt" text-anchor="middle">KMS</text><text x="381.08000000000004" y="58" class="ts" text-anchor="middle">trả data key dạng plaintext + bản mã hoá</text></g><line x1="530.48" y1="43" x2="594.48" y2="43" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="598.48" y="10" width="637.5200000000001" height="66" rx="10"/><text x="917.24" y="40" class="tt" text-anchor="middle">Ứng dụng</text><text x="917.24" y="58" class="ts" text-anchor="middle">mã hoá dữ liệu bằng plaintext key, xoá key khỏi bộ nhớ, lưu bản mã hoá của key cạnh dữ liệu</text></g><line x1="1238" y1="43" x2="1336.08" y2="43" class="ln" marker-end="url(#ar)"/><text x="1288.04" y="34" class="tl" text-anchor="middle">giải mã sau</text><g class="nd q"><rect x="1340.08" y="10" width="328.40000000000003" height="66" rx="10"/><text x="1504.28" y="40" class="tt" text-anchor="middle">KMS Decrypt</text><text x="1504.28" y="58" class="ts" text-anchor="middle">giải mã data key, rồi giải mã dữ liệu tại chỗ</text></g></svg><figcaption>KMS chỉ mã hoá tối đa 4 KB trực tiếp. Dữ liệu lớn dùng data key</figcaption></figure>
+<p>Dịch vụ như S3, EBS, RDS làm việc này tự động. Tự mã hoá phía client: dùng <b>AWS Encryption SDK</b>.</p>
+
+<h2 id="key-policy-phan-quan-trong-nhat"><a href="#key-policy-phan-quan-trong-nhat" class="anchor" aria-hidden="true">#</a>Key policy: phần quan trọng nhất</h2>
+<ul>
+<li>Mỗi KMS key <b>bắt buộc</b> có key policy. Không như các tài nguyên khác, IAM policy <b>chỉ có tác dụng</b> khi key policy có câu cho phép account root:</li>
+</ul>
+<div class="code"><div class="code-h"><span>Câu mặc định: uỷ quyền cho IAM của account quyết định</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Sid&quot;</span>: <span class="s">&quot;Enable IAM policies&quot;</span>,
+  <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Allow&quot;</span>,
+  <span class="s">&quot;Principal&quot;</span>: { <span class="s">&quot;AWS&quot;</span>: <span class="s">&quot;arn:aws:iam::111122223333:root&quot;</span> },
+  <span class="s">&quot;Action&quot;</span>: <span class="s">&quot;kms:*&quot;</span>,
+  <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;*&quot;</span>
+}</code></pre></div>
+<ul>
+<li>Thiếu câu này thì dù IAM policy cho phép, user vẫn không dùng được key. Xoá nhầm và không ai còn quyền → phải liên hệ AWS Support.</li>
+<li>Tách vai trò: <b>key administrator</b> (quản lý key, không mã hoá / giải mã được) và <b>key user</b> (dùng key, không sửa policy).</li>
+<li>Cross-account: key policy cho phép account kia <b>và</b> IAM policy ở account kia cho phép user của họ.</li>
+<li>Điều kiện hay dùng: <code>kms:ViaService</code> (chỉ dùng key thông qua một dịch vụ, ví dụ <code>s3.ap-southeast-1.amazonaws.com</code>), <code>kms:CallerAccount</code>, <code>kms:EncryptionContext:*</code>.</li>
+<li><b>Grant</b>: cấp quyền dùng key tạm thời, có thể thu hồi, hay được dịch vụ AWS dùng (EBS, RDS tạo grant khi gắn volume).</li>
+<li><b>Encryption context</b>: cặp key-value đi kèm khi mã hoá, phải khớp khi giải mã. Ghi vào CloudTrail, dùng để kiểm toán và làm điều kiện trong policy.</li>
+</ul>
+
+<h2 id="xu-ly-su-co-kms"><a href="#xu-ly-su-co-kms" class="anchor" aria-hidden="true">#</a>Xử lý sự cố KMS</h2>
+<table>
+<tr><th>Lỗi</th><th>Nguyên nhân</th></tr>
+<tr><td><code>AccessDeniedException</code> khi giải mã</td><td>Key policy / IAM thiếu <code>kms:Decrypt</code>, hoặc điều kiện ViaService / encryption context không khớp</td></tr>
+<tr><td><code>DisabledException</code> / <code>KMSInvalidStateException</code></td><td>Key bị disable hoặc đang chờ xoá. Huỷ lịch xoá (cancel deletion) trong thời gian chờ để cứu</td></tr>
+<tr><td><code>ThrottlingException</code></td><td>Vượt quota request KMS. Dùng S3 Bucket Key, cache data key (Encryption SDK), xin tăng quota</td></tr>
+<tr><td>Chia sẻ snapshot / AMI mã hoá cho account khác không dùng được</td><td>Đang dùng AWS managed key (không chia sẻ được): copy lại bằng customer managed key rồi chia sẻ cả key</td></tr>
+</table>
+<aside class="prod"><p>Sợ xoá nhầm key: tạo CloudWatch alarm / EventBridge rule trên CloudTrail event <code>ScheduleKeyDeletion</code>, và dùng SCP cấm <code>kms:ScheduleKeyDeletion</code> trừ role quản trị. Thử trước bằng cách <b>disable</b> key thay vì xoá.</p></aside>
+
+<h2 id="cloudhsm"><a href="#cloudhsm" class="anchor" aria-hidden="true">#</a>CloudHSM</h2>
+<ul>
+<li>HSM chuyên dụng một khách hàng (single-tenant), chuẩn <b>FIPS 140-3 level 3</b>, bạn toàn quyền quản lý key, AWS không truy cập được key.</li>
+<li>Dùng khi: cần kiểm soát độc quyền, giao thức chuẩn (PKCS#11, JCE, CNG), <b>SSL/TLS offload</b> cho web server, Oracle TDE, ký code, CA riêng.</li>
+<li>Bạn tự lo high availability: cluster ít nhất 2 HSM ở 2 AZ.</li>
+<li>KMS cũng đạt FIPS 140-3 level 3 hiện nay; chọn CloudHSM khi đề nhấn mạnh "single-tenant", "customer exclusive control", "PKCS#11".</li>
+</ul>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> IAM policy của user cho phép kms:Decrypt trên một customer managed key nhưng user vẫn bị AccessDenied. Key policy chỉ có một câu cho phép role Admin. Vì sao?</p><div class="qo"><button type="button" class="opt" data-ok>Key policy không có câu cho phép account root (uỷ quyền cho IAM), nên IAM policy không có tác dụng</button><button type="button" class="opt">Thiếu quyền s3:GetObject</button><button type="button" class="opt">Key chưa bật rotation</button></div><p class="why" hidden>Với KMS, key policy là điểm quyết định. Chỉ khi key policy uỷ quyền cho account thì IAM policy mới được xét.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Yêu cầu: key mã hoá phải nằm trong HSM single-tenant do công ty kiểm soát độc quyền, nhưng vẫn muốn S3 / EBS tích hợp KMS bình thường. Giải pháp?</p><div class="qo"><button type="button" class="opt">Imported key material</button><button type="button" class="opt" data-ok>KMS custom key store dựa trên CloudHSM cluster</button><button type="button" class="opt">Multi-Region key</button></div><p class="why" hidden>Custom key store giữ key trong CloudHSM của bạn mà dịch vụ AWS vẫn dùng qua API KMS.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-kms">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-iam-authz.html"><small>Bài trước</small>Phân quyền: logic đánh giá policy và Access Analyzer</a><a class="next" href="scs-data-protection.html"><small>Bài tiếp theo</small>Bảo vệ dữ liệu: S3, secrets, TLS, backup</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cac-loai-key">Các loại key</a><a href="#envelope-encryption">Envelope encryption</a><a href="#key-policy-phan-quan-trong-nhat">Key policy: phần quan trọng nhất</a><a href="#xu-ly-su-co-kms">Xử lý sự cố KMS</a><a href="#cloudhsm">CloudHSM</a></nav>
+</div>
+</body>
+</html>

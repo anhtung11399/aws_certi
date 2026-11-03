@@ -1,0 +1,60 @@
+<h2>RPO và RTO</h2>
+<ul>
+<li><b>RPO</b> (Recovery Point Objective): chấp nhận <b>mất tối đa bao nhiêu dữ liệu</b>, tính theo thời gian. RPO 1 giờ = backup / sao chép ít nhất mỗi giờ.</li>
+<li><b>RTO</b> (Recovery Time Objective): chấp nhận <b>ngừng dịch vụ bao lâu</b>. RTO 15 phút = phải chạy lại trong 15 phút.</li>
+</ul>
+
+<h2>4 chiến lược DR</h2>
+<fig type="flow" caption="Đi từ trái sang phải: RPO / RTO nhỏ dần, chi phí tăng dần">
+[db] Backup & Restore / RPO, RTO: giờ / rẻ nhất
+-> 
+[cache] Pilot Light / RPO phút, RTO 10 phút đến giờ / chỉ dữ liệu + lõi chạy sẵn
+-> 
+[q] Warm Standby / RPO giây, RTO phút / bản thu nhỏ chạy sẵn
+-> 
+[ok] Multi-site Active-Active / RPO, RTO gần 0 / đắt nhất
+</fig>
+<table>
+<tr><th>Chiến lược</th><th>Ở Region DR có gì</th><th>Khi có sự cố</th></tr>
+<tr><td>Backup &amp; Restore</td><td>Chỉ backup (snapshot, AMI, AWS Backup copy)</td><td>Dựng lại toàn bộ từ IaC + backup</td></tr>
+<tr><td>Pilot Light</td><td>Database được sao chép liên tục, hạ tầng đã định nghĩa sẵn nhưng compute tắt</td><td>Bật / scale compute lên, đổi DNS</td></tr>
+<tr><td>Warm Standby</td><td>Toàn bộ hệ thống chạy với quy mô nhỏ</td><td>Scale lên quy mô thật, đổi DNS</td></tr>
+<tr><td>Active-Active</td><td>Chạy đầy đủ, nhận traffic thật</td><td>Chỉ cần ngừng gửi traffic về Region lỗi</td></tr>
+</table>
+
+<h2>AWS Backup</h2>
+<ul>
+<li>Backup tập trung cho EC2, EBS, RDS, Aurora, DynamoDB, EFS, FSx, S3, Storage Gateway, DocumentDB, Neptune...</li>
+<li><b>Backup plan</b>: lịch (backup rule), thời gian giữ, chuyển sang cold storage, <b>copy sang Region / account khác</b>. Chọn tài nguyên bằng <b>tag</b> (resource assignment), nên tài nguyên mới gắn tag là tự được backup.</li>
+<li><b>Backup vault</b>: nơi chứa recovery point, mã hoá bằng KMS. <b>Vault Lock</b> (compliance mode): không ai, kể cả root, xoá được backup trước hạn (WORM), chống ransomware.</li>
+<li>Dùng với <b>Organizations</b>: backup policy áp cho mọi account. <b>Backup Audit Manager</b>: báo cáo tài nguyên nào chưa được backup đúng chính sách.</li>
+<li><b>Restore testing</b>: tự động khôi phục thử định kỳ để chắc backup dùng được.</li>
+</ul>
+<aside class="prod"><p>"Backup tập trung, nhiều dịch vụ, nhiều account, ít công sức" → <b>AWS Backup</b>. Script Lambda tự chụp snapshot là đáp án sai về operational overhead.</p></aside>
+
+<h2>Khôi phục từng loại tài nguyên</h2>
+<table>
+<tr><th>Tài nguyên</th><th>Cơ chế</th><th>Ghi nhớ</th></tr>
+<tr><td>RDS</td><td>Automated backup (giữ 1 đến 35 ngày) + <b>point-in-time recovery</b> tới khoảng 5 phút gần nhất. Manual snapshot giữ mãi</td><td>Khôi phục luôn tạo <b>instance mới</b> với endpoint mới, phải đổi chuỗi kết nối. Cross-Region: automated backup replication hoặc copy snapshot</td></tr>
+<tr><td>Aurora</td><td>Backup liên tục, PITR, Backtrack (MySQL), Global Database</td><td>Backtrack quay ngược tại chỗ, không tạo cluster mới</td></tr>
+<tr><td>DynamoDB</td><td><b>PITR</b> (35 ngày gần nhất, theo từng giây), on-demand backup, Global Tables</td><td>Khôi phục vào <b>bảng mới</b></td></tr>
+<tr><td>S3</td><td><b>Versioning</b> (chống xoá / ghi đè nhầm), <b>Replication</b> CRR / SRR, Object Lock</td><td>Replication cần bật versioning cả hai bên. Chỉ object mới được sao chép, object cũ dùng <b>S3 Batch Replication</b></td></tr>
+<tr><td>EC2</td><td>AMI, EBS snapshot, copy sang Region khác</td><td>AMI dùng snapshot mã hoá KMS: phải chia sẻ cả key cho account / Region đích</td></tr>
+<tr><td>EFS</td><td>AWS Backup, EFS replication sang Region khác</td><td></td></tr>
+</table>
+
+<h2>AWS Elastic Disaster Recovery (DRS)</h2>
+<p>Sao chép liên tục ở mức block từ máy chủ (on-premises hoặc EC2 Region khác) sang một vùng staging rẻ tiền ở AWS. Khi có sự cố, launch máy thật trong vài phút. RPO tính bằng giây, RTO tính bằng phút. Đúng cho câu "DR cho máy chủ on-premises với RPO giây, RTO phút, chi phí thấp".</p>
+
+<quiz q="Yêu cầu: RPO 1 giờ, RTO 24 giờ, chi phí thấp nhất. Chiến lược DR?">
++ Backup & Restore: AWS Backup copy recovery point sang Region khác mỗi giờ
+- Pilot Light với Aurora Global Database
+- Multi-site Active-Active
+? RTO một ngày cho phép dựng lại từ backup, đây là phương án rẻ nhất đáp ứng được.
+</quiz>
+<quiz q="Đội cần đảm bảo không ai, kể cả quản trị viên có quyền cao, xoá được bản backup trong 1 năm để chống ransomware. Dùng gì?">
+- IAM policy deny xoá backup
++ AWS Backup Vault Lock ở compliance mode
+- Bật versioning cho bucket chứa backup
+? Vault Lock compliance mode tạo bảo vệ WORM không thể gỡ, kể cả root.
+</quiz>

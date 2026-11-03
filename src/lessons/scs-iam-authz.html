@@ -1,0 +1,89 @@
+<h2>Logic đánh giá policy</h2>
+<fig type="flow" caption="Một request đi qua các lớp. Explicit Deny ở bất kỳ đâu thắng tất cả">
+[warn] Explicit Deny? / ở bất kỳ policy nào → DENY
+-> không
+[q] SCP + RCP / Organization cho phép?
+-> có
+[ext] Resource policy / Allow trực tiếp? (cùng account có thể đủ)
+-> 
+[go] Identity policy / user / role có Allow?
+-> có
+[cache] Permission boundary + session policy / có cho phép?
+-> có
+[ok] ALLOW
+</fig>
+<ul>
+<li><b>Mặc định là Deny</b> (implicit deny). Phải có Allow ở đúng chỗ.</li>
+<li><b>Explicit Deny</b> luôn thắng.</li>
+<li><b>SCP</b> (service control policy): giới hạn quyền <b>tối đa</b> của principal trong account thành viên. Không cấp quyền. Không áp cho management account, không áp cho service-linked role.</li>
+<li><b>RCP</b> (resource control policy, mới): giới hạn quyền tối đa trên <b>tài nguyên</b> của account (S3, STS, KMS, SQS, Secrets Manager...), kể cả khi người gọi ở ngoài Organization. Dùng để dựng <b>data perimeter</b>: "tài nguyên của tôi chỉ được truy cập bởi principal trong tổ chức".</li>
+<li><b>Permission boundary</b>: giới hạn quyền tối đa của một user / role. Quyền thực = giao của identity policy và boundary. Dùng để <b>uỷ quyền</b> cho developer tự tạo role mà không leo thang quyền: bắt buộc mọi role họ tạo phải gắn boundary (điều kiện <code>iam:PermissionsBoundary</code>).</li>
+<li><b>Session policy</b>: truyền vào khi AssumeRole để thu hẹp thêm quyền của phiên đó.</li>
+<li><b>Cùng account</b>: Allow ở identity policy <b>hoặc</b> resource policy là đủ (trừ KMS key policy và role trust policy phải cho phép rõ). <b>Khác account</b>: cần Allow ở <b>cả hai</b>.</li>
+</ul>
+
+<h2>Đọc policy</h2>
+<pre lang="json" file="Chỉ cho bật / tắt EC2 mang tag Team giống tag của người gọi (ABAC)">
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["ec2:StartInstances", "ec2:StopInstances"],
+    "Resource": "arn:aws:ec2:*:*:instance/*",
+    "Condition": {
+      "StringEquals": { "aws:ResourceTag/Team": "${aws:PrincipalTag/Team}" }
+    }
+  }]
+}
+</pre>
+<table>
+<tr><th>Thành phần</th><th>Ghi nhớ</th></tr>
+<tr><td><code>NotAction</code> + Allow</td><td>Cho mọi thứ trừ danh sách: nguy hiểm, dễ cấp thừa</td></tr>
+<tr><td><code>NotAction</code> + Deny</td><td>Chặn mọi thứ trừ danh sách. Mẫu kinh điển: Deny mọi hành động khi chưa có MFA, trừ các hành động để tự thiết lập MFA</td></tr>
+<tr><td><code>aws:PrincipalOrgID</code></td><td>Chỉ principal trong Organization (dùng trong resource policy)</td></tr>
+<tr><td><code>aws:ResourceOrgID</code></td><td>Chỉ tài nguyên thuộc Organization (dùng trong identity / endpoint policy)</td></tr>
+<tr><td><code>aws:SourceIp</code> / <code>aws:SourceVpce</code></td><td>Giới hạn nguồn. Lưu ý: request qua VPC endpoint không có SourceIp công khai</td></tr>
+<tr><td><code>aws:RequestedRegion</code></td><td>Chặn Region không dùng (SCP)</td></tr>
+<tr><td><code>aws:CalledVia</code> / <code>aws:ViaAWSService</code></td><td>Cho phép khi dịch vụ AWS gọi thay (ví dụ Athena gọi S3)</td></tr>
+<tr><td><code>aws:SecureTransport</code></td><td>Ép HTTPS</td></tr>
+</table>
+
+<h2>RBAC và ABAC</h2>
+<ul>
+<li><b>RBAC</b>: mỗi chức danh một role, policy liệt kê tài nguyên. Thêm dự án mới phải sửa policy.</li>
+<li><b>ABAC</b>: quyền dựa trên <b>tag</b> của principal và tài nguyên. Thêm dự án mới chỉ cần gắn tag, không sửa policy. Cần chặn người dùng tự sửa tag (điều kiện <code>aws:TagKeys</code>, <code>aws:RequestTag</code>) và dùng <b>tag policy</b> để chuẩn hoá tag.</li>
+<li><b>IAM paths</b>: nhóm role / user theo đường dẫn (<code>/team-a/</code>), policy cấp quyền theo path.</li>
+<li><b>Amazon Verified Permissions</b>: phân quyền <b>bên trong ứng dụng của bạn</b> (ai được xem tài liệu nào) bằng ngôn ngữ policy <b>Cedar</b>, thay cho code if/else tự viết.</li>
+</ul>
+
+<h2>Tìm và sửa quyền sai</h2>
+<ul>
+<li><b>IAM Access Analyzer</b>:
+  <ul>
+  <li><b>External access</b>: tài nguyên (S3, KMS, role, Lambda, SQS, Secrets...) cho phép principal ngoài account / Organization (zone of trust).</li>
+  <li><b>Internal access</b>: ai trong tổ chức truy cập được tài nguyên quan trọng.</li>
+  <li><b>Unused access</b>: role, access key, quyền không dùng.</li>
+  <li><b>Policy validation</b> (lỗi cú pháp, cảnh báo bảo mật), <b>custom policy checks</b> (chặn policy mới cấp quyền nguy hiểm trong CI/CD), <b>policy generation</b> từ CloudTrail.</li>
+  </ul></li>
+<li><b>Policy Simulator</b>: thử quyền của một principal với hành động cụ thể.</li>
+<li>Thông báo AccessDenied hiện nay ghi rõ loại policy gây chặn (SCP, boundary, session policy, resource policy) và ARN.</li>
+</ul>
+
+<quiz q="Developer được phép tạo role cho Lambda, nhưng không được tạo role có quyền cao hơn chính họ. Cách đúng?">
+- Cho developer quyền iam:* nhưng theo dõi bằng CloudTrail
++ Cho phép iam:CreateRole với điều kiện iam:PermissionsBoundary bắt buộc gắn một boundary định sẵn, và cấm sửa / xoá boundary đó
+- Dùng SCP cấm iam:CreateRole
+? Permission boundary bắt buộc là cách chuẩn để uỷ quyền tạo role mà không leo thang đặc quyền.
+</quiz>
+<quiz q="Công ty muốn đảm bảo mọi bucket S3 và key KMS chỉ được truy cập bởi principal trong Organization, kể cả khi ai đó lỡ viết bucket policy cho phép account ngoài. Dùng gì?">
+- SCP deny s3:* cho principal ngoài tổ chức
++ RCP áp cho Organization với điều kiện aws:PrincipalOrgID
+- IAM Access Analyzer
+? SCP chỉ giới hạn principal của tổ chức. RCP giới hạn quyền trên tài nguyên, áp cả với người gọi bên ngoài: đúng mục đích data perimeter.
+</quiz>
+<quiz q="Role trong account A có identity policy Allow s3:GetObject trên bucket ở account B. Bucket policy của B không nhắc gì tới A. Kết quả?">
+- Allow, vì identity policy đã cho phép
++ Deny, vì truy cập cross-account cần resource policy của B cũng cho phép
+- Phụ thuộc SCP
+? Khác account cần Allow ở cả identity policy bên gọi và resource policy bên sở hữu.
+</quiz>

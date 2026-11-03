@@ -1,0 +1,86 @@
+<h2>EBS: chọn đúng loại volume</h2>
+<table>
+<tr><th>Loại</th><th>Hiệu năng</th><th>Dùng khi</th></tr>
+<tr><td><b>gp3</b></td><td>Mặc định 3.000 IOPS, 125 MB/s, chỉnh <b>độc lập</b> lên tới 16.000 IOPS và 1.000 MB/s (khoảng 2.000 MB/s ở bản mới), không phụ thuộc dung lượng</td><td>Gần như mọi thứ. Rẻ hơn gp2 khoảng 20%</td></tr>
+<tr><td>gp2</td><td>IOPS tăng theo dung lượng (3 IOPS / GB), volume nhỏ có burst credit</td><td>Đời cũ. Đề hay hỏi "volume gp2 nhỏ bị chậm sau một lúc" → hết burst credit (<code>BurstBalance</code> về 0) → chuyển gp3</td></tr>
+<tr><td><b>io2 Block Express</b></td><td>Tới 256.000 IOPS, độ bền 99,999%, hỗ trợ <b>Multi-Attach</b></td><td>Database quan trọng, cần IOPS cao ổn định</td></tr>
+<tr><td>st1</td><td>HDD, tối ưu throughput</td><td>Big data, log, đọc tuần tự</td></tr>
+<tr><td>sc1</td><td>HDD lạnh, rẻ nhất</td><td>Dữ liệu ít truy cập</td></tr>
+</table>
+<ul>
+<li>Đổi loại, tăng dung lượng, tăng IOPS bằng <b>Elastic Volumes</b> khi đang chạy, không cần tắt máy. Sau khi tăng dung lượng phải <b>mở rộng file system</b> trong OS (<code>growpart</code>, <code>resize2fs</code> / <code>xfs_growfs</code>). Mỗi volume chỉ sửa được 6 giờ một lần.</li>
+<li>Không <b>giảm</b> dung lượng được: tạo volume nhỏ mới rồi chép dữ liệu.</li>
+<li>Hiệu năng còn bị giới hạn bởi <b>instance</b>: mỗi instance type có trần EBS bandwidth. Volume 16.000 IOPS gắn vào instance nhỏ vẫn không đạt. Chọn instance <b>EBS-optimized</b> đủ lớn.</li>
+<li>Metric cần biết: <code>VolumeQueueLength</code> cao (yêu cầu xếp hàng, thiếu IOPS), <code>VolumeReadOps</code> / <code>WriteOps</code>, <code>BurstBalance</code>.</li>
+</ul>
+<h3>Snapshot</h3>
+<ul>
+<li>Snapshot là tăng dần (incremental), lưu ở S3 do AWS quản lý. Sao chép sang Region khác bằng <b>copy snapshot</b> (đổi được KMS key lúc copy).</li>
+<li>Volume tạo từ snapshot bị chậm lần đọc đầu (lazy loading từ S3). Cần hiệu năng đầy đủ ngay: bật <b>Fast Snapshot Restore (FSR)</b>, hoặc đọc trước toàn bộ volume (<code>fio</code>, <code>dd</code>).</li>
+<li><b>Data Lifecycle Manager (DLM)</b>: tự chụp và xoá snapshot theo lịch dựa trên tag. Hoặc dùng <b>AWS Backup</b> (bài 06).</li>
+<li><b>Recycle Bin</b>: giữ snapshot / AMI bị xoá nhầm trong một thời gian để khôi phục. <b>EBS Snapshots Archive</b>: rẻ hơn 75% cho snapshot lưu lâu, khôi phục mất 24 đến 72 giờ.</li>
+<li>Mã hoá: volume mã hoá cho ra snapshot mã hoá. Mã hoá một volume chưa mã hoá: tạo snapshot → copy snapshot có bật mã hoá → tạo volume từ bản copy. Bật <b>EBS encryption by default</b> cho cả Region.</li>
+</ul>
+
+<h2>S3: hiệu năng và vòng đời</h2>
+<ul>
+<li>Mỗi <b>prefix</b> chịu được 3.500 PUT/COPY/POST/DELETE và 5.500 GET/HEAD mỗi giây. Cần nhiều hơn: chia key ra nhiều prefix.</li>
+<li><b>Multipart upload</b>: khuyên dùng từ 100 MB, bắt buộc từ 5 GB. Upload song song, lỗi phần nào gửi lại phần đó. Đặt lifecycle rule <b>AbortIncompleteMultipartUpload</b> để xoá các phần dở dang (đang tính tiền mà không thấy trong danh sách object).</li>
+<li><b>S3 Transfer Acceleration</b>: người dùng ở xa Region upload qua edge location của CloudFront. Bật ở bucket, dùng endpoint <code>bucket.s3-accelerate.amazonaws.com</code>.</li>
+<li><b>Byte-range fetch</b>: tải song song nhiều đoạn của một file lớn.</li>
+<li>Tải về nhiều lần cho người dùng toàn cầu → <b>CloudFront</b> trước bucket.</li>
+<li><b>S3 Lifecycle</b>: chuyển lớp lưu trữ (Standard → Standard-IA sau 30 ngày → Glacier...) và xoá bản cũ (noncurrent versions). <b>Intelligent-Tiering</b> khi không biết trước mẫu truy cập.</li>
+<li><b>S3 Storage Lens</b>, <b>S3 Inventory</b>: thống kê dung lượng, tìm bucket không mã hoá, object không có lifecycle.</li>
+<li>KMS: upload / download object mã hoá SSE-KMS gọi KMS mỗi lần, có thể chạm quota request của KMS. Bật <b>S3 Bucket Key</b> để giảm số lần gọi KMS (và giảm chi phí) tới 99%.</li>
+</ul>
+<h3>Di chuyển dữ liệu</h3>
+<table>
+<tr><th>Cần</th><th>Dịch vụ</th></tr>
+<tr><td>Đồng bộ định kỳ NFS / SMB / HDFS on-premises với S3, EFS, FSx, có lịch, có kiểm tra toàn vẹn</td><td><b>AWS DataSync</b> (cài agent on-premises)</td></tr>
+<tr><td>Ứng dụng on-premises dùng S3 như ổ mạng, có cache cục bộ</td><td><b>Storage Gateway</b> (S3 File Gateway, Volume Gateway, Tape Gateway)</td></tr>
+<tr><td>Hàng chục TB trở lên, mạng chậm</td><td><b>Snowball Edge</b></td></tr>
+<tr><td>Đối tác gửi file qua SFTP</td><td><b>AWS Transfer Family</b></td></tr>
+</table>
+
+<h2>Shared storage: EFS và FSx</h2>
+<table>
+<tr><th></th><th>Dùng khi</th></tr>
+<tr><td><b>EFS</b></td><td>NFS cho Linux, nhiều AZ, tự co giãn. Lifecycle chuyển file ít dùng sang <b>EFS IA / Archive</b>. Throughput mode: <b>Elastic</b> (khuyên dùng, theo nhu cầu), Provisioned, Bursting. Performance mode: General Purpose (độ trễ thấp) và Max I/O (kiểu cũ)</td></tr>
+<tr><td><b>FSx for Windows File Server</b></td><td>SMB, Active Directory, Windows ACL, DFS</td></tr>
+<tr><td><b>FSx for Lustre</b></td><td>HPC, ML, đọc rất nhanh, liên kết với S3</td></tr>
+<tr><td><b>FSx for NetApp ONTAP</b></td><td>NFS + SMB + iSCSI cùng lúc, chuyển từ NetApp on-premises</td></tr>
+<tr><td><b>FSx for OpenZFS</b></td><td>Chuyển từ ZFS / Linux NFS, snapshot tức thì</td></tr>
+</table>
+<p>EFS mount bị timeout: security group của <b>mount target</b> phải cho vào cổng <b>NFS 2049</b> từ security group của EC2, và mỗi AZ có mount target.</p>
+
+<h2>Database: RDS, Aurora, DynamoDB, ElastiCache</h2>
+<ul>
+<li><b>Performance Insights</b>: xem tải database theo wait event, câu SQL tốn nhất, user, host. Câu hỏi "câu SQL nào làm database chậm" → Performance Insights. Kết hợp <b>DevOps Guru for RDS</b> để có đề xuất tự động.</li>
+<li><b>Enhanced Monitoring</b>: metric của OS bên dưới RDS (từng process, RAM), tới 1 giây. CloudWatch thường chỉ có metric ở mức instance.</li>
+<li><b>RDS Proxy</b>: gom kết nối. Đúng cho "Lambda mở quá nhiều kết nối làm RDS hết <code>max_connections</code>" và "failover nhanh hơn, giữ kết nối qua failover". Proxy lấy thông tin đăng nhập từ <b>Secrets Manager</b>, hỗ trợ IAM authentication.</li>
+<li><b>Read replica</b> giảm tải đọc (asynchronous). <b>Multi-AZ</b> để chịu lỗi (synchronous), standby không phục vụ đọc (trừ Multi-AZ DB cluster có 2 standby đọc được).</li>
+<li>Hết dung lượng: bật <b>storage autoscaling</b>. Metric cần theo dõi: <code>FreeStorageSpace</code>, <code>FreeableMemory</code>, <code>DatabaseConnections</code>, <code>ReplicaLag</code>, <code>ReadIOPS</code>/<code>WriteIOPS</code>.</li>
+<li>Đổi parameter <b>static</b> trong parameter group phải reboot mới có hiệu lực. Parameter dynamic thì áp ngay.</li>
+<li>Aurora: tới 15 replica, tự co dung lượng, <b>Aurora Auto Scaling</b> thêm replica theo tải, <b>Global Database</b> (RPO khoảng 1 giây, khôi phục Region dưới 1 phút), <b>Backtrack</b> (quay ngược thời gian không cần restore, Aurora MySQL).</li>
+<li>DynamoDB bị <code>ProvisionedThroughputExceededException</code>: chuyển on-demand, bật auto scaling, hoặc sửa <b>hot partition</b> (khoá phân vùng phân bố đều hơn). Đọc nhiều lặp lại → <b>DAX</b>.</li>
+<li><b>ElastiCache</b> (Redis OSS / Valkey / Memcached) giảm tải đọc cho database. Metric: <code>Evictions</code> tăng = thiếu bộ nhớ, <code>CPUUtilization</code> / <code>EngineCPUUtilization</code>.</li>
+</ul>
+
+<quiz q="Ứng dụng serverless (Lambda) tăng tải đột ngột làm RDS MySQL báo &quot;too many connections&quot;. Cách sửa ít thay đổi code nhất?">
+- Tăng instance class của RDS lên gấp 4
++ Đặt RDS Proxy giữa Lambda và RDS, Lambda kết nối tới endpoint của proxy
+- Chuyển sang DynamoDB
+? RDS Proxy gom và tái sử dụng kết nối, đúng cho mẫu Lambda + RDS. Chỉ cần đổi endpoint.
+</quiz>
+<quiz q="Volume gp2 100 GB của một máy chủ build chạy nhanh lúc đầu rồi chậm hẳn sau 30 phút build liên tục. Metric BurstBalance về 0. Giải pháp rẻ và đơn giản nhất?">
++ Chuyển volume sang gp3 bằng Elastic Volumes và đặt IOPS cần thiết
+- Chuyển sang io2 với 64.000 IOPS
+- Tạo RAID 0 từ 10 volume gp2
+? gp2 nhỏ chỉ có baseline 300 IOPS, hết burst là chậm. gp3 cho 3.000 IOPS baseline và chỉnh thêm độc lập, đổi được ngay khi đang chạy.
+</quiz>
+<quiz q="Hoá đơn S3 tăng dù số object trong bucket không đổi. Đội upload file lớn bằng multipart và hay bị lỗi giữa chừng. Nguyên nhân và cách sửa?">
+- Versioning đang bật, hãy tắt versioning
++ Các phần upload dở dang vẫn bị tính phí. Thêm lifecycle rule AbortIncompleteMultipartUpload
+- Transfer Acceleration tính phí thêm, hãy tắt
+? Multipart upload chưa hoàn tất không hiện như object nhưng các phần đã tải lên vẫn tốn tiền lưu trữ.
+</quiz>

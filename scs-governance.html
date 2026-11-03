@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCS-C03 · Quản trị nhiều account và tuân thủ · Ôn thi AWS</title>
+<meta name="description" content="Organizations, Control Tower, SCP / RCP / declarative policy, delegated admin, quản lý root, StackSets, CloudFormation Guard, Firewall Manager, RAM, Config, Audit Manager, Artifact.">
+<meta name="theme-color" content="#ff9900">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk"/></marker></defs></svg>
+<header class="top">
+  <button class="menu" type="button" aria-label="Mở danh sách bài"><span></span><span></span><span></span></button>
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Ôn thi AWS</a>
+  <nav class="topnav"><a href="soa-tong-quan.html">CloudOps SOA-C03</a><a href="scs-tong-quan.html">Security SCS-C03</a><a href="luyen-de-soa.html">Luyện đề</a></nav>
+  <button class="theme" type="button" aria-label="Đổi giao diện sáng / tối"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+</header>
+<div class="layout">
+  <aside class="side" aria-label="Danh sách bài">
+    <div class="prog"><div class="prog-t"><span>Tiến độ</span><b class="prog-n">0</b></div><div class="prog-b"><i></i></div></div>
+    <div class="sb-track" style="--pc:#dd344c"><span>SCS-C03</span>Security</div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khởi động</div><ol><li><a href="scs-tong-quan.html" data-slug="scs-tong-quan"><i class="dot"></i><span class="no">00</span><span class="tx">Đề SCS-C03 và tư duy bảo mật AWS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ea580c">Domain 1 · Detection (16%)</div><ol><li><a href="scs-detection.html" data-slug="scs-detection"><i class="dot"></i><span class="no">01</span><span class="tx">Dịch vụ phát hiện mối đe doạ</span></a></li><li><a href="scs-logging.html" data-slug="scs-logging"><i class="dot"></i><span class="no">02</span><span class="tx">Logging tập trung và phân tích log</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#b91c1c">Domain 2 · Incident Response (14%)</div><ol><li><a href="scs-incident-response.html" data-slug="scs-incident-response"><i class="dot"></i><span class="no">03</span><span class="tx">Ứng phó sự cố</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0284c7">Domain 3 · Infrastructure Security (18%)</div><ol><li><a href="scs-infra-network.html" data-slug="scs-infra-network"><i class="dot"></i><span class="no">04</span><span class="tx">Bảo mật mạng và biên</span></a></li><li><a href="scs-infra-compute.html" data-slug="scs-infra-compute"><i class="dot"></i><span class="no">05</span><span class="tx">Bảo mật compute và container</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#7c3aed">Domain 4 · Identity &amp; Access Management (20%)</div><ol><li><a href="scs-iam-authn.html" data-slug="scs-iam-authn"><i class="dot"></i><span class="no">06</span><span class="tx">Xác thực: Identity Center, federation, Cognito, STS</span></a></li><li><a href="scs-iam-authz.html" data-slug="scs-iam-authz"><i class="dot"></i><span class="no">07</span><span class="tx">Phân quyền: logic đánh giá policy và Access Analyzer</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#16a34a">Domain 5 · Data Protection (18%)</div><ol><li><a href="scs-kms.html" data-slug="scs-kms"><i class="dot"></i><span class="no">08</span><span class="tx">KMS, CloudHSM và mã hoá</span></a></li><li><a href="scs-data-protection.html" data-slug="scs-data-protection"><i class="dot"></i><span class="no">09</span><span class="tx">Bảo vệ dữ liệu: S3, secrets, TLS, backup</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</div><ol><li><a href="scs-governance.html" data-slug="scs-governance" aria-current="page"><i class="dot"></i><span class="no">10</span><span class="tx">Quản trị nhiều account và tuân thủ</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#0f766e">Về đích</div><ol><li><a href="scs-meo-thi.html" data-slug="scs-meo-thi"><i class="dot"></i><span class="no">11</span><span class="tx">Bảng từ khoá và mẹo làm bài SCS</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Luyện tập</div><ol><li><a href="luyen-de-scs.html"><i class="dot plain"></i><span class="tx">Luyện đề SCS-C03</span></a></li></ol></div><div class="sb-phase"><div class="sb-ph" style="--pc:#64748b">Khác</div><ol><li><a href="soa-tong-quan.html"><i class="dot plain"></i><span class="tx">Chuyển sang SOA-C03</span></a></li><li><a href="nguon-tham-khao.html"><i class="dot plain"></i><span class="tx">Nguồn tham khảo</span></a></li></ol></div>
+  </aside>
+  <div class="scrim"></div>
+  <main id="main"><article class="lesson" data-slug="scs-governance">
+  <header class="l-head">
+    <div class="l-meta"><span class="ph" style="--pc:#dd344c">SCS-C03</span><span class="ph" style="--pc:#ca8a04">Domain 6 · Security Foundations &amp; Governance (14%)</span><span>Bài 10</span><span>60 phút</span></div>
+    <h1>Quản trị nhiều account và tuân thủ</h1>
+    <p class="lead">Organizations, Control Tower, SCP / RCP / declarative policy, delegated admin, quản lý root, StackSets, CloudFormation Guard, Firewall Manager, RAM, Config, Audit Manager, Artifact.</p>
+    <div class="video empty"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>Video bài giảng sẽ được cập nhật sau</span></div>
+    <div class="goals"><b>Học xong bài này bạn sẽ:</b><ul><li>Thiết kế landing zone an toàn</li><li>Áp chính sách cho cả Organization</li><li>Thu thập bằng chứng tuân thủ</li></ul></div>
+  </header>
+  <div class="prose"><h2 id="cau-truc-nhieu-account"><a href="#cau-truc-nhieu-account" class="anchor" aria-hidden="true">#</a>Cấu trúc nhiều account</h2>
+<figure class="dg"><svg viewBox="0 0 942.8000000000001 432" style="min-width:600px;max-width:942.8000000000001px" role="img" aria-label="Mẫu Organization phổ biến (theo whitepaper Organizing Your AWS Environment)"><g class="nd db"><rect x="10" y="10" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="41" class="tt" text-anchor="middle">Management account</text></g><text x="221.20000000000002" y="41" class="tl" text-anchor="start">chỉ quản lý Organizations, billing. Không chạy workload</text><line x1="105.60000000000001" y1="62" x2="105.60000000000001" y2="80" class="ln" marker-end="url(#ar)"/><g class="nd warn"><rect x="10" y="82" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="113" class="tt" text-anchor="middle">Security OU</text></g><text x="221.20000000000002" y="113" class="tl" text-anchor="start">Log Archive (log tập trung), Security Tooling / Audit (delegated admin của các dịch vụ bảo mật)</text><line x1="105.60000000000001" y1="134" x2="105.60000000000001" y2="152" class="ln" marker-end="url(#ar)"/><g class="nd q"><rect x="10" y="154" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="185" class="tt" text-anchor="middle">Infrastructure OU</text></g><text x="221.20000000000002" y="185" class="tl" text-anchor="start">mạng dùng chung (TGW, DNS), shared services</text><line x1="105.60000000000001" y1="206" x2="105.60000000000001" y2="224" class="ln" marker-end="url(#ar)"/><g class="nd go"><rect x="10" y="226" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="257" class="tt" text-anchor="middle">Workloads OU</text></g><text x="221.20000000000002" y="257" class="tl" text-anchor="start">Prod, Non-prod (mỗi ứng dụng / môi trường một account)</text><line x1="105.60000000000001" y1="278" x2="105.60000000000001" y2="296" class="ln" marker-end="url(#ar)"/><g class="nd ext"><rect x="10" y="298" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="329" class="tt" text-anchor="middle">Sandbox OU</text></g><text x="221.20000000000002" y="329" class="tl" text-anchor="start">thử nghiệm, giới hạn chi phí chặt</text><line x1="105.60000000000001" y1="350" x2="105.60000000000001" y2="368" class="ln" marker-end="url(#ar)"/><g class="nd cache"><rect x="10" y="370" width="191.20000000000002" height="52" rx="10"/><text x="105.60000000000001" y="401" class="tt" text-anchor="middle">Suspended OU</text></g><text x="221.20000000000002" y="401" class="tl" text-anchor="start">account chờ đóng, SCP chặn mọi thứ</text></svg><figcaption>Mẫu Organization phổ biến (theo whitepaper Organizing Your AWS Environment)</figcaption></figure>
+
+<h2 id="organizations-va-cac-loai-policy"><a href="#organizations-va-cac-loai-policy" class="anchor" aria-hidden="true">#</a>Organizations và các loại policy</h2>
+<table>
+<tr><th>Policy</th><th>Làm gì</th></tr>
+<tr><td><b>SCP</b></td><td>Giới hạn quyền tối đa của principal (IAM user / role) trong account thành viên. Ví dụ: chặn Region, cấm tắt CloudTrail / GuardDuty, cấm rời Organization, cấm dùng root</td></tr>
+<tr><td><b>RCP</b></td><td>Giới hạn quyền tối đa trên tài nguyên của account thành viên, áp cả với người gọi bên ngoài. Dựng data perimeter</td></tr>
+<tr><td><b>Declarative policy</b></td><td>Ép cấu hình của dịch vụ ở mức API, kể cả khi dịch vụ ra tính năng mới: chặn VPC Block Public Access, ép IMDSv2 mặc định, chặn chia sẻ AMI / snapshot công khai, allowed AMIs. Có thông báo lỗi tuỳ chỉnh</td></tr>
+<tr><td>Tag policy</td><td>Chuẩn hoá key / value của tag</td></tr>
+<tr><td>Backup policy</td><td>Áp backup plan cho mọi account</td></tr>
+<tr><td>AI services opt-out policy</td><td>Không cho AWS dùng dữ liệu của bạn để cải thiện dịch vụ AI</td></tr>
+</table>
+<div class="code"><div class="code-h"><span>SCP: chặn mọi Region ngoài 2 Region được phép, trừ dịch vụ global</span><button class="copy" type="button">Sao chép</button></div><pre><code>{
+  <span class="s">&quot;Version&quot;</span>: <span class="s">&quot;2012-10-17&quot;</span>,
+  <span class="s">&quot;Statement&quot;</span>: [{
+    <span class="s">&quot;Sid&quot;</span>: <span class="s">&quot;DenyOtherRegions&quot;</span>,
+    <span class="s">&quot;Effect&quot;</span>: <span class="s">&quot;Deny&quot;</span>,
+    <span class="s">&quot;NotAction&quot;</span>: [<span class="s">&quot;iam:*&quot;</span>, <span class="s">&quot;organizations:*&quot;</span>, <span class="s">&quot;route53:*&quot;</span>, <span class="s">&quot;cloudfront:*&quot;</span>, <span class="s">&quot;sts:*&quot;</span>, <span class="s">&quot;support:*&quot;</span>, <span class="s">&quot;budgets:*&quot;</span>],
+    <span class="s">&quot;Resource&quot;</span>: <span class="s">&quot;*&quot;</span>,
+    <span class="s">&quot;Condition&quot;</span>: {
+      <span class="s">&quot;StringNotEquals&quot;</span>: { <span class="s">&quot;aws:RequestedRegion&quot;</span>: [<span class="s">&quot;ap-southeast-1&quot;</span>, <span class="s">&quot;us-east-1&quot;</span>] },
+      <span class="s">&quot;ArnNotLike&quot;</span>: { <span class="s">&quot;aws:PrincipalARN&quot;</span>: <span class="s">&quot;arn:aws:iam::*:role/BreakGlassAdmin&quot;</span> }
+    }
+  }]
+}</code></pre></div>
+
+<h2 id="control-tower"><a href="#control-tower" class="anchor" aria-hidden="true">#</a>Control Tower</h2>
+<ul>
+<li>Dựng <b>landing zone</b> theo best practice: Organization, OU Security với Log Archive và Audit account, IAM Identity Center, organization trail, Config.</li>
+<li><b>Controls</b> (trước gọi là guardrails): <b>preventive</b> (SCP / RCP / declarative), <b>detective</b> (Config rule), <b>proactive</b> (CloudFormation Hook, kiểm tra tài nguyên <b>trước khi</b> tạo). Mandatory, strongly recommended, elective.</li>
+<li><b>Account Factory</b>: tạo account mới đã cấu hình chuẩn (Account Factory for Terraform cho đội dùng Terraform). <b>Customizations for Control Tower (CfCT)</b>: tự động áp thêm StackSets / SCP riêng.</li>
+<li>Đưa account / OU có sẵn vào: <b>enroll account</b>, <b>register OU</b>. Drift: ai đó sửa tay SCP của Control Tower → repair landing zone.</li>
+</ul>
+
+<h2 id="quan-ly-tap-trung-dich-vu-bao-mat"><a href="#quan-ly-tap-trung-dich-vu-bao-mat" class="anchor" aria-hidden="true">#</a>Quản lý tập trung dịch vụ bảo mật</h2>
+<ul>
+<li><b>Delegated administrator</b>: management account chỉ định account Security Tooling quản trị GuardDuty, Security Hub, Macie, Inspector, Detective, Config, Firewall Manager, IAM Access Analyzer, Audit Manager... cho cả Organization. Tránh làm việc hằng ngày trong management account.</li>
+<li><b>Quản lý root tập trung</b> (centralized root access): xoá thông tin đăng nhập root của account thành viên, khi cần làm việc chỉ root mới làm được (mở khoá bucket policy chặn nhầm mọi người) thì dùng <b>root session</b> có giới hạn từ account quản trị.</li>
+<li><b>Break-glass</b>: tài khoản khẩn cấp, MFA phần cứng cất kỹ, mật khẩu chia cho nhiều người, cảnh báo ngay khi được dùng.</li>
+</ul>
+
+<h2 id="trien-khai-nhat-quan-va-an-toan"><a href="#trien-khai-nhat-quan-va-an-toan" class="anchor" aria-hidden="true">#</a>Triển khai nhất quán và an toàn</h2>
+<ul>
+<li><b>CloudFormation StackSets</b> (service-managed, tự deploy cho account mới), <b>Terraform</b>.</li>
+<li>Kiểm tra IaC trước khi deploy: <b>cfn-lint</b> (cú pháp, best practice), <b>CloudFormation Guard</b> (policy-as-code: "mọi bucket phải mã hoá"), <b>CloudFormation Hooks</b> (chặn lúc deploy), <b>Access Analyzer custom policy checks</b> trong pipeline.</li>
+<li><b>Firewall Manager</b>: áp WAF web ACL, Shield Advanced, security group, Network Firewall, DNS Firewall cho mọi account / tài nguyên mới tự động. Cần Organizations + Config.</li>
+<li>Chia sẻ an toàn: <b>RAM</b> (subnet, TGW, Resolver rules, giới hạn chỉ trong Organization), <b>Service Catalog</b> (danh mục sản phẩm đã duyệt, người dùng launch mà không cần quyền tạo tài nguyên trực tiếp, nhờ <b>launch constraint</b> role).</li>
+<li>Tag theo phòng ban, cost center, môi trường, kết hợp tag policy.</li>
+</ul>
+
+<h2 id="tuan-thu-va-kiem-toan"><a href="#tuan-thu-va-kiem-toan" class="anchor" aria-hidden="true">#</a>Tuân thủ và kiểm toán</h2>
+<table>
+<tr><th>Dịch vụ</th><th>Dùng khi</th></tr>
+<tr><td><b>AWS Config</b> + aggregator + conformance pack</td><td>Đánh giá liên tục cấu hình theo rule, tự remediation, xem tổng hợp nhiều account</td></tr>
+<tr><td><b>Security Hub</b></td><td>Chấm điểm theo chuẩn (CIS, FSBP, PCI, NIST)</td></tr>
+<tr><td><b>Audit Manager</b></td><td>Thu thập <b>bằng chứng</b> tự động cho cuộc kiểm toán (framework SOC 2, PCI, GDPR, HIPAA), xuất báo cáo cho kiểm toán viên</td></tr>
+<tr><td><b>AWS Artifact</b></td><td>Tải <b>báo cáo tuân thủ của chính AWS</b> (SOC, ISO, PCI) và ký thoả thuận (BAA cho HIPAA)</td></tr>
+<tr><td><b>Well-Architected Tool</b></td><td>Tự đánh giá kiến trúc theo các trụ cột, có Security Pillar</td></tr>
+</table>
+<aside class="tip"><p>"Kiểm toán viên yêu cầu báo cáo SOC 2 <b>của AWS</b>" → Artifact. "Thu thập bằng chứng <b>của hệ thống bạn</b> cho kiểm toán" → Audit Manager.</p></aside>
+
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Cần đảm bảo mọi account trong Organization, kể cả account mới, không ai tắt được GuardDuty và CloudTrail. Dùng gì?</p><div class="qo"><button type="button" class="opt" data-ok>SCP Deny guardduty:DeleteDetector, cloudtrail:StopLogging, cloudtrail:DeleteTrail... gắn ở root của Organization (trừ role quản trị bảo mật)</button><button type="button" class="opt">Config rule phát hiện CloudTrail bị tắt</button><button type="button" class="opt">IAM policy trong từng account</button></div><p class="why" hidden>SCP là kiểm soát phòng ngừa áp cho mọi account thành viên, kể cả admin của account đó.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Muốn chặn việc tạo bất kỳ EC2 nào chưa bật IMDSv2 trên toàn Organization, kể cả cách tạo mới về sau, với thông báo lỗi rõ ràng cho developer. Lựa chọn phù hợp nhất?</p><div class="qo"><button type="button" class="opt">Config rule ec2-imdsv2-check</button><button type="button" class="opt" data-ok>Declarative policy cho EC2 ép IMDSv2 mặc định</button><button type="button" class="opt">GuardDuty</button></div><p class="why" hidden>Declarative policy ép cấu hình ở mức dịch vụ, có thông báo lỗi tuỳ chỉnh, không cần cập nhật khi API mới ra.</p></div>
+<div class="quiz"><p class="qq"><b>Câu hỏi nhanh.</b> Kiểm toán viên cần bản báo cáo ISO 27001 chứng nhận hạ tầng của AWS. Lấy ở đâu?</p><div class="qo"><button type="button" class="opt">AWS Audit Manager</button><button type="button" class="opt" data-ok>AWS Artifact</button><button type="button" class="opt">Security Hub</button></div><p class="why" hidden>Artifact cung cấp báo cáo tuân thủ của chính AWS.</p></div>
+</div>
+  <div class="done-box"><button class="done-btn" type="button" data-slug="scs-governance">Đánh dấu đã học xong bài này</button></div>
+  <nav class="pn"><a class="prev" href="scs-data-protection.html"><small>Bài trước</small>Bảo vệ dữ liệu: S3, secrets, TLS, backup</a><a class="next" href="scs-meo-thi.html"><small>Bài tiếp theo</small>Bảng từ khoá và mẹo làm bài SCS</a></nav>
+</article></main>
+  <nav class="toc" aria-label="Trong bài này"><div class="toc-h">Trong bài này</div><a href="#cau-truc-nhieu-account">Cấu trúc nhiều account</a><a href="#organizations-va-cac-loai-policy">Organizations và các loại policy</a><a href="#control-tower">Control Tower</a><a href="#quan-ly-tap-trung-dich-vu-bao-mat">Quản lý tập trung dịch vụ bảo mật</a><a href="#trien-khai-nhat-quan-va-an-toan">Triển khai nhất quán và an toàn</a><a href="#tuan-thu-va-kiem-toan">Tuân thủ và kiểm toán</a></nav>
+</div>
+</body>
+</html>
