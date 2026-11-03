@@ -106,6 +106,22 @@ edge fh os "" c=ok
 </table>
 <aside class="tip"><p>Phân biệt nhanh: <b>Synthetics</b> = người dùng giả chạy theo lịch (biết lỗi trước khi khách gặp). <b>RUM</b> = người dùng thật. <b>X-Ray / Application Signals</b> = bên trong hệ thống chậm ở đâu.</p></aside>
 
+<arch w="800" h="320" caption="X-Ray / Application Signals: một trace đi qua nhiều dịch vụ, mỗi đoạn là một segment có thời gian riêng, nhìn là biết chậm ở đâu">
+node u 60 140 users "Request" "trace-id: 1-6f2a..."
+node api 200 140 apigw "API Gateway" "12 ms"
+node fn 350 140 lambda "Lambda" "35 ms"
+node ddb 520 70 dynamodb "DynamoDB" "8 ms"
+node ext 520 220 internet "API thanh toán" "2.400 ms"
+node xr 700 140 xray "X-Ray" "service map"
+edge u api "" c=ok
+edge api fn "" c=ok
+edge fn ddb "" route=hv
+edge fn ext "" c=bad route=hv
+path 546 70 700 70 700 114 "segment" dash
+path 546 220 700 220 700 166 "" dash
+text 520 305 "chậm ở đây" small anchor=middle c=bad
+</arch>
+
 <h2>CloudTrail cho đội vận hành</h2>
 <ul>
 <li><b>Event history</b>: 90 ngày management events, miễn phí, mọi Region, tra theo user, tên sự kiện, tài nguyên.</li>

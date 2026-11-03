@@ -55,6 +55,18 @@ path 476 220 640 220 640 106 "" dash
 <li>Lỗi hay gặp: agent không chạy, thiếu quyền S3, script trong hook trả mã lỗi hoặc quá thời gian, health check ALB không qua trong blue/green.</li>
 </ul>
 
+<arch w="800" h="270" caption="CodeDeploy với Lambda: alias chuyển dần traffic từ version cũ sang version mới (canary). Alarm kêu trong thời gian đánh giá thì tự quay về version cũ">
+node cd 80 130 codedeploy "CodeDeploy" "Canary10Percent5Minutes"
+node al 280 130 lambda "Alias live"
+node v1 480 60 lambda "Version 7" "90%"
+node v2 480 200 lambda "Version 8" "10% → 100%"
+node alm 680 200 alarm "Alarm Errors" "→ rollback"
+edge cd al "" c=go
+edge al v1 "" c=ok route=hv
+edge al v2 "" c=go route=hv
+edge v2 alm "" dash
+</arch>
+
 <h2>Container và serverless ở góc vận hành</h2>
 <h3>ECS</h3>
 <ul>

@@ -21,6 +21,24 @@
 <tr><td>Instance status check</td><td>Trong OS: kernel panic, cấu hình mạng sai, hết RAM, file system hỏng, fstab sai</td><td>Reboot; xem <b>Get system log</b>, <b>Get instance screenshot</b>; vào <b>EC2 Serial Console</b> để sửa khi máy không lên mạng; tháo volume gốc gắn vào máy cứu hộ để sửa (hoặc <b>EC2Rescue</b> / <code>AWSSupport-ExecuteEC2Rescue</code>)</td></tr>
 <tr><td>Attached EBS status check</td><td>EBS gắn vào không phản hồi</td><td>Kiểm tra volume, stop / start</td></tr>
 </table>
+<arch w="800" h="290" caption="Hai loại status check và cách xử lý: lỗi host vật lý thì stop / start hoặc recover để chuyển sang host khác; lỗi trong OS thì reboot hoặc sửa OS">
+group 10 10 380 270 plain "System status check lỗi (phía AWS)"
+node h1 100 110 server "Host cũ" "phần cứng hỏng"
+node i1 100 220 ec2 "Instance"
+node h2 290 110 server "Host mới"
+node i2 290 220 ec2 "Instance" "giữ ID, IP, EBS"
+edge i1 i2 "stop / start · recover" c=ok
+edge h1 i1 "" dash
+edge h2 i2 "" dash
+group 410 10 380 270 plain "Instance status check lỗi (trong OS)"
+node os 500 110 ec2 "Instance" "kernel panic, fstab sai"
+node fix1 690 110 file "Reboot"
+node fix2 690 200 file "Serial Console" "EC2Rescue"
+edge os fix1 ""
+edge os fix2 "" route=hv
+text 600 270 "Reboot KHÔNG chuyển host · stop / start mất dữ liệu instance store" small anchor=middle c=bad
+</arch>
+
 <h3>Lỗi khi launch</h3>
 <table>
 <tr><th>Lỗi</th><th>Nguyên nhân / xử lý</th></tr>

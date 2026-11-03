@@ -113,6 +113,18 @@ edge lam chat ""
 <li>Mẫu: Health event "scheduled retirement" → EventBridge → SSM Automation stop / start instance trong maintenance window.</li>
 </ul>
 
+<arch w="800" h="250" caption="Tự động hoá theo lịch bảo trì của AWS: Health báo instance sắp bị retire, EventBridge kích hoạt runbook stop / start trong maintenance window để chuyển sang phần cứng mới">
+node h 80 110 health "AWS Health" "scheduled retirement"
+node evb 240 110 eventbridge "Rule" "aws.health · EC2"
+node mw 400 110 ssm "Maintenance Window" "Chủ nhật 02:00"
+node rb 560 110 ssm "Automation" "AWS-RestartEC2Instance"
+node ec2 710 110 ec2 "EC2" "host mới"
+edge h evb ""
+edge evb mw ""
+edge mw rb "" c=go
+edge rb ec2 "" c=ok
+</arch>
+
 <h2>Rule không chạy: checklist</h2>
 <ol>
 <li>Metric <code>TriggeredRules</code> = 0: pattern không khớp (sai hoa thường, thiếu mảng, sai <code>detail-type</code>), sai Region, event không tồn tại (thiếu CloudTrail, API là Describe).</li>

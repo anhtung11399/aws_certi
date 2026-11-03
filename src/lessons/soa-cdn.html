@@ -64,6 +64,24 @@ path 326 170 370 170 370 245 594 245 "HTTPS" c=ok
 <li><b>Global Accelerator</b>: 2 IP anycast tĩnh, đi trên mạng của AWS tới endpoint gần nhất (ALB, NLB, EC2, EIP), failover giữa Region trong vài giây. Hợp với TCP / UDP, game, khi cần IP tĩnh cho whitelist. CloudFront thì cache nội dung HTTP.</li>
 </ul>
 
+<arch w="800" h="280" caption="Global Accelerator: 2 IP anycast tĩnh, vào mạng AWS ở edge gần nhất rồi đi tới endpoint khoẻ ở Region gần nhất. Không cache nội dung (khác CloudFront)">
+node u1 70 80 users "Người dùng châu Âu"
+node u2 70 210 users "Người dùng châu Á"
+node ga 270 145 ga "Global Accelerator" "2 IP anycast tĩnh"
+group 420 20 370 110 region "eu-west-1 · weight 100"
+group 420 150 370 110 region "ap-southeast-1 · weight 100"
+node e1 520 80 nlb "NLB"
+node e2 520 210 alb "ALB"
+node a1 680 80 ec2 "Game server" "UDP"
+node a2 680 210 ec2 "API" "TCP"
+edge u1 ga "" route=hv
+edge u2 ga "" route=hv
+edge ga e1 "" c=ok route=hvh
+edge ga e2 "" c=ok route=hvh
+edge e1 a1 ""
+edge e2 a2 ""
+</arch>
+
 <quiz q="Website tĩnh trên S3 sau CloudFront. Sau khi bật OAC và chặn public access, người dùng nhận 403. Thiếu gì?">
 + Bucket policy cho phép principal cloudfront.amazonaws.com với điều kiện AWS:SourceArn bằng ARN của distribution
 - Bật S3 static website hosting

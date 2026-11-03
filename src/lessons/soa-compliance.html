@@ -51,6 +51,22 @@ path 350 196 350 250 695 250 695 196 "kết quả tuân thủ" dash
 <tr><td><b>Audit Manager</b>, <b>Artifact</b></td><td>Bằng chứng kiểm toán / báo cáo tuân thủ của AWS</td><td></td></tr>
 </table>
 
+<arch w="800" h="280" caption="Gom kết quả bảo mật về một account: GuardDuty, Inspector, Macie, Config gửi finding vào Security Hub ở account Security Tooling (delegated admin), từ đó tự động hoá qua EventBridge">
+group 10 10 300 260 ou "Mọi account thành viên"
+node gd 90 80 guardduty "GuardDuty"
+node ins 230 80 inspector "Inspector"
+node mac 90 200 macie "Macie"
+node cfg 230 200 config "Config"
+group 340 10 450 260 account "Security Tooling (delegated admin)"
+node sh 470 140 securityhub "Security Hub" "chuẩn FSBP, CIS"
+node evb 620 140 eventbridge "EventBridge"
+node fix 730 140 lambda "Tự xử lý"
+path 256 80 330 80 330 130 444 130 "" c=nw
+path 256 200 330 200 330 150 444 150 "" c=nw
+edge sh evb ""
+edge evb fix "" c=go
+</arch>
+
 <h2>CloudTrail cho tuân thủ</h2>
 <ul>
 <li>Trail multi-Region + organization trail, lưu S3 có versioning / Object Lock, mã hoá SSE-KMS, <b>log file integrity validation</b>.</li>

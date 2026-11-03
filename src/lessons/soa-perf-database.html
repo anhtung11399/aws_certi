@@ -88,6 +88,18 @@ edge rr xrr "bất đồng bộ" dash
 <li>Metric: <code>ConsumedReadCapacityUnits</code>, <code>ThrottledRequests</code>, <code>ReadThrottleEvents</code>, <code>SystemErrors</code>; <b>CloudWatch Contributor Insights for DynamoDB</b> tìm partition key nóng.</li>
 </ul>
 
+<arch w="800" h="270" caption="DynamoDB: DAX đặt trước bảng để đọc lặp lại trong micro giây; Global Tables sao chép đa chủ (multi-active) sang Region khác">
+group 10 10 480 250 region "ap-southeast-1"
+node app 80 130 app "Ứng dụng"
+node dax 230 130 dax "DAX" "cache đọc"
+node t1 390 130 dynamodb "Bảng Orders" "on-demand · PITR"
+group 520 10 270 250 region "us-west-2"
+node t2 655 130 dynamodb "Bản sao" "Global Tables"
+edge app dax "" c=ok
+edge dax t1 "" c=ok
+edge t1 t2 "sao chép 2 chiều" dash both
+</arch>
+
 <h2>ElastiCache</h2>
 <ul>
 <li>Engine: <b>Valkey</b> / <b>Redis OSS</b> (cấu trúc dữ liệu phong phú, replication, Multi-AZ auto failover, backup, cluster mode chia shard) và <b>Memcached</b> (đơn giản, đa luồng, không replication / backup).</li>

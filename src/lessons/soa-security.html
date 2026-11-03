@@ -32,6 +32,23 @@ path 296 150 420 150 420 200 674 200 "3 credential tạm thời → GetObject" c
 text 560 165 "permission: s3:GetObject" small anchor=middle
 </arch>
 
+<arch w="800" h="250" caption="Thứ tự đánh giá một request: chỉ cần một Deny tường minh ở bất kỳ lớp nào là bị chặn; phải qua hết các lớp có áp dụng mới được Allow">
+node r 60 110 user "Request" "s3:PutObject"
+node d 190 110 iam "Deny tường minh?" "mọi policy"
+node scp 320 110 organizations "SCP / RCP" "cho phép?"
+node rp 450 110 s3 "Resource policy"
+node ip 580 110 iam "Identity policy" "+ boundary, session"
+node ok 720 110 iam "ALLOW"
+edge r d ""
+edge d scp "không" c=ok
+edge scp rp "có" c=ok
+edge rp ip "" c=ok
+edge ip ok "có" c=ok
+text 190 200 "có → DENY" small anchor=middle c=bad
+text 320 200 "không → DENY" small anchor=middle c=bad
+text 580 200 "không có Allow → DENY ngầm định" small anchor=middle c=bad
+</arch>
+
 <h3>Xử lý AccessDenied</h3>
 <ol>
 <li>Đọc thông báo lỗi: nhiều dịch vụ ghi rõ "because no identity-based policy allows", "with an explicit deny in a service control policy", "permissions boundary"...</li>
