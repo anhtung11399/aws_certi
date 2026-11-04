@@ -59,7 +59,7 @@ export default {
         ep2: [700, 430, 'endpoint', 'Gateway endpoint S3'],
       },
       steps: [
-        { say: 'ECR lưu container image. Task ECS trong private subnet không kéo được image là lỗi rất hay gặp.', do: ['show vpc,ecs,ecr', 'badge ecs "CannotPullContainerError" c=bad'] },
+        { say: 'ECR lưu container image. Task ECS trong private subnet không kéo được image là lỗi rất hay gặp.', do: ['show vpc,ecs,ecr', 'badge ecs "pull lỗi" c=bad'] },
         { say: 'Không có NAT thì cần interface endpoint cho ecr.api và ecr.dkr.', do: ['show ep1', 'edge ecs ep1', 'edge ep1 ecr c=ok', 'flow ecs ep1', 'flow ep1 ecr @1.2'] },
         { say: 'Và gateway endpoint cho S3, vì các lớp của image thực ra nằm trên S3. Đây là chỗ hay quên nhất.', do: ['show ep2,s3', 'edge ecs ep2', 'edge ep2 s3 c=ok', 'flow ep2 s3', 'hl ep2 @1.0'] },
         { say: 'Execution role của task cũng phải có quyền lấy token và kéo image.', do: ['tip "ECS private subnet kéo image: endpoint <b>ecr.api + ecr.dkr + S3 gateway</b>, execution role có <code>ecr:GetAuthorizationToken</code>, <code>BatchGetImage</code>."'] },

@@ -32,7 +32,7 @@ export default {
       steps: [
         { say: 'Run Command chạy một document trên nhiều máy ngay bây giờ, không cần SSH.', do: ['show op,ssm', 'edge op ssm', 'flow op ssm'] },
         { say: 'Chọn máy theo tag, ví dụ mọi máy có Env bằng Prod.', do: ['show m1,m2,m3', 'edge ssm m1', 'edge ssm m2', 'edge ssm m3', 'flow ssm m1', 'flow ssm m2 @1.3', 'flow ssm m3 @1.6'] },
-        { say: 'Rate control: chạy bao nhiêu máy cùng lúc, và dừng khi số máy lỗi vượt ngưỡng.', do: ['note r 300 470 360 "<b>Concurrency</b>: 10% máy mỗi lần<br><b>Error threshold</b>: dừng khi 5 máy lỗi" c=go', 'bad m3 @1.0'] },
+        { say: 'Rate control: chạy bao nhiêu máy cùng lúc, và dừng khi số máy lỗi vượt ngưỡng.', do: ['note r 80 470 340 "<b>Concurrency</b>: 10% máy mỗi lần<br><b>Error threshold</b>: dừng khi 5 máy lỗi" c=go', 'bad m3 @1.0'] },
         { say: 'Console chỉ hiện 2.500 ký tự output. Muốn đầy đủ, ghi ra S3 hoặc CloudWatch Logs. Mọi lần chạy đều được CloudTrail ghi lại.', do: ['show s3', 'edge m2 s3 "output"', 'flow m2 s3'] },
       ],
     },
@@ -55,18 +55,18 @@ export default {
     {
       title: 'Patch Manager',
       nodes: {
-        mw: [150, 330, 'scheduler', 'Maintenance Window', 'CN 2:00, 3 giờ'],
-        pb: [470, 200, 'ssm', 'Patch baseline', 'Security, Critical, sau 7 ngày'],
+        mw: [150, 450, 'scheduler', 'Maintenance Window', 'CN 2:00, 3 giờ'],
+        pb: [470, 190, 'ssm', 'Patch baseline', 'Security, Critical, sau 7 ngày'],
         run: [470, 450, 'ssm', 'AWS-RunPatchBaseline', 'Install'],
-        g1: [880, 330, 'ec2', 'Patch Group = prod', '20% mỗi lần'],
-        rep: [1120, 330, 'securityhub', 'Compliance', 'thiếu bản vá gì'],
+        g1: [820, 320, 'ec2', 'Patch Group = prod', '20% mỗi lần'],
+        rep: [1110, 320, 'securityhub', 'Compliance', 'thiếu bản vá gì'],
       },
       steps: [
         { say: 'Patch baseline là luật vá: hệ điều hành nào, loại bản vá nào, tự duyệt sau bao nhiêu ngày.', do: ['show pb'] },
         { say: 'Máy gắn với baseline bằng tag Patch Group. Một máy chỉ thuộc một patch group.', do: ['show g1', 'edge pb g1 "tag Patch Group" route=hvh'] },
         { say: 'Quy trình chuẩn: Maintenance Window định khung giờ, ví dụ Chủ nhật hai giờ sáng.', do: ['show mw'] },
         { say: 'Trong khung giờ đó, chạy document AWS-RunPatchBaseline với Install, vá hai mươi phần trăm máy mỗi lần.', do: ['show run', 'edge mw run', 'edge run g1 route=hvh', 'flow mw run', 'flow run g1 @1.3'] },
-        { say: 'Scan chỉ kiểm tra và báo cáo. Install mới cài và có thể khởi động lại máy. Kết quả hiện trong báo cáo compliance.', do: ['show rep', 'edge g1 rep', 'flow g1 rep c=ok', 'tip 80 470 360 "<b>Scan</b> = chỉ báo cáo. <b>Install</b> = cài + có thể reboot."'] },
+        { say: 'Scan chỉ kiểm tra và báo cáo. Install mới cài và có thể khởi động lại máy. Kết quả hiện trong báo cáo compliance.', do: ['show rep', 'edge g1 rep', 'flow g1 rep c=ok', 'tip 830 440 400 "<b>Scan</b> = chỉ báo cáo. <b>Install</b> = cài + có thể reboot."'] },
       ],
     },
     {

@@ -56,7 +56,7 @@ export default {
       },
       steps: [
         { say: 'SCP gắn vào OU hoặc account, giới hạn quyền tối đa của mọi người trong đó, kể cả root của account con.', do: ['show org,mg,ou,a1,a2', 'edge mg ou', 'edge ou a1', 'edge ou a2 route=hvh', 'flow ou a1', 'flow ou a2 @1.2'] },
-        { say: 'Mẫu hay gặp: chặn Region không dùng bằng aws:RequestedRegion, cấm tắt CloudTrail, Config, GuardDuty, cấm rời Organization.', do: ['note s 420 420 400 "<code>aws:RequestedRegion</code> · cấm <code>StopLogging</code> · cấm <code>LeaveOrganization</code>" c=go'] },
+        { say: 'Mẫu hay gặp: chặn Region không dùng bằng aws:RequestedRegion, cấm tắt CloudTrail, Config, GuardDuty, cấm rời Organization.', do: ['note s 90 450 300 "<code>aws:RequestedRegion</code> · cấm <code>StopLogging</code> · cấm <code>LeaveOrganization</code>" c=go'] },
         { say: 'Bẫy: SCP không áp cho management account, và không áp cho service-linked role.', do: ['badge mg "không bị SCP" c=bad', 'hl mg'] },
         { say: 'SCP ở OU cha và OU con đều phải cho phép thì hành động mới được làm.', do: ['tip "SCP <b>không cấp quyền</b>, không áp cho <b>management account</b>. Cha và con <b>đều phải</b> cho phép."'] },
       ],
@@ -89,7 +89,7 @@ export default {
         { say: 'ACM cấp chứng chỉ TLS public miễn phí cho load balancer, CloudFront, API Gateway.', do: ['show acm,alb', 'edge acm alb', 'flow acm alb'] },
         { say: 'Chọn DNS validation thì ACM tự gia hạn, miễn là bản ghi CNAME xác thực vẫn còn. Email validation phải bấm duyệt tay.', do: ['show dns', 'edge dns acm "tự gia hạn" c=ok route=v'] },
         { say: 'Chứng chỉ tự nhập vào ACM không tự gia hạn. ACM gửi sự kiện cảnh báo trước khi hết hạn.', do: ['note c 380 470 380 "Cert <b>imported</b>: không tự gia hạn, theo dõi <code>DaysToExpiry</code>" c=bad'] },
-        { say: 'Secrets Manager lưu và tự xoay vòng mật khẩu database. Parameter Store SecureString rẻ hơn nhưng không tự xoay vòng.', do: ['show sm,rds', 'edge sm rds "rotate" c=go', 'flow sm rds', 'tip 640 520 560 "Tự xoay vòng mật khẩu → <b>Secrets Manager</b>. Chỉ lưu, rẻ → <b>Parameter Store</b>."'] },
+        { say: 'Secrets Manager lưu và tự xoay vòng mật khẩu database. Parameter Store SecureString rẻ hơn nhưng không tự xoay vòng.', do: ['show sm,rds', 'edge sm rds "rotate" c=go', 'flow sm rds', 'tip "Tự xoay vòng mật khẩu → <b>Secrets Manager</b>. Chỉ lưu, rẻ → <b>Parameter Store</b>."'] },
       ],
     },
   ],

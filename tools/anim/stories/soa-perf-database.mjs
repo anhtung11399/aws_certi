@@ -4,18 +4,18 @@ export default {
     {
       title: 'Giám sát RDS: bốn tầng',
       nodes: {
-        rds: [170, 335, 'rds', 'RDS'],
-        cw: [560, 170, 'cloudwatch', 'CloudWatch metrics', 'CPU, kết nối, IOPS, latency'],
-        em: [560, 280, 'logs', 'Enhanced Monitoring', 'OS, từng process, tới 1 giây'],
-        pi: [560, 390, 'rds', 'Performance Insights', 'DB load theo câu SQL, wait'],
-        lg: [560, 500, 'logs', 'Log exports', 'error, slow query'],
+        rds: [640, 330, 'rds', 'RDS'],
+        cw: [300, 190, 'cloudwatch', 'CloudWatch metrics', 'CPU, kết nối, IOPS, latency'],
+        em: [980, 190, 'logs', 'Enhanced Monitoring', 'OS, từng process, tới 1 giây'],
+        pi: [300, 470, 'rds', 'Performance Insights', 'DB load theo câu SQL, wait'],
+        lg: [980, 470, 'logs', 'Log exports', 'error, slow query'],
       },
       steps: [
         { say: 'Có bốn tầng để nhìn vào một database RDS.', do: ['show rds'] },
-        { say: 'Tầng một, CloudWatch metrics: CPU, số kết nối, bộ nhớ trống, IOPS, độ trễ. Một phút một lần, miễn phí.', do: ['show cw', 'edge rds cw route=hvh', 'flow rds cw'] },
-        { say: 'Tầng hai, Enhanced Monitoring: số liệu của hệ điều hành bên dưới, tới từng process, mỗi giây một lần.', do: ['show em', 'edge rds em route=hvh', 'flow rds em'] },
-        { say: 'Tầng ba, Performance Insights: tải database chia theo câu SQL và theo loại chờ. Đây là công cụ để tìm câu truy vấn gây chậm.', do: ['show pi', 'edge rds pi route=hvh', 'flow rds pi', 'hl pi @1.2'] },
-        { say: 'Tầng bốn, log exports: đẩy error log và slow query log sang CloudWatch Logs. Slow query log phải bật trong parameter group.', do: ['show lg', 'edge rds lg route=hvh', 'tip 830 200 400 "Câu SQL nào làm chậm? → <b>Performance Insights</b>. RAM của từng process → <b>Enhanced Monitoring</b>."'] },
+        { say: 'Tầng một, CloudWatch metrics: CPU, số kết nối, bộ nhớ trống, IOPS, độ trễ. Một phút một lần, miễn phí.', do: ['show cw', 'edge rds cw route=hv', 'flow rds cw'] },
+        { say: 'Tầng hai, Enhanced Monitoring: số liệu của hệ điều hành bên dưới, tới từng process, mỗi giây một lần.', do: ['show em', 'edge rds em route=hv', 'flow rds em'] },
+        { say: 'Tầng ba, Performance Insights: tải database chia theo câu SQL và theo loại chờ. Đây là công cụ để tìm câu truy vấn gây chậm.', do: ['show pi', 'edge rds pi route=hv', 'flow rds pi', 'hl pi @1.2'] },
+        { say: 'Tầng bốn, log exports: đẩy error log và slow query log sang CloudWatch Logs. Slow query log phải bật trong parameter group.', do: ['show lg', 'edge rds lg route=hv', 'tip "Câu SQL nào làm chậm? → <b>Performance Insights</b>. RAM của từng process → <b>Enhanced Monitoring</b>."'] },
       ],
     },
     {

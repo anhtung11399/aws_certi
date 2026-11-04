@@ -32,16 +32,16 @@ export default {
     {
       title: 'Quyền gọi target',
       nodes: {
-        rule: [200, 330, 'eventbridge', 'Rule'],
-        fn: [620, 200, 'lambda', 'Lambda / SNS / SQS', 'resource policy'],
-        sf: [620, 460, 'stepfunctions', 'Step Functions / Kinesis / SSM', 'IAM role của rule'],
-        dlq: [1000, 330, 'sqs', 'DLQ', 'event gửi không được'],
+        rule: [150, 260, 'eventbridge', 'Rule'],
+        fn: [620, 260, 'lambda', 'Lambda / SNS / SQS', 'resource policy'],
+        sf: [620, 450, 'stepfunctions', 'Step Functions / Kinesis / SSM', 'IAM role của rule'],
+        dlq: [1040, 450, 'sqs', 'DLQ', 'event gửi không được'],
       },
       steps: [
         { say: 'EventBridge cần quyền để gọi target. Với Lambda, SNS, SQS, quyền nằm ở resource policy của target, cho phép events.amazonaws.com.', do: ['show rule,fn', 'edge rule fn "resource policy" c=ok', 'flow rule fn'] },
-        { say: 'Với Step Functions, Kinesis, ECS, SSM, hay bus ở account khác, rule cần một IAM role.', do: ['show sf', 'edge rule sf "IAM role" c=go', 'flow rule sf'] },
-        { say: 'Mặc định EventBridge thử lại suốt 24 giờ. Gắn DLQ để giữ lại sự kiện không gửi được.', do: ['show dlq', 'edge sf dlq "lỗi" c=bad route=hvh', 'flow sf dlq c=bad'] },
-        { say: 'Input transformer cắt lấy vài trường của sự kiện và ghép thành câu thông báo dễ đọc.', do: ['note it 160 160 420 "<b>Input transformer</b>: “Máy &lt;id&gt; vừa chuyển sang &lt;state&gt;”" c=go'] },
+        { say: 'Với Step Functions, Kinesis, ECS, SSM, hay bus ở account khác, rule cần một IAM role.', do: ['show sf', 'edge rule sf "IAM role" c=go route=vh', 'flow rule sf'] },
+        { say: 'Mặc định EventBridge thử lại suốt 24 giờ. Gắn DLQ để giữ lại sự kiện không gửi được.', do: ['show dlq', 'edge sf dlq "lỗi" c=bad', 'flow sf dlq c=bad'] },
+        { say: 'Input transformer cắt lấy vài trường của sự kiện và ghép thành câu thông báo dễ đọc.', do: ['note it 790 150 400 "<b>Input transformer</b>: “Máy &lt;id&gt; vừa chuyển sang &lt;state&gt;”" c=go'] },
       ],
     },
     {

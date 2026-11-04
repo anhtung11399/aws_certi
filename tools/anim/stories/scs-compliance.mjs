@@ -29,8 +29,8 @@ export default {
       },
       steps: [
         { say: 'Firewall Manager áp chính sách bảo mật mạng cho cả tổ chức từ một nơi.', do: ['show fm,org'] },
-        { say: 'Gắn web ACL chung cho mọi ALB và CloudFront trong phạm vi.', do: ['show a1,a2', 'edge fm a1 route=hvh', 'edge fm a2 route=hvh', 'flow fm a1', 'flow fm a2 @1.2'] },
-        { say: 'Kiểm tra security group có rule quá rộng, tự tạo Network Firewall trong VPC, gắn DNS Firewall.', do: ['show a3,a4', 'edge fm a3 route=hvh', 'edge fm a4 route=hvh'] },
+        { say: 'Gắn web ACL chung cho mọi ALB và CloudFront trong phạm vi.', do: ['show a1,a2', 'edge fm a1 route=hvh mid=420', 'edge a1 a2', 'flow fm a1', 'flow a1 a2 @1.2'] },
+        { say: 'Kiểm tra security group có rule quá rộng, tự tạo Network Firewall trong VPC, gắn DNS Firewall.', do: ['show a3,a4', 'edge fm a3 route=hvh mid=420', 'edge a3 a4'] },
         { say: 'Tài nguyên mới tạo cũng tự được áp chính sách.', do: ['show a5', 'ok a5 @0.4'] },
         { say: 'Điều kiện: có Organizations, có delegated admin, và AWS Config bật ở các account trong phạm vi.', do: ['tip "Áp WAF / SG / Network Firewall cho mọi account, kể cả tài nguyên mới → <b>Firewall Manager</b>. Cần <b>Organizations + Config</b>."'] },
       ],

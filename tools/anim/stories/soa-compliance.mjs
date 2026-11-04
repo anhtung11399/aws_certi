@@ -13,7 +13,7 @@ export default {
       steps: [
         { say: 'Ai đó mở cổng 22 ra toàn Internet. Config recorder ghi lại cấu hình mới của security group.', do: ['show sg,rec', 'edge sg rec "thay đổi"', 'flow sg rec'] },
         { say: 'Rule restricted-ssh đánh giá và kết luận NON_COMPLIANT.', do: ['show rule', 'edge rec rule', 'flow rec rule', 'badge rule "NON_COMPLIANT" c=bad @1.0'] },
-        { say: 'Gắn remediation là một SSM Automation document. Config tự gỡ quy tắc mở cổng 22.', do: ['show rem', 'edge rule rem c=go', 'flow rule rem', 'edge rem sg "đóng cổng 22" c=ok pts=[[980,172],[980,135],[140,135],[140,290]]', 'flow rem sg c=ok @1.0', 'ok sg @2.2'] },
+        { say: 'Gắn remediation là một SSM Automation document. Config tự gỡ quy tắc mở cổng 22.', do: ['show rem', 'edge rule rem c=go', 'flow rule rem', 'edge rem sg "đóng cổng 22" c=ok pts=[[980,172],[980,142],[140,142],[140,290]]', 'flow rem sg c=ok @1.0', 'ok sg @2.2'] },
         { say: 'Song song, sự kiện thay đổi trạng thái compliance đi qua EventBridge để gửi thông báo.', do: ['show sns', 'edge rule sns c=bad', 'flow rule sns'] },
         { say: 'Config là công cụ phát hiện, tức là sau khi đã xảy ra. Muốn chặn từ trước thì dùng SCP, IAM, hoặc CloudFormation Hooks.', do: ['tip "Config = <b>detective</b> (sau khi xảy ra). Chặn trước = <b>preventive</b>: SCP, IAM, CloudFormation Hooks."'] },
       ],

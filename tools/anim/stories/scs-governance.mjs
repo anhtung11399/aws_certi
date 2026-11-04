@@ -11,7 +11,7 @@ export default {
       nodes: {
         mg: [170, 360, 'organizations', 'Management', 'chỉ quản lý, billing'],
         log: [440, 290, 's3', 'Log Archive'],
-        aud: [440, 450, 'guardduty', 'Audit / Security Tooling', 'delegated admin'],
+        aud: [440, 425, 'guardduty', 'Audit / Security Tooling', 'delegated admin'],
         dev: [780, 360, 'cfn', 'Dev'],
         prd: [1020, 360, 'cfn', 'Prod'],
       },

@@ -50,13 +50,13 @@ export default {
       nodes: {
         cfn: [180, 330, 'cfn', 'CloudFormation', 'CreationPolicy: chờ 1 tín hiệu'],
         ec2: [620, 330, 'ec2', 'EC2', 'user data'],
-        ok: [1040, 210, 'cfn', 'CREATE_COMPLETE'],
-        bad: [1040, 450, 'cfn', 'Timeout → rollback'],
+        ok: [1060, 330, 'cfn', 'CREATE_COMPLETE'],
+        bad: [1060, 500, 'cfn', 'Timeout → rollback'],
       },
       steps: [
         { say: 'Máy EC2 cần cài phần mềm xong mới coi là tạo thành công. User data gọi cfn-init đọc phần metadata để cài gói, tạo file, bật dịch vụ.', do: ['show cfn,ec2', 'edge cfn ec2 "tạo máy"', 'flow cfn ec2'] },
         { say: 'Cài xong, máy gọi cfn-signal báo về. CreationPolicy chờ đủ tín hiệu mới đánh dấu thành công.', do: ['show ok', 'edge ec2 ok "cfn-signal" c=ok', 'flow ec2 ok c=ok', 'ok ok @1.4'] },
-        { say: 'Không nhận được tín hiệu trong thời gian chờ thì tạo thất bại và rollback. Thường do máy không ra được Internet để gọi về, hoặc script lỗi.', do: ['show bad', 'edge ec2 bad "không có tín hiệu" c=bad', 'bad bad @1.0'] },
+        { say: 'Không nhận được tín hiệu trong thời gian chờ thì tạo thất bại và rollback. Thường do máy không ra được Internet để gọi về, hoặc script lỗi.', do: ['show bad', 'edge ec2 bad "không có tín hiệu" c=bad route=vh', 'bad bad @1.0'] },
         { say: 'cfn-hup chạy nền, áp lại cấu hình khi metadata thay đổi lúc cập nhật stack.', do: ['tip "<b>cfn-init</b> cài đặt · <b>cfn-signal</b> báo xong · <b>cfn-hup</b> áp lại khi update. Wait condition timeout → máy không gọi ra được / script lỗi."'] },
       ],
     },
@@ -86,7 +86,7 @@ export default {
       steps: [
         { say: 'StackSets triển khai cùng một template tới nhiều account và nhiều Region từ một chỗ.', do: ['show adm,org,a1,a2,a3,a4', 'edge adm a1', 'edge adm a3', 'flow adm a1', 'flow adm a3 @1.2'] },
         { say: 'Dùng với Organizations ở chế độ service-managed: không cần tự tạo role. Bật automatic deployment thì account mới vào OU tự được triển khai.', do: ['show a5', 'badge a5 "auto deploy" c=ok', 'hl a5'] },
-        { say: 'Chế độ self-managed cần hai role: AWSCloudFormationStackSetAdministrationRole ở account quản trị, và ExecutionRole ở mỗi account đích.', do: ['note r 90 160 270 "Self-managed: <b>AdministrationRole</b> + <b>ExecutionRole</b>" c=go'] },
+        { say: 'Chế độ self-managed cần hai role: AWSCloudFormationStackSetAdministrationRole ở account quản trị, và ExecutionRole ở mỗi account đích.', do: ['note r 50 470 300 "Self-managed: <b>AdministrationRole</b> + <b>ExecutionRole</b>" c=go'] },
         { say: 'Điều chỉnh tốc độ bằng maximum concurrent accounts và failure tolerance.', do: ['tip "Triển khai cùng cấu hình cho mọi account trong OU, kể cả account mới → <b>StackSets service-managed + automatic deployment</b>."'] },
       ],
     },
