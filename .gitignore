@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 .wrangler/
 tools/.tmp/
+tools/.venv/
+tools/.tts-cache/
